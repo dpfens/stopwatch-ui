@@ -16,8 +16,8 @@ export const registry = new SerializableRegistry<Objective>();
 @registry.register('time-minimization')
 export class TimeMinimizationObjective implements Objective {
     type: ObjectiveType = 'time-minimization';
-    title: string = 'Time Minimization';
-    description: string = 'Minimize the total time taken to complete the race.';
+    title = 'Time Minimization';
+    description = 'Minimize the total time taken to complete the race.';
 
     evaluate(stopwatch: StopwatchCore): number {
         const totalTime = stopwatch.sequence.reduce((acc, event) => {
@@ -39,12 +39,12 @@ export class TimeMinimizationObjective implements Objective {
         };
     }
 
-    deserialize(configuration?: Record<string, any>): Objective {
+    deserialize(configuration?: Record<string, unknown>): Objective {
         return TimeMinimizationObjective.fromConfig(configuration);
     }
 
 
-    static fromConfig(configuration?: Record<string, any>): TimeMinimizationObjective {
+    static fromConfig(configuration?: Record<string, unknown>): TimeMinimizationObjective {
         return new TimeMinimizationObjective();
     }
 }
@@ -52,8 +52,8 @@ export class TimeMinimizationObjective implements Objective {
 @registry.register('unit-accumulation')
 export class UnitAccumulationObjective implements Objective {
     type: ObjectiveType = 'unit-accumulation';
-    title: string = 'Unit Accumulation';
-    description: string = 'Maximize the total units (e.g., distance) covered in a fixed time.';
+    title = 'Unit Accumulation';
+    description = 'Maximize the total units (e.g., distance) covered in a fixed time.';
 
     evaluate(stopwatch: StopwatchCore): number {
         const totalUnits = stopwatch.sequence.reduce((acc, event) => {
@@ -75,12 +75,12 @@ export class UnitAccumulationObjective implements Objective {
         };
     }
 
-    deserialize(configuration?: Record<string, any>): Objective {
+    deserialize(configuration?: Record<string, unknown>): Objective {
         // No special configuration to apply
         return UnitAccumulationObjective.fromConfig(configuration);
     }
 
-    static fromConfig(configuration?: Record<string, any>): TimeMinimizationObjective {
+    static fromConfig(configuration?: Record<string, unknown>): TimeMinimizationObjective {
         return new UnitAccumulationObjective();
     }
 }
@@ -89,15 +89,15 @@ export class UnitAccumulationObjective implements Objective {
 @registry.register('synchronicity')
 export class SynchronicityObjective implements Objective {
     type: ObjectiveType = 'synchronicity';
-    title: string = 'Synchronicity';
-    description: string = 'Measure how well events align with target intervals.';
+    title = 'Synchronicity';
+    description = 'Measure how well events align with target intervals.';
     
     // Configuration properties
-    targetInterval: number = 60; // 60 seconds by default
-    tolerance: number = 5; // 5% tolerance by default
+    targetInterval = 60; // 60 seconds by default
+    tolerance = 5; // 5% tolerance by default
     
     // Static factory method for deserialization
-    static fromConfig(configuration?: Record<string, any>): SynchronicityObjective {
+    static fromConfig(configuration?: Record<string, unknown>): SynchronicityObjective {
         const objective = new SynchronicityObjective();
         
         if (configuration) {
@@ -157,7 +157,7 @@ export class SynchronicityObjective implements Objective {
     }
     
     // Instance method required by interface, but delegates to static method
-    deserialize(configuration?: Record<string, any>): Objective {
+    deserialize(configuration?: Record<string, unknown>): Objective {
         return SynchronicityObjective.fromConfig(configuration);
     }
 }

@@ -137,7 +137,7 @@ interface UnitComponent {
  * @readonly All properties and the components array are readonly to ensure immutability
  */
 interface ComposedUnit {
-  readonly components: ReadonlyArray<UnitComponent>;
+  readonly components: readonly UnitComponent[];
   readonly symbol: string;
 }
 
@@ -588,12 +588,12 @@ export class UnitConverter {
   * @see {@link BaseUnit} for the available base units
   * @see {@link UnitDefinition} for the complete unit definition structure
   */
-  public static listUnits(dimension?: Dimension): Array<{
+  public static listUnits(dimension?: Dimension): {
     symbol: string;
     dimension: Dimension;
     base: BaseUnit;
     multiplier: number;
-  }> {
+  }[] {
     const units = Array.from(UnitConverter.unitSystem.entries())
       .map(([symbol, def]) => ({
         symbol,
@@ -728,10 +728,10 @@ export class UnitConverter {
     return converter.format(options);
   }
   
-  public static listCompatibleUnits(unit: string): Array<{
+  public static listCompatibleUnits(unit: string): {
     symbol: string;
     multiplier: number;
-  }> {
+  }[] {
     const dimension = UnitConverter.getDimension(unit);
     return Array.from(UnitConverter.unitSystem.entries())
       .filter(([_, def]) => def.dimension === dimension)

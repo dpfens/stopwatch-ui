@@ -61,7 +61,7 @@
  *     };
  *   }
  *   
- *   deserialize(config?: Record<string, any>): Shape {
+ *   deserialize(config?: Record<string, unknown>): Shape {
  *     if (config && config.radius !== undefined) {
  *       this.radius = config.radius;
  *     }
@@ -95,7 +95,7 @@ export interface SerializedForm<T> {
     /** Identifier for the concrete type */
     type: string;
     /** Configuration data needed to reconstruct the instance */
-    configuration?: Record<string, any>;
+    configuration?: Record<string, unknown>;
   }
   
   /**
@@ -121,7 +121,7 @@ export interface SerializedForm<T> {
      * @param configuration - The configuration data to apply
      * @returns The instance with configuration applied
      */
-    deserialize(configuration?: Record<string, any>): T;
+    deserialize(configuration?: Record<string, unknown>): T;
   }
 
 

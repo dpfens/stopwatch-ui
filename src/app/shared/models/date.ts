@@ -11,7 +11,6 @@ export interface DurationFormatOptions {
   minutes?: number;
   seconds?: number;
   milliseconds?: number;
-  [key: string]: any; // For any future properties
 }
 
 

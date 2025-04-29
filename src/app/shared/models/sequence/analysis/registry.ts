@@ -1,10 +1,10 @@
-import { ComputedEvent, StopwatchCore, StopwatchInstance } from "../interfaces";
+import { ComputedEvent, StopwatchInstance } from "../interfaces";
 import { AnalysisComponent } from "./component";
 
-export class AnalysisRegistry<EventType> {
-    private components: Map<string, AnalysisComponent<EventType>> = new Map();
+export class AnalysisRegistry {
+    private components = new Map<string, AnalysisComponent>();
 
-    set(name: string, component: AnalysisComponent<EventType>): void {
+    set(name: string, component: AnalysisComponent): void {
         this.components.set(name, component);
     }
 
@@ -22,13 +22,11 @@ export class AnalysisRegistry<EventType> {
 
     analyze(stopwatch: StopwatchInstance): ComputedEvent[] {
         const events: ComputedEvent[] = [];
-        this.components.forEach(function(component: AnalysisComponent<EventType>, name: string): void {
+        this.components.forEach(function(component: AnalysisComponent, name: string): void {
             if (component.isApplicable(stopwatch)) {
                 console.debug(`Component ${name} is applicable to this stopwatch`);
                 const componentEvents = component.analyze(stopwatch.core);
-                for (let i = 0; i < componentEvents.length; i++) {
-                    events.push(componentEvents[i]);
-                }
+                events.push(...componentEvents);
             } else {
                 console.debug(`Component ${name} is not applicable to this stopwatch`);
             }

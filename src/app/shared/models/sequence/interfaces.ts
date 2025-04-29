@@ -16,13 +16,13 @@ interface BaseMetadata {
 }
 
 
-interface CloneMetadata extends BaseCreationModificationDates {
+interface CloneMetadata {
     source: string;
 }
 
 
 export interface StopWatchCreationModificationDates extends BaseCreationModificationDates {
-    clone?: CloneMetadata
+    clone?: CloneMetadata;
 }
 
 
@@ -84,10 +84,10 @@ export interface TimeStampRange {
     upperBound: TZDate;
 }
 
-interface BaseEvent<Type> extends UniquelyIdentifiable {
+export interface BaseEvent<T extends StopWatchEventType | ComputedEventType> extends UniquelyIdentifiable {
     annotation: Annotatable;
     metadata: BaseMetadata;
-    type: Type;
+    type: T;
     unit?: UnitValue;
 }
 
@@ -124,6 +124,25 @@ export interface StopwatchInstance extends BaseStopwatchInstance {
 export interface PersistentStopWatchInstance extends BaseStopwatchInstance {
     objective?: {
         type: ObjectiveType;
-        configuration?: Record<any, any>
+        configuration?: Record<string, unknown>
     };
+}
+
+
+/**
+ * Interface for serialized group data
+ */
+export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
+}
+
+export interface StopwatchGroup extends BaseStopwatchGroup {
+    members: BaseStopwatchInstance[];
+}
+
+/**
+ * Interface for group membership records
+ */
+export interface StopwatchGroupMembership extends UniquelyIdentifiable {
+    stopwatchId: string;
+    groupId: string;
   }
