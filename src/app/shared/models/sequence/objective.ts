@@ -1,12 +1,12 @@
-import { ObjectiveType, StopwatchCore } from "./interfaces";
+import { ObjectiveType, StopwatchState } from "./interfaces";
 import { SerializableRegistry, SerializableType, SerializedForm } from "../../../utilities/serialization";
 
 export interface Objective extends SerializableType<Objective> {
     type: ObjectiveType;
     title: string;
     description: string;
-    evaluate(stopwatch: StopwatchCore): number;
-    compare(a: StopwatchCore, b: StopwatchCore): number;
+    evaluate(stopwatch: StopwatchState): number;
+    compare(a: StopwatchState, b: StopwatchState): number;
 }
 
 
@@ -19,7 +19,7 @@ export class TimeMinimizationObjective implements Objective {
     title = 'Time Minimization';
     description = 'Minimize the total time taken to complete the race.';
 
-    evaluate(stopwatch: StopwatchCore): number {
+    evaluate(stopwatch: StopwatchState): number {
         const totalTime = stopwatch.sequence.reduce((acc, event) => {
             if (event.type !== 'start') {
                 return acc + (event.unit?.value || 0);
@@ -29,7 +29,7 @@ export class TimeMinimizationObjective implements Objective {
         return -totalTime; // Negative because lower time is better
     }
 
-    compare(a: StopwatchCore, b: StopwatchCore): number {
+    compare(a: StopwatchState, b: StopwatchState): number {
         return this.evaluate(a) - this.evaluate(b);
     }
 
@@ -55,7 +55,7 @@ export class UnitAccumulationObjective implements Objective {
     title = 'Unit Accumulation';
     description = 'Maximize the total units (e.g., distance) covered in a fixed time.';
 
-    evaluate(stopwatch: StopwatchCore): number {
+    evaluate(stopwatch: StopwatchState): number {
         const totalUnits = stopwatch.sequence.reduce((acc, event) => {
             if (event.type === 'split' || event.type === 'stop') {
                 return acc + (event.unit?.value || 0);
@@ -65,7 +65,7 @@ export class UnitAccumulationObjective implements Objective {
         return totalUnits; // Higher units are better
     }
 
-    compare(a: StopwatchCore, b: StopwatchCore): number {
+    compare(a: StopwatchState, b: StopwatchState): number {
         return this.evaluate(a) - this.evaluate(b); // Higher is better
     }
 
@@ -112,7 +112,7 @@ export class SynchronicityObjective implements Objective {
         return objective;
     }
     
-    evaluate(stopwatch: StopwatchCore): number {
+    evaluate(stopwatch: StopwatchState): number {
         if (stopwatch.sequence.length < 2) return 0;
         
         let totalDeviation = 0;
@@ -142,7 +142,7 @@ export class SynchronicityObjective implements Objective {
         return Math.max(0, 1 - avgDeviation);
     }
     
-    compare(a: StopwatchCore, b: StopwatchCore): number {
+    compare(a: StopwatchState, b: StopwatchState): number {
         return this.evaluate(a) - this.evaluate(b);
     }
     

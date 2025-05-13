@@ -17,6 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "externalDependencies":[""],
             "outputPath": "dist/tmp",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -29,9 +30,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "/public/fonts",
+                "output": "/assets/fonts"
               }
             ],
             "styles": [
+              "public/css/bootstrap.css",
+              "public/fonts/black-tie/css/black-tie.css",
               "src/styles.scss"
             ],
             "scripts": [],

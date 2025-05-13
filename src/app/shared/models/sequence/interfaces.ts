@@ -1,6 +1,6 @@
 import { TZDate } from "../date";
 
-interface ActionTracking {
+export interface ActionTracking {
     readonly timestamp: TZDate;
 }
 
@@ -65,13 +65,13 @@ export interface Objective {
      * Evaluate a sequence of events are returns a score
      * Higher scores indicate better performance
      */
-    evaluate(stopwatch: StopwatchCore): number;
+    evaluate(stopwatch: StopwatchState): number;
 
     /**
      * Compares two sequences of events and returns
      * positive if a is better, negative if b is better, 0 if equal
      */
-    compare(a: StopwatchCore, b: StopwatchCore): number;
+    compare(a: StopwatchState, b: StopwatchState): number;
 }
 
 export interface UnitValue {
@@ -106,22 +106,22 @@ export interface ComputedEvent extends BaseEvent<ComputedEventType> {
     timestamp: TZDate | TimeStampRange;
 }
 
-export interface StopwatchCore {
+export interface StopwatchState {
     sequence: StopwatchEvent[];
 }
 
-export interface BaseStopwatchInstance extends UniquelyIdentifiable {
+export interface StopwatchEntity extends UniquelyIdentifiable {
     id: string;
     annotation: Annotatable;
-    core: StopwatchCore;
+    state: StopwatchState;
     metadata: StopWatchCreationModificationDates;
 }
 
-export interface StopwatchInstance extends BaseStopwatchInstance {
+export interface ContextualStopwatchEntity extends StopwatchEntity {
     objective?: Objective;
 }
 
-export interface PersistentStopWatchInstance extends BaseStopwatchInstance {
+export interface SerializedStopwatchEntity extends StopwatchEntity {
     objective?: {
         type: ObjectiveType;
         configuration?: Record<string, unknown>
@@ -136,7 +136,7 @@ export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
 }
 
 export interface StopwatchGroup extends BaseStopwatchGroup {
-    members: BaseStopwatchInstance[];
+    members: StopwatchEntity[];
 }
 
 /**
@@ -145,4 +145,47 @@ export interface StopwatchGroup extends BaseStopwatchGroup {
 export interface StopwatchGroupMembership extends UniquelyIdentifiable {
     stopwatchId: string;
     groupId: string;
-  }
+}
+
+
+/**
+ * Interface definition for the stopwatch controller
+ */
+export interface IStopwatchStateController {
+    // Core functionality
+    start(timestamp: Date): void;
+    stop(timestamp: Date): void;
+    reset(timestamp: Date): void;
+    resume(timestamp: Date): void;
+    
+    // Event management
+    addEvent(type: StopWatchEventType, title: string, timestamp: Date, description?: string, unit?: UnitValue): void;
+    
+    // Time measurement
+    getTotalDuration(): number;         // Get total wall clock duration since first start in milliseconds
+    getElapsedTime(): number;           // Get elapsed active time since start (excluding stops)
+    
+    // Event retrieval
+    getEvents(type?: StopWatchEventType): StopwatchEvent[];
+    
+    // Event analysis
+    getDurationBetweenEvents(eventId1: string | number, eventId2: string | number): number;                         // Wall clock time between events
+    getElapsedTimeBetweenEvents(startEventId: string | number | null, endEventId: string | number | null): number;  // Active time between events
+    getLastEvent(type?: StopWatchEventType): StopwatchEvent | undefined;
+    
+    // State information
+    isRunning(): boolean;
+    isActive(): boolean;
+}
+
+export interface IContextualStopwatchController {
+    // Metadata and annotations
+    getMetadata(): StopWatchCreationModificationDates;
+    getAnnotation(): Annotatable;
+    updateAnnotation(title: string, description: string): void;
+    
+    // Objective handling
+    setObjective(objective: Objective): void;
+    getObjective(): Objective | undefined;
+    evaluatePerformance(): number | undefined;
+}
