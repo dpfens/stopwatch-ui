@@ -2,13 +2,9 @@ import { TZDate } from "../../shared/models/date";
 import { 
   Annotatable, 
   Objective, 
-  StopwatchEvent, 
-  StopWatchEventType, 
-  UnitValue, 
   StopWatchCreationModificationDates,
   StopwatchState,
   ActionTracking,
-  IStopwatchStateController,
   IContextualStopwatchController,
 } from "../../shared/models/sequence/interfaces";
 
@@ -16,7 +12,7 @@ import {
  * Implementation of the StopwatchInterface that manages stopwatch state
  * and provides operations for controlling and analyzing stopwatch events.
  */
-export class StopwatchStateController implements IContextualStopwatchController {
+export class ContextualStopwatchController implements IContextualStopwatchController {
   private state: StopwatchState = { sequence: [] };
   private objective?: Objective;
   private annotation: Annotatable;

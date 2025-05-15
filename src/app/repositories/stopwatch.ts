@@ -1,4 +1,4 @@
-import { StopwatchInstance, PersistentStopWatchInstance, Objective, StopwatchGroupMembership } from "../shared/models/sequence/interfaces";
+import { StopwatchEntity, SerializedStopwatchEntity, Objective, StopwatchGroupMembership, UniqueIdentifier } from "../shared/models/sequence/interfaces";
 import { TZDate } from "../shared/models/date";
 import { SerializableRegistry, SerializableType } from "../utilities/serialization";
 import { registry } from "../shared/models/sequence/objective";
@@ -19,7 +19,7 @@ export class StopwatchRepository extends BaseRepository {
   private static readonly STOPWATCH_STORE = "stopwatches";
   private static readonly GROUP_MEMBERSHIP_STORE = "groupMemberships";
 
-  private adapter: IndexedDBStorageAdapter<PersistentStopWatchInstance>;
+  private adapter: IndexedDBStorageAdapter<SerializedStopwatchEntity>;
   private membershipAdapter: IndexedDBStorageAdapter<StopwatchGroupMembership>;
   private database: StopwatchDatabase;
 
@@ -29,7 +29,7 @@ export class StopwatchRepository extends BaseRepository {
   constructor() {
     super();
     this.database = new StopwatchDatabase(StopwatchRepository.DB_NAME, StopwatchRepository.DB_VERSION);
-    this.adapter = new IndexedDBStorageAdapter<PersistentStopWatchInstance>(this.database);
+    this.adapter = new IndexedDBStorageAdapter<SerializedStopwatchEntity>(this.database);
     this.membershipAdapter = new IndexedDBStorageAdapter<StopwatchGroupMembership>(this.database);
   }
 
@@ -37,7 +37,7 @@ export class StopwatchRepository extends BaseRepository {
    * Fetches all stopwatches from the database
    * @returns A promise that resolves to an array of stopwatch instances
    */
-  async getAll(): Promise<StopwatchInstance[]> {
+  async getAll(): Promise<StopwatchEntity[]> {
     const repo = this.adapter.getRepository();
     const persistentInstances = await repo.getAll(StopwatchRepository.STOPWATCH_STORE);
     return persistentInstances.map(instance => StopwatchRepository.fromPersistentInstance(instance));
@@ -48,7 +48,7 @@ export class StopwatchRepository extends BaseRepository {
    * @param id - The ID of the stopwatch to fetch
    * @returns A promise that resolves to the stopwatch instance, or null if not found
    */
-  async get(id: string): Promise<StopwatchInstance | null> {
+  async get(id: UniqueIdentifier): Promise<StopwatchEntity | null> {
     const repo = this.adapter.getRepository();
     const persistentInstance = await repo.getById(StopwatchRepository.STOPWATCH_STORE, id);
     
@@ -64,7 +64,7 @@ export class StopwatchRepository extends BaseRepository {
    * @param groupId - The ID of the group
    * @returns A promise that resolves to an array of stopwatch instances
    */
-  async byGroup(groupId: string): Promise<StopwatchInstance[]> {
+  async byGroup(groupId: UniqueIdentifier): Promise<StopwatchEntity[]> {
     const membershipRepo = this.membershipAdapter.getIndexRepository();
     const stopwatchRepo = this.adapter.getRepository();
     
@@ -94,7 +94,7 @@ export class StopwatchRepository extends BaseRepository {
    * @param stopwatch - The stopwatch to save
    * @returns A promise that resolves to the ID of the saved stopwatch
    */
-  async save(stopwatch: StopwatchInstance): Promise<string> {
+  async save(stopwatch: StopwatchEntity): Promise<string> {
     const repo = this.adapter.getRepository();
     const serialized = StopwatchRepository.toPersistentInstance(stopwatch);
     
@@ -115,7 +115,7 @@ export class StopwatchRepository extends BaseRepository {
    * @param id - The ID of the stopwatch to delete
    * @returns A promise that resolves when the operation is complete
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: UniqueIdentifier): Promise<void> {
     const stopwatchRepo = this.adapter.getRepository();
     const membershipRepo = this.membershipAdapter.getIndexRepository();
     
@@ -139,18 +139,18 @@ export class StopwatchRepository extends BaseRepository {
   }
 
   /**
-   * Converts a StopwatchInstance to a persistable PersistentStopWatchInstance format
+   * Converts a ContextualStopwatchEntity to a persistable SerializedStopwatchEntity format
    * using the SerializableRegistry<Objective> for objective serialization
    */
-  public static toPersistentInstance(instance: StopwatchInstance): PersistentStopWatchInstance {
+  public static toPersistentInstance(instance: StopwatchEntity): SerializedStopwatchEntity {
     // Create base persistent instance
-    const persistent: PersistentStopWatchInstance = {
+    const persistent: SerializedStopwatchEntity = {
       id: instance.id,
       annotation: instance.annotation,
-      core: {
-        ...instance.core,
+      state: {
+        ...instance.state,
         // Ensure the sequence events have the right format
-        sequence: instance.core.sequence.map((event: StopwatchEvent )=> ({
+        sequence: instance.state.sequence.map((event: StopwatchEvent )=> ({
           ...event,
           // Ensure the timestamp is serialized properly
           timestamp: event.timestamp instanceof TZDate ? 
@@ -176,18 +176,18 @@ export class StopwatchRepository extends BaseRepository {
   }
 
   /**
-   * Restores a StopwatchInstance from a PersistentStopWatchInstance format
+   * Restores a ContextualStopwatchEntity from a SerializedStopwatchEntity format
    * using the SerializableRegistry for objective deserialization
    */
-  public static fromPersistentInstance(persistent: PersistentStopWatchInstance): StopwatchInstance {
+  public static fromPersistentInstance(persistent: SerializedStopwatchEntity): StopwatchEntity {
     // Create base instance
-    const instance: StopwatchInstance = {
+    const instance: StopwatchEntity = {
       id: persistent.id,
       annotation: persistent.annotation,
-      core: {
-        ...persistent.core,
+      state: {
+        ...persistent.state,
         // Convert serialized timestamps back to TZDate objects
-        sequence: persistent.core.sequence.map((event: StopwatchEvent) => ({
+        sequence: persistent.state.sequence.map((event: StopwatchEvent) => ({
           ...event,
           // Convert serialized TimeZonedDate to TZDate instance
           timestamp: event.timestamp instanceof TZDate ? 

@@ -26,8 +26,11 @@ export interface StopWatchCreationModificationDates extends BaseCreationModifica
 }
 
 
+export type UniqueIdentifier = string | number;
+
+
 export interface UniquelyIdentifiable {
-    id: string | number;
+    id: UniqueIdentifier;
 }
 
 
@@ -110,18 +113,23 @@ export interface StopwatchState {
     sequence: StopwatchEvent[];
 }
 
-export interface StopwatchEntity extends UniquelyIdentifiable {
+export interface BaseStopwatchEntity extends UniquelyIdentifiable {
     id: string;
     annotation: Annotatable;
     state: StopwatchState;
     metadata: StopWatchCreationModificationDates;
 }
 
-export interface ContextualStopwatchEntity extends StopwatchEntity {
+export interface StopwatchEntity extends BaseStopwatchEntity {
     objective?: Objective;
 }
 
-export interface SerializedStopwatchEntity extends StopwatchEntity {
+
+export interface ContextualStopwatchEntity extends StopwatchEntity {
+    groups: BaseStopwatchGroup[];
+}
+
+export interface SerializedStopwatchEntity extends BaseStopwatchEntity {
     objective?: {
         type: ObjectiveType;
         configuration?: Record<string, unknown>
@@ -143,8 +151,8 @@ export interface StopwatchGroup extends BaseStopwatchGroup {
  * Interface for group membership records
  */
 export interface StopwatchGroupMembership extends UniquelyIdentifiable {
-    stopwatchId: string;
-    groupId: string;
+    stopwatchId: UniqueIdentifier;
+    groupId: UniqueIdentifier;
 }
 
 

@@ -1,4 +1,4 @@
-import { StopwatchGroup, StopwatchGroupMembership, BaseStopwatchGroup } from "../shared/models/sequence/interfaces";
+import { StopwatchGroup, StopwatchGroupMembership, BaseStopwatchGroup, UniqueIdentifier } from "../shared/models/sequence/interfaces";
 import { IndexedDBDatabase, IndexedDBStorageAdapter } from "../utilities/storage";
 import { BaseRepository, StopwatchDatabase } from "./application";
 import { StopwatchRepository } from "./stopwatch";
@@ -43,7 +43,7 @@ export class GroupRepository extends BaseRepository {
    * @param id - The ID of the group to fetch
    * @returns A promise that resolves to the group, or null if not found
    */
-  async get(id: string): Promise<StopwatchGroup | null> {
+  async get(id: UniqueIdentifier): Promise<StopwatchGroup | null> {
     const repo = this.adapter.getRepository();
     const persistentGroup = await repo.getById(GroupRepository.GROUP_STORE, id);
     
@@ -101,7 +101,7 @@ export class GroupRepository extends BaseRepository {
    * @param id - The ID of the group to delete
    * @returns A promise that resolves when the operation is complete
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: UniqueIdentifier): Promise<void> {
     const repo = this.adapter.getRepository();
     
     // First remove all members from the group
@@ -126,7 +126,7 @@ export class GroupRepository extends BaseRepository {
    * @param groupId - The ID of the group
    * @returns A promise that resolves when the operation is complete
    */
-  private async clearGroupMembers(groupId: string): Promise<void> {
+  private async clearGroupMembers(groupId: UniqueIdentifier): Promise<void> {
     // Get the membership repository
     const indexRepo = this.membershipAdapter.getIndexRepository();
     const membershipRepo = this.membershipAdapter.getRepository();
@@ -153,7 +153,7 @@ export class GroupRepository extends BaseRepository {
    * @param stopwatchId - The ID of the stopwatch
    * @returns A promise that resolves to an array of group IDs
    */
-  async byStopwatch(stopwatchId: string): Promise<string[]> {
+  async byStopwatch(stopwatchId: UniqueIdentifier): Promise<UniqueIdentifier[]> {
     const membershipRepo = this.membershipAdapter.getIndexRepository();
       
     // Get all memberships for this stopwatch
@@ -173,7 +173,7 @@ export class GroupRepository extends BaseRepository {
    * @param groupId - The ID of the group
    * @returns A promise that resolves when the operation is complete
    */
-  async addMember(groupId: string, stopwatchId: string): Promise<void> {
+  async addMember(groupId: UniqueIdentifier, stopwatchId: UniqueIdentifier): Promise<void> {
     const membershipRepo = this.membershipAdapter.getRepository();
     
     // Check if the membership already exists
