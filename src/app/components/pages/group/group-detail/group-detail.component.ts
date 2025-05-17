@@ -42,10 +42,9 @@ export class GroupDetailComponent {
       if (!baseGroup) {
         return;
       }
-      const members = await this.stopwatchRepository.byGroup(id);
       this.instance.set({
         ...baseGroup,
-        members
+        members: await this.stopwatchRepository.byGroup(id)
       });
     } catch(e) {
       this.error.set(e as Error);

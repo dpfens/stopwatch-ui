@@ -61,6 +61,11 @@ export class GroupRepository extends BaseRepository {
     };
   }
 
+  async getByIds(ids: UniqueIdentifier[]): Promise<BaseStopwatchGroup[]> {
+    const repo = this.adapter.getRepository();
+    return await repo.getByIds(GroupRepository.GROUP_STORE, ids);
+  }
+
   /**
    * Creates or updates a group
    * @param group - The group to save

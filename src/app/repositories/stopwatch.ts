@@ -59,6 +59,12 @@ export class StopwatchRepository extends BaseRepository {
     return StopwatchRepository.fromPersistentInstance(persistentInstance);
   }
 
+  async getByIds(id: UniqueIdentifier[]): Promise<StopwatchEntity[]> {
+    const repo = this.adapter.getRepository();
+    const persistentInstances = await repo.getByIds(StopwatchRepository.STOPWATCH_STORE, id);
+    return persistentInstances.map(instance => StopwatchRepository.fromPersistentInstance(instance));
+  }
+
   /**
    * Fetches stopwatches by group ID
    * @param groupId - The ID of the group

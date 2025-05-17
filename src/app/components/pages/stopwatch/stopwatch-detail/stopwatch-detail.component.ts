@@ -46,11 +46,9 @@ export class StopwatchDetailComponent {
       if (!baseStopwatch) {
         return;
       }
-      
-      const groups = (await Promise.all(groupIds.map(groupId => this.groupRepository.get(groupId)))).filter(Boolean) as StopwatchGroup[];
       this.instance.set({
         ...baseStopwatch,
-        groups: groups
+        groups: await this.groupRepository.getByIds(groupIds)
       });
     } catch(e) {
       this.error.set(e as Error);
