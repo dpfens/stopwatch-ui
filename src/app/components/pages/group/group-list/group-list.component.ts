@@ -1,7 +1,8 @@
-import { Component, effect, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
 import { GroupRepository } from '../../../../repositories/group';
-import { StopwatchGroup } from '../../../../shared/models/sequence/interfaces';
+import { StopwatchGroup } from '../../../../models/sequence/interfaces';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
+import { GroupService } from '../../../../services/group/group.service';
 
 @Component({
   selector: 'group-list',
@@ -10,6 +11,8 @@ import { StopwatchRepository } from '../../../../repositories/stopwatch';
   styleUrl: './group-list.component.scss'
 })
 export class GroupListComponent {
+  private groupService = inject(GroupService);
+
   private readonly repository: GroupRepository  = new GroupRepository();
   private readonly stopwatchRepository: StopwatchRepository = new StopwatchRepository();
 
@@ -35,11 +38,17 @@ export class GroupListComponent {
           }
         })
       );
+      console.log(groups);
       this.instances.set(groups);
     } catch(e) {
       this.error.set(e as Error);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async createNew(): Promise<void> {
+    const instance = this.groupService.create('', '');
+    this.repository.create(instance);
   }
 }

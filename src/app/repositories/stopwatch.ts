@@ -1,11 +1,11 @@
-import { StopwatchEntity, SerializedStopwatchEntity, Objective, StopwatchGroupMembership, UniqueIdentifier } from "../shared/models/sequence/interfaces";
-import { TZDate } from "../shared/models/date";
+import { StopwatchEntity, SerializedStopwatchEntity, Objective, StopwatchGroupMembership, UniqueIdentifier } from "../models/sequence/interfaces";
+import { TZDate } from "../models/date";
 import { SerializableRegistry, SerializableType } from "../utilities/serialization";
-import { registry } from "../shared/models/sequence/objective";
+import { registry } from "../models/sequence/objective";
 import { 
   IndexedDBStorageAdapter, 
 } from "../utilities/storage";
-import { StopwatchEvent } from "../shared/models/sequence/interfaces";
+import { StopwatchEvent } from "../models/sequence/interfaces";
 import { BaseRepository, StopwatchDatabase } from "./application";
 
 
@@ -96,24 +96,31 @@ export class StopwatchRepository extends BaseRepository {
   }
 
   /**
-   * Saves a stopwatch to the database
-   * @param stopwatch - The stopwatch to save
-   * @returns A promise that resolves to the ID of the saved stopwatch
+   * Create a stopwatch to the database
+   * @param stopwatch - The stopwatch to create
+   * @returns A promise that resolves to the ID of the created stopwatch
    */
-  async save(stopwatch: StopwatchEntity): Promise<string> {
+  async create(stopwatch: StopwatchEntity): Promise<string> {
+    const repo = this.adapter.getRepository();
+    const serialized = StopwatchRepository.toPersistentInstance(stopwatch);
+    
+    serialized.id = serialized.id || this.generateId();
+    await repo.add(StopwatchRepository.STOPWATCH_STORE, serialized);
+    return serialized.id;
+  }
+
+  /**
+   * Updates a stopwatch to the database
+   * @param stopwatch - The stopwatch to update
+   * @returns A promise that resolves to the ID of the update stopwatch
+   */
+  async update(stopwatch: StopwatchEntity): Promise<string> {
     const repo = this.adapter.getRepository();
     const serialized = StopwatchRepository.toPersistentInstance(stopwatch);
     
     // If the stopwatch has an ID, update it; otherwise, add it
-    if (stopwatch.id) {
-      await repo.update(StopwatchRepository.STOPWATCH_STORE, serialized);
-      return stopwatch.id;
-    } else {
-      // Generate a new ID if not present
-      serialized.id = this.generateId();
-      await repo.add(StopwatchRepository.STOPWATCH_STORE, serialized);
-      return serialized.id;
-    }
+    await repo.update(StopwatchRepository.STOPWATCH_STORE, serialized);
+    return stopwatch.id;
   }
 
   /**

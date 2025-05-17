@@ -1,5 +1,5 @@
 import { ObjectiveType, StopwatchState } from "./interfaces";
-import { SerializableRegistry, SerializableType, SerializedForm } from "../../../utilities/serialization";
+import { SerializableRegistry, SerializableType, SerializedForm } from "../../utilities/serialization";
 
 export interface Objective extends SerializableType<Objective> {
     type: ObjectiveType;

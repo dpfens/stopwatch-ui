@@ -1,6 +1,6 @@
 import { Component, effect, signal, WritableSignal } from '@angular/core';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { BaseStopwatchGroup, ContextualStopwatchEntity, StopwatchEntity, UniqueIdentifier } from '../../../../shared/models/sequence/interfaces';
+import { BaseStopwatchGroup, ContextualStopwatchEntity, StopwatchEntity, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
 
 @Component({

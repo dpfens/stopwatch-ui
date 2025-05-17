@@ -1,4 +1,4 @@
-import { StopwatchGroup, StopwatchGroupMembership, BaseStopwatchGroup, UniqueIdentifier } from "../shared/models/sequence/interfaces";
+import { StopwatchGroup, StopwatchGroupMembership, BaseStopwatchGroup, UniqueIdentifier } from "../models/sequence/interfaces";
 import { IndexedDBDatabase, IndexedDBStorageAdapter } from "../utilities/storage";
 import { BaseRepository, StopwatchDatabase } from "./application";
 import { StopwatchRepository } from "./stopwatch";
@@ -67,32 +67,52 @@ export class GroupRepository extends BaseRepository {
   }
 
   /**
-   * Creates or updates a group
-   * @param group - The group to save
-   * @returns A promise that resolves to the ID of the saved group
+   * Creates a group
+   * @param group - The group to create
+   * @returns A promise that resolves to the ID of the created group
    */
-  async save(group: StopwatchGroup): Promise<string> {
+  async create(group: StopwatchGroup): Promise<string> {
     const repo = this.adapter.getRepository();
     
     // Create a persistent version without the members array
     const persistentGroup: BaseStopwatchGroup = {
       id: group.id || this.generateId(),
       title: group.title,
-      description: group.description
+      description: group.description,
+      metadata: group.metadata
     };
     
-    // If the group already exists, update it; otherwise, add it
-    if (group.id) {
-      await repo.update(GroupRepository.GROUP_STORE, persistentGroup);
-    } else {
-      await repo.add(GroupRepository.GROUP_STORE, persistentGroup);
-    }
+    await repo.add(GroupRepository.GROUP_STORE, persistentGroup);
     
     // Now handle group memberships if members are provided
     if (group.members && group.members.length > 0) {
-      // First, remove any existing memberships
-      await this.clearGroupMembers(persistentGroup.id as string);
+      await Promise.all(
+        group.members.map(member => this.addMember(persistentGroup.id as string, member.id as string))
+      )
+    }
+    
+    return persistentGroup.id as string;
+  }
 
+  /**
+   * Updates a group
+   * @param group - The group to update
+   * @returns A promise that resolves to the ID of the updated group
+   */
+  async update(group: StopwatchGroup): Promise<string> {
+    const repo = this.adapter.getRepository();
+    
+    // Create a persistent version without the members array
+    const persistentGroup: BaseStopwatchGroup = {
+      id: group.id,
+      title: group.title,
+      description: group.description,
+      metadata: group.metadata
+    };
+    
+    await repo.update(GroupRepository.GROUP_STORE, persistentGroup);
+    if (group.members && group.members.length > 0) {
+      await this.clearGroupMembers(persistentGroup.id as string);
       await Promise.all(
         group.members.map(member => this.addMember(persistentGroup.id as string, member.id as string))
       )
@@ -121,7 +141,7 @@ export class GroupRepository extends BaseRepository {
     await groupRepo.clear(GroupRepository.GROUP_STORE);
   }
 
-  private async clearMembership(): Promise<void> {
+  private async clearAllMemberships(): Promise<void> {
     const membershipRepo = this.membershipAdapter.getRepository();
     await membershipRepo.clear(GroupRepository.GROUP_MEMBERSHIP_STORE);
   }

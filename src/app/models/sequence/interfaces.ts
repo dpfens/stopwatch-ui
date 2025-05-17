@@ -10,18 +10,12 @@ interface BaseCreationModificationDates {
     lastModification: ActionTracking;
 }
 
-
-interface BaseMetadata {
-    timestamps: BaseCreationModificationDates;
-}
-
-
 interface CloneMetadata {
     source: string;
 }
 
 
-export interface StopWatchCreationModificationDates extends BaseCreationModificationDates {
+export interface CreationModificationDates extends BaseCreationModificationDates {
     clone?: CloneMetadata;
 }
 
@@ -89,7 +83,7 @@ export interface TimeStampRange {
 
 export interface BaseEvent<T extends StopWatchEventType | ComputedEventType> extends UniquelyIdentifiable {
     annotation: Annotatable;
-    metadata: BaseMetadata;
+    metadata: CreationModificationDates;
     type: T;
     unit?: UnitValue;
 }
@@ -117,7 +111,7 @@ export interface BaseStopwatchEntity extends UniquelyIdentifiable {
     id: string;
     annotation: Annotatable;
     state: StopwatchState;
-    metadata: StopWatchCreationModificationDates;
+    metadata: CreationModificationDates;
 }
 
 export interface StopwatchEntity extends BaseStopwatchEntity {
@@ -141,6 +135,7 @@ export interface SerializedStopwatchEntity extends BaseStopwatchEntity {
  * Interface for serialized group data
  */
 export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
+    metadata: CreationModificationDates;
 }
 
 export interface StopwatchGroup extends BaseStopwatchGroup {
@@ -186,11 +181,14 @@ export interface IStopwatchStateController {
     isActive(): boolean;
 }
 
-export interface IContextualStopwatchController {
-    // Metadata and annotations
-    getMetadata(): StopWatchCreationModificationDates;
+export interface IAnnotatableController {
     getAnnotation(): Annotatable;
     updateAnnotation(title: string, description: string): void;
+}
+
+export interface IContextualStopwatchController extends IAnnotatableController {
+    // Metadata
+    getMetadata(): CreationModificationDates;
     
     // Objective handling
     setObjective(objective: Objective): void;

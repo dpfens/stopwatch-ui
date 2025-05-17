@@ -124,7 +124,7 @@
  */
 "use strict";
 
-import { UniquelyIdentifiable } from "../shared/models/sequence/interfaces";
+import { UniquelyIdentifiable } from "../models/sequence/interfaces";
 
 export interface DatabaseInformation {
   name: string;

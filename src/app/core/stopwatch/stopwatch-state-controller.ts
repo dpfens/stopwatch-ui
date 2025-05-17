@@ -1,4 +1,4 @@
-import { TZDate } from "../../shared/models/date";
+import { TZDate } from "../../models/date";
 import { 
   StopwatchEvent, 
   StopWatchEventType, 
@@ -6,7 +6,7 @@ import {
   StopwatchState,
   ActionTracking,
   IStopwatchStateController,
-} from "../../shared/models/sequence/interfaces";
+} from "../../models/sequence/interfaces";
 
 /**
  * Implementation of the StopwatchInterface that manages stopwatch state
@@ -108,10 +108,8 @@ export class StopwatchStateController implements IStopwatchStateController {
       timestamp: new TZDate(timestamp),
       annotation: { title, description },
       metadata: {
-        timestamps: {
-          creation: now,
-          lastModification: now
-        }
+        creation: now,
+        lastModification: now
       },
       unit
     };

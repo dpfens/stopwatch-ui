@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { GroupRepository } from '../../../../repositories/group';
-import { BaseStopwatchGroup, ContextualStopwatchEntity, StopwatchGroup, UniqueIdentifier } from '../../../../shared/models/sequence/interfaces';
+import { ContextualStopwatchEntity, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 
 @Component({
   selector: 'stopwatch-detail',
