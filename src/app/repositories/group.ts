@@ -1,7 +1,7 @@
-import { StopwatchGroup, StopwatchGroupMembership, BaseStopwatchGroup, UniqueIdentifier } from "../models/sequence/interfaces";
+import { TZDate } from "../models/date";
+import { StopwatchGroup, StopwatchGroupMembership, BaseStopwatchGroup, UniqueIdentifier, SerializedStopwatchGroup } from "../models/sequence/interfaces";
 import { IndexedDBDatabase, IndexedDBStorageAdapter } from "../utilities/storage";
 import { BaseRepository, StopwatchDatabase } from "./application";
-import { StopwatchRepository } from "./stopwatch";
 
 /**
  * Adapter for managing StopwatchGroup instances in IndexedDB using the new storage API
@@ -11,7 +11,7 @@ export class GroupRepository extends BaseRepository {
   private static readonly GROUP_STORE = "groups";
   private static readonly GROUP_MEMBERSHIP_STORE = "groupMemberships";
 
-  private adapter: IndexedDBStorageAdapter<BaseStopwatchGroup>;
+  private adapter: IndexedDBStorageAdapter<SerializedStopwatchGroup>;
   private membershipAdapter: IndexedDBStorageAdapter<StopwatchGroupMembership>;
   private database: IndexedDBDatabase;
 
@@ -35,7 +35,8 @@ export class GroupRepository extends BaseRepository {
    */
   async getAll(): Promise<BaseStopwatchGroup[]> {
     const repo = this.adapter.getRepository();
-    return await repo.getAll(GroupRepository.GROUP_STORE);
+    const persistentInstances = await repo.getAll(GroupRepository.GROUP_STORE);
+    return persistentInstances.map(instance => this.fromPersistentInstance(instance));
   }
 
   /**
@@ -43,7 +44,7 @@ export class GroupRepository extends BaseRepository {
    * @param id - The ID of the group to fetch
    * @returns A promise that resolves to the group, or null if not found
    */
-  async get(id: UniqueIdentifier): Promise<StopwatchGroup | null> {
+  async get(id: UniqueIdentifier): Promise<BaseStopwatchGroup | null> {
     const repo = this.adapter.getRepository();
     const persistentGroup = await repo.getById(GroupRepository.GROUP_STORE, id);
     
@@ -51,19 +52,13 @@ export class GroupRepository extends BaseRepository {
       return null;
     }
     
-    // Get the members for this group
-    const stopwatchRepo = new StopwatchRepository();
-    const members = await stopwatchRepo.byGroup(id);
-    
-    return {
-        ...persistentGroup,
-        members: members
-    };
+    return this.fromPersistentInstance(persistentGroup);
   }
 
   async getByIds(ids: UniqueIdentifier[]): Promise<BaseStopwatchGroup[]> {
     const repo = this.adapter.getRepository();
-    return await repo.getByIds(GroupRepository.GROUP_STORE, ids);
+    const instances = await repo.getByIds(GroupRepository.GROUP_STORE, ids);
+    return instances.map(instance => this.fromPersistentInstance(instance));
   }
 
   /**
@@ -79,7 +74,9 @@ export class GroupRepository extends BaseRepository {
       id: group.id || this.generateId(),
       title: group.title,
       description: group.description,
-      metadata: group.metadata
+      metadata: group.metadata,
+      trait: [],
+      view: 'normal'
     };
     
     await repo.add(GroupRepository.GROUP_STORE, persistentGroup);
@@ -107,7 +104,9 @@ export class GroupRepository extends BaseRepository {
       id: group.id,
       title: group.title,
       description: group.description,
-      metadata: group.metadata
+      metadata: group.metadata,
+      trait: [],
+      view: 'normal'
     };
     
     await repo.update(GroupRepository.GROUP_STORE, persistentGroup);
@@ -248,5 +247,19 @@ export class GroupRepository extends BaseRepository {
         membership.id
       );
     }
+  }
+
+  fromPersistentInstance(instance: SerializedStopwatchGroup): BaseStopwatchGroup {
+    return {
+      ...instance,
+      metadata: {
+        creation: {
+          timestamp: TZDate.fromJSON(instance.metadata.creation.timestamp),
+        },
+        lastModification: {
+          timestamp: TZDate.fromJSON(instance.metadata.lastModification.timestamp)
+        }
+      }
+    };
   }
 }

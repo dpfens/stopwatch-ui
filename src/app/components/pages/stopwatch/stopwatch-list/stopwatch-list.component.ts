@@ -1,7 +1,8 @@
-import { Component, effect, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { BaseStopwatchGroup, ContextualStopwatchEntity, StopwatchEntity, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
+import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 
 @Component({
   selector: 'stopwatch-list',
@@ -10,6 +11,8 @@ import { GroupRepository } from '../../../../repositories/group';
   styleUrl: './stopwatch-list.component.scss'
 })
 export class StopwatchListComponent {
+  private readonly service = inject(StopwatchService);
+
   private readonly repository: StopwatchRepository = new StopwatchRepository();
   private readonly groupRepository: GroupRepository = new GroupRepository();
   
@@ -50,4 +53,15 @@ export class StopwatchListComponent {
     }
   }
 
+  async createNew(): Promise<void> {
+    const instance = this.service.create('', '');
+    this.repository.create(instance);
+    this.instances.set([
+      ...this.instances(),
+      {
+        ...instance,
+        groups: []
+      }
+    ]);
+  }
 }

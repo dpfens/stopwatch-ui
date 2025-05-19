@@ -208,7 +208,14 @@ export class StopwatchRepository extends BaseRepository {
             TZDate.fromJSON(event.timestamp)
         }))
       },
-      metadata: persistent.metadata
+      metadata: {
+        creation: {
+          timestamp: TZDate.fromJSON(persistent.metadata.creation.timestamp)
+        },
+        lastModification: {
+          timestamp: TZDate.fromJSON(persistent.metadata.lastModification.timestamp)
+        }
+      }
     };
 
     // Deserialize the objective if one exists

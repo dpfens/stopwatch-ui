@@ -1,9 +1,12 @@
-import { TZDate } from "../date";
+import { TimeZonedDate, TZDate } from "../date";
 
 export interface ActionTracking {
     readonly timestamp: TZDate;
 }
 
+export interface SerializedActionTracking {
+    readonly timestamp: TimeZonedDate;
+}
 
 interface BaseCreationModificationDates {
     readonly creation: ActionTracking;
@@ -16,6 +19,12 @@ interface CloneMetadata {
 
 
 export interface CreationModificationDates extends BaseCreationModificationDates {
+    clone?: CloneMetadata;
+}
+
+export interface SerializedCreationModificationDates {
+    readonly creation: SerializedActionTracking;
+    lastModification: SerializedActionTracking;
     clone?: CloneMetadata;
 }
 
@@ -41,6 +50,29 @@ type ProgressStopWatchEventType = 'accumulation' | 'convergence' | 'state-transi
 type AnalyticEventType = 'forecast' | 'trend' | 'anomaly';
 export type ComputedEventType = AnalyticEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
 export type StopWatchEventType = FundamentalStopWatchEventType | PerformanceMonitoringStopWatchEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
+
+
+export type StopwatchAnalyticsTrait = 
+    | 'anomaly-detection'     // Flags unusual timing patterns or outliers
+    | 'trend-analysis'        // Identifies patterns like negative splits or progressive improvements
+    | 'interpolation'         // Fills gaps between recorded splits for incomplete data
+    | 'forecasting'           // Predicts future performance based on current data
+    | 'statistical-summary'   // Provides statistical insights (mean, median, variance, etc.)
+    | 'threshold-alerting'    // Notifies when metrics cross defined thresholds
+    | 'smoothing'             // Reduces noise in timing data to reveal underlying patterns
+    | 'seasonality-detection' // Identifies cyclical patterns in recurring activities
+    | 'benchmark-comparison'  // Compares performance against historical or reference data
+    | 'performance-scoring';  // Generates a normalized score based on timing data
+
+export interface AnalyticsConfiguration {
+    trait: StopwatchAnalyticsTrait;
+    parameters?: Record<string, unknown>; // Configurable parameters for each trait
+}
+
+export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
+    metadata: CreationModificationDates;
+}
+
 
 export type ObjectiveType = 'unit-accumulation' | 'time-minimization' | 'synchronicity';
 
@@ -95,6 +127,11 @@ export interface StopwatchEvent extends BaseEvent<StopWatchEventType> {
     timestamp: TZDate;
 }
 
+export interface SerializedStopwatchEvent extends Omit<StopwatchEvent, 'timestamp' | 'metadata'> {
+    timestamp: TimeZonedDate;
+    metadata: SerializedCreationModificationDates;
+}
+
 /**
  * Computed events for representing data derived from
  * concrete/user-submitted events from a stopwatch
@@ -105,6 +142,10 @@ export interface ComputedEvent extends BaseEvent<ComputedEventType> {
 
 export interface StopwatchState {
     sequence: StopwatchEvent[];
+}
+
+export interface SerializedStopwatchState {
+    sequence: SerializedStopwatchEvent[];
 }
 
 export interface BaseStopwatchEntity extends UniquelyIdentifiable {
@@ -123,19 +164,43 @@ export interface ContextualStopwatchEntity extends StopwatchEntity {
     groups: BaseStopwatchGroup[];
 }
 
-export interface SerializedStopwatchEntity extends BaseStopwatchEntity {
+export interface SerializedStopwatchEntity extends Omit<BaseStopwatchEntity, 'metadata' | 'analytics'> {
     objective?: {
         type: ObjectiveType;
         configuration?: Record<string, unknown>
     };
+    metadata: SerializedCreationModificationDates;
 }
 
 
 /**
  * Interface for serialized group data
  */
+export type GroupTrait = 
+    | 'parallel'      // Stopwatches run simultaneously (e.g., team members working on the same task)
+    | 'sequential'    // Stopwatches run in a defined order (e.g., relay race or assembly line)
+    | 'comparative'   // Stopwatches are compared against each other (e.g., benchmarking different approaches)
+    | 'aggregate'     // Stopwatches represent parts of a collective whole (e.g., accumulated contributions)
+    | 'correlated'    // Stopwatches are expected to show similar patterns or timing (e.g., synchronized tasks)
+    | 'hierarchical'  // Stopwatches have parent-child relationships (e.g., project and sub-tasks)
+    | 'cyclical'      // Stopwatches represent recurring patterns (e.g., iterations or sprints)
+    | 'threshold'     // Stopwatches are evaluated against specific time thresholds (e.g., SLAs)
+    | 'distributed'   // Stopwatches represent different locations/contexts (e.g., global team performance)
+    | 'proportional'; // Stopwatches represent relative allocations (e.g., time distribution across activities)
+
+export type GroupView =
+    | 'normal'         // Displays the stopwatches normally
+    | 'competition';   // Displays a leaderboard with rankings and comparative metrics
+
+
 export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
     metadata: CreationModificationDates;
+    trait: GroupTrait[];
+    view: GroupView;
+}
+
+export interface SerializedStopwatchGroup extends Omit<BaseStopwatchGroup, 'metadata'> {
+    metadata: SerializedCreationModificationDates;
 }
 
 export interface StopwatchGroup extends BaseStopwatchGroup {

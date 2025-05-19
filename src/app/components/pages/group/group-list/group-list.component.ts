@@ -50,5 +50,6 @@ export class GroupListComponent {
   async createNew(): Promise<void> {
     const instance = this.groupService.create('', '');
     this.repository.create(instance);
+    this.instances.set([...this.instances(),instance]);
   }
 }
