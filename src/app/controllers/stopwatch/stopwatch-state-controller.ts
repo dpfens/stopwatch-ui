@@ -13,17 +13,14 @@ import {
  * and provides operations for controlling and analyzing stopwatch events.
  */
 export class StopwatchStateController implements IStopwatchStateController {
-  private state: StopwatchState = { sequence: [] };
+  protected state: StopwatchState;
   
   /**
    * Creates a new StopwatchController instance
-   * @param existingState Optional existing state to initialize with
+   * @param state Optional existing state to initialize with
    */
-  constructor(state?: StopwatchState) {
-    // Set initial state if provided
-    if (state) {
-      this.state = { ...state };
-    }
+  constructor(state: StopwatchState) {
+    this.state = state;
   }
   
   /**
@@ -150,7 +147,6 @@ export class StopwatchStateController implements IStopwatchStateController {
     return this.getElapsedTimeBetweenEvents(null, null);
   }
   
-  
   /**
    * Gets events, optionally filtered by type
    * @param type Optional event type to filter by
@@ -218,7 +214,7 @@ export class StopwatchStateController implements IStopwatchStateController {
    * @param endEventId ID of end event, or null for last event
    * @returns Object with start and end indices, or null if events not found
    */
-  private getEventIndices(startEventId: string | number | null, endEventId: string | number | null): { startIndex: number, endIndex: number } | null {
+  protected getEventIndices(startEventId: string | number | null, endEventId: string | number | null): { startIndex: number, endIndex: number } | null {
     const events = this.state.sequence;
     
     let startIndex = 0;
@@ -250,7 +246,7 @@ export class StopwatchStateController implements IStopwatchStateController {
    * @param endIndex End event index
    * @returns True if simple calculation can be used
    */
-  private canUseSimpleElapsedCalculation(startIndex: number, endIndex: number): boolean {
+  protected canUseSimpleElapsedCalculation(startIndex: number, endIndex: number): boolean {
     const events = this.state.sequence;
     
     // Check if there are any stop or resume events in our range
@@ -287,7 +283,7 @@ export class StopwatchStateController implements IStopwatchStateController {
    * @param endIndex End event index
    * @returns Elapsed time in milliseconds
    */
-  private calculateSimpleElapsedTime(startIndex: number, endIndex: number): number {
+  protected calculateSimpleElapsedTime(startIndex: number, endIndex: number): number {
     const events = this.state.sequence;
     
     // Simple case: all time is elapsed time
@@ -304,7 +300,7 @@ export class StopwatchStateController implements IStopwatchStateController {
    * @param endIndex End event index
    * @returns Elapsed time in milliseconds
    */
-  private calculateIntervalBasedElapsedTime(startIndex: number, endIndex: number): number {
+  protected calculateIntervalBasedElapsedTime(startIndex: number, endIndex: number): number {
     const events = this.state.sequence;
     
     // Build a map of active intervals
@@ -341,7 +337,7 @@ export class StopwatchStateController implements IStopwatchStateController {
    * Finds all running intervals in the event sequence
    * @returns Array of start/end index pairs representing active periods
    */
-  private findRunningIntervals(): Array<{ start: number, end: number }> {
+  protected findRunningIntervals(): Array<{ start: number, end: number }> {
     const events = this.state.sequence;
     const runningIntervals: { start: number, end: number }[] = [];
     let currentStartIndex: number | null = null;
@@ -396,8 +392,8 @@ export class StopwatchStateController implements IStopwatchStateController {
     
     const lastEvent = this.state.sequence[this.state.sequence.length - 1];
     
-    // Check if last event was a start or resume
-    return lastEvent.type === 'start' || lastEvent.type === 'resume';
+    // Check if last event wasn't a stop
+    return lastEvent.type !== 'stop' ;
   }
   
   /**

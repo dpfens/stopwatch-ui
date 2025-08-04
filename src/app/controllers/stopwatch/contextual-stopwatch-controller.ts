@@ -6,7 +6,7 @@ import {
   IContextualStopwatchController,
   UniqueIdentifier,
 } from "../../models/sequence/interfaces";
-import { AnnotationController } from "../annotatable";
+import { AnnotationController } from "../annotation-controller";
 
 /**
  * Implementation of the StopwatchInterface that manages stopwatch state
