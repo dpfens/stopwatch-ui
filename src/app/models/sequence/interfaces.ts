@@ -1,4 +1,5 @@
 import { TimeZonedDate, TZDate } from "../date";
+import { AnalysisRegistry } from "./analysis/registry";
 
 export interface ActionTracking {
     readonly timestamp: TZDate;
@@ -162,6 +163,7 @@ export interface StopwatchEntity extends BaseStopwatchEntity {
 
 export interface ContextualStopwatchEntity extends StopwatchEntity {
     groups: BaseStopwatchGroup[];
+    analysis: AnalysisRegistry;
 }
 
 export interface SerializedStopwatchEntity extends Omit<BaseStopwatchEntity, 'metadata' | 'analytics'> {
@@ -173,29 +175,38 @@ export interface SerializedStopwatchEntity extends Omit<BaseStopwatchEntity, 'me
 }
 
 
-/**
- * Interface for serialized group data
- */
-export type GroupTrait = 
-    | 'parallel'      // Stopwatches run simultaneously (e.g., team members working on the same task)
-    | 'sequential'    // Stopwatches run in a defined order (e.g., relay race or assembly line)
-    | 'comparative'   // Stopwatches are compared against each other (e.g., benchmarking different approaches)
-    | 'aggregate'     // Stopwatches represent parts of a collective whole (e.g., accumulated contributions)
-    | 'correlated'    // Stopwatches are expected to show similar patterns or timing (e.g., synchronized tasks)
-    | 'hierarchical'  // Stopwatches have parent-child relationships (e.g., project and sub-tasks)
-    | 'cyclical'      // Stopwatches represent recurring patterns (e.g., iterations or sprints)
-    | 'threshold'     // Stopwatches are evaluated against specific time thresholds (e.g., SLAs)
-    | 'distributed'   // Stopwatches represent different locations/contexts (e.g., global team performance)
-    | 'proportional'; // Stopwatches represent relative allocations (e.g., time distribution across activities)
-
 export type GroupView =
     | 'normal'         // Displays the stopwatches normally
     | 'competition';   // Displays a leaderboard with rankings and comparative metrics
 
+export type GroupTimingBehavior = 
+    | 'parallel'        // Stopwatches run simultaneously (e.g., team members working on the same task)
+    | 'sequential'      // Stopwatches run in a defined order (e.g., relay race or assembly line)
+    | 'independent'     // No timing constraints
+    | 'synchronized'    // Start/stop together
+    | 'overlapping';    // Partial temporal overlap (e.g., shift handoffs)
+
+export type GroupEvaluationBehavior =
+    | 'comparative'     // Ranked/compared against each other
+    | 'cumulative'      // Summed for totals
+    | 'threshold'       // Measured against targets/SLAs
+    | 'proportional'    // Analyzed as percentages of whole
+    | 'trending';       // Tracked for patterns over time
+
+export interface GroupTraits {
+    timing: GroupTimingBehavior;
+    evaluation: GroupEvaluationBehavior[];
+    analytics: AnalyticsConfiguration[];
+}
+
+export type GroupTraitPreset = 
+    | 'normal'
+    | 'competition'
+    | 'workflow'
+    | 'billing';
 
 export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
     metadata: CreationModificationDates;
-    trait: GroupTrait[];
     view: GroupView;
 }
 

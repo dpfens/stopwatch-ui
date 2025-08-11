@@ -3,6 +3,7 @@ import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { BaseStopwatchGroup, ContextualStopwatchEntity, StopwatchEntity, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
+import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry';
 
 @Component({
   selector: 'stopwatch-list',
@@ -41,7 +42,8 @@ export class StopwatchListComponent {
           const groupIds = await this.groupRepository.byStopwatch(baseStopwatch.id);
           return {
             ...baseStopwatch,
-            groups: groupIds.map(id => groupLookup[id])
+            groups: groupIds.map(id => groupLookup[id]),
+            analysis: new AnalysisRegistry()
           }
         })
       );
@@ -60,7 +62,8 @@ export class StopwatchListComponent {
       ...this.instances(),
       {
         ...instance,
-        groups: []
+        groups: [],
+        analysis: new AnalysisRegistry()
       }
     ]);
   }

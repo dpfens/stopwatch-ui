@@ -16,7 +16,6 @@ export class GroupService {
       title,
       description,
       members: [],
-      trait: [],
       view: 'normal',
       metadata: {
         creation: {timestamp: now},

@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { GroupRepository } from '../../../../repositories/group';
 import { ContextualStopwatchEntity, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry';
 
 @Component({
   selector: 'stopwatch-detail',
@@ -48,7 +49,8 @@ export class StopwatchDetailComponent {
       }
       this.instance.set({
         ...baseStopwatch,
-        groups: await this.groupRepository.getByIds(groupIds)
+        groups: await this.groupRepository.getByIds(groupIds),
+        analysis: new AnalysisRegistry()
       });
     } catch(e) {
       this.error.set(e as Error);

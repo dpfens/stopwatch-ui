@@ -75,7 +75,6 @@ export class GroupRepository extends BaseRepository {
       title: group.title,
       description: group.description,
       metadata: group.metadata,
-      trait: [],
       view: 'normal'
     };
     
@@ -105,7 +104,6 @@ export class GroupRepository extends BaseRepository {
       title: group.title,
       description: group.description,
       metadata: group.metadata,
-      trait: [],
       view: 'normal'
     };
     
