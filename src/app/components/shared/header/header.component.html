@@ -1,0 +1,35 @@
+<mat-toolbar>
+  <button matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span [style.cursor]="'pointer'" routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Stopwatch UI</span>
+  <a mat-button class="nav-link" routerLink="/stopwatch" routerLinkActive="active" ariaCurrentWhenActive="page">
+    <mat-icon>timer</mat-icon>
+    Stopwatches
+  </a>
+  <a mat-button routerLink="/group" routerLinkActive="active" ariaCurrentWhenActive="page">
+    <mat-icon>groups</mat-icon>
+    Groups
+  </a>
+  <a mat-button routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page">
+    <mat-icon>settings</mat-icon>
+    Settings
+  </a>
+  <span class="flex-fill"></span>
+  <button matIconButton class="example-icon" aria-label="Share to social media">
+    <mat-icon>share</mat-icon>
+  </button>
+  <form [formGroup]="searchForm">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Search</mat-label>
+      <input type="search"
+            matInput
+            formControlName="query"
+            [matAutocomplete]="autoComplete">
+        <mat-autocomplete #autoComplete="matAutocomplete"></mat-autocomplete>
+      <button matSuffix mat-icon-button aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
+</mat-toolbar>
