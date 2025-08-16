@@ -1,9 +1,11 @@
-import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { BaseStopwatchGroup, ContextualStopwatchEntity, StopwatchEntity, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry';
+import { HeaderActionService } from '../../../../services/action/header-action.service';
+import { GLOBAL } from '../../../../utilities/constants';
 
 @Component({
   selector: 'stopwatch-list',
@@ -11,8 +13,9 @@ import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry'
   templateUrl: './stopwatch-list.component.html',
   styleUrl: './stopwatch-list.component.scss'
 })
-export class StopwatchListComponent {
+export class StopwatchListComponent implements OnInit, OnDestroy {
   private readonly service = inject(StopwatchService);
+  private readonly headerActionService = inject(HeaderActionService);
 
   private readonly repository: StopwatchRepository = new StopwatchRepository();
   private readonly groupRepository: GroupRepository = new GroupRepository();
@@ -20,6 +23,10 @@ export class StopwatchListComponent {
   instances: WritableSignal<ContextualStopwatchEntity[]> = signal([]);
   loading = signal(true);
   error = signal<Error | null>(null);
+
+  ngOnInit(): void {
+    this.headerActionService.set(GLOBAL.CREATE, this.createNew.bind(this));
+  }
 
   __after_load__ = effect(() => {
     this.getAll();
@@ -57,7 +64,8 @@ export class StopwatchListComponent {
 
   async createNew(): Promise<void> {
     const instance = this.service.create('', '');
-    this.repository.create(instance);
+    const id = await this.repository.create(instance);
+
     this.instances.set([
       ...this.instances(),
       {
@@ -66,5 +74,11 @@ export class StopwatchListComponent {
         analysis: new AnalysisRegistry()
       }
     ]);
+  }
+
+  ngOnDestroy() {
+    if (this.headerActionService.has(GLOBAL.CREATE)) {
+      this.headerActionService.delete(GLOBAL.CREATE);
+    }
   }
 }

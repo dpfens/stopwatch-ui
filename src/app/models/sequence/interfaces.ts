@@ -70,11 +70,6 @@ export interface AnalyticsConfiguration {
     parameters?: Record<string, unknown>; // Configurable parameters for each trait
 }
 
-export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
-    metadata: CreationModificationDates;
-}
-
-
 export type ObjectiveType = 'unit-accumulation' | 'time-minimization' | 'synchronicity';
 
 export interface Objective {
@@ -205,7 +200,8 @@ export type GroupTraitPreset =
     | 'workflow'
     | 'billing';
 
-export interface BaseStopwatchGroup extends UniquelyIdentifiable, Annotatable {
+export interface BaseStopwatchGroup extends UniquelyIdentifiable {
+    annotation: Annotatable;
     metadata: CreationModificationDates;
     view: GroupView;
 }

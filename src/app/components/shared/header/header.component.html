@@ -16,20 +16,29 @@
     Settings
   </a>
   <span class="flex-fill"></span>
-  <button matIconButton class="example-icon" aria-label="Share to social media">
-    <mat-icon>share</mat-icon>
-  </button>
-  <form [formGroup]="searchForm">
-    <mat-form-field subscriptSizing="dynamic">
-      <mat-label>Search</mat-label>
-      <input type="search"
-            matInput
-            formControlName="query"
-            [matAutocomplete]="autoComplete">
-        <mat-autocomplete #autoComplete="matAutocomplete"></mat-autocomplete>
-      <button matSuffix mat-icon-button aria-label="Search">
-        <mat-icon>search</mat-icon>
-      </button>
-    </mat-form-field>
-  </form>
+  @if(hasCreate()) {
+    <button matIconButton (click)="createNew()" aria-label="Add">
+      <mat-icon>add</mat-icon>
+    </button>
+  }
+  @if(hasShare()) {
+    <button matIconButton (click)="executeShare()" aria-label="Share to social media">
+      <mat-icon>share</mat-icon>
+    </button>
+  }
+  @if(hasSearch()) {
+    <form [formGroup]="searchForm">
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Search</mat-label>
+        <input type="search"
+              matInput
+              formControlName="query"
+              [matAutocomplete]="autoComplete">
+          <mat-autocomplete #autoComplete="matAutocomplete"></mat-autocomplete>
+        <button matSuffix mat-icon-button aria-label="Search">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </form>
+  }
 </mat-toolbar>

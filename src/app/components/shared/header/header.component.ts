@@ -7,6 +7,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { HeaderActionService } from '../../../services/action/header-action.service';
+import { GLOBAL } from '../../../utilities/constants';
 
 @Component({
   selector: 'app-header',
@@ -21,7 +23,33 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class HeaderComponent {
   private formBuilder = inject(FormBuilder);
+  public readonly headerActionService = inject(HeaderActionService);
+
   searchForm = this.formBuilder.group({
     query: '',
   })
+
+  hasCreate(): boolean {
+    return this.headerActionService.has(GLOBAL.CREATE);
+  }
+
+  async createNew(): Promise<void> {
+    this.headerActionService.execute(GLOBAL.CREATE);
+  }
+
+  hasShare(): boolean {
+    return ('share' in navigator) && ('canShare' in navigator);
+  }
+
+  executeShare() {
+    navigator.share();
+  }
+
+  hasSearch(): boolean {
+    return this.headerActionService.has(GLOBAL.SEARCH);
+  }
+
+  async executeSearch(): Promise<void> {
+
+  } 
 }

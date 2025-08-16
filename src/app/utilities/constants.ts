@@ -1,5 +1,12 @@
 import { GroupTraitPreset, GroupTraits, ObjectiveType } from "../models/sequence/interfaces";
 
+// ACTIONS
+export enum GLOBAL {
+  CREATE = 'global.create',
+  DELETE = 'global.delete',
+  SEARCH = 'global.search'
+}
+
 
 /**
  * Predefined objective type presets for common use cases

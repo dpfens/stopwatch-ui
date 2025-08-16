@@ -13,8 +13,10 @@ export class GroupService {
     const now = TZDate.now();
     return {
       id: crypto.randomUUID(),
-      title,
-      description,
+      annotation: {
+        title,
+        description,
+      },
       members: [],
       view: 'normal',
       metadata: {

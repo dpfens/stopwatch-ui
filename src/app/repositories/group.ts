@@ -72,8 +72,7 @@ export class GroupRepository extends BaseRepository {
     // Create a persistent version without the members array
     const persistentGroup: BaseStopwatchGroup = {
       id: group.id || this.generateId(),
-      title: group.title,
-      description: group.description,
+      annotation: group.annotation,
       metadata: group.metadata,
       view: 'normal'
     };
@@ -101,8 +100,7 @@ export class GroupRepository extends BaseRepository {
     // Create a persistent version without the members array
     const persistentGroup: BaseStopwatchGroup = {
       id: group.id,
-      title: group.title,
-      description: group.description,
+      annotation: group.annotation,
       metadata: group.metadata,
       view: 'normal'
     };

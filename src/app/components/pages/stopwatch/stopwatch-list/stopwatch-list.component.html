@@ -1,1 +1,12 @@
 <p>stopwatch-list works!</p>
+
+@if(loading()) {
+
+}
+@else {
+    @for (instance of instances(); track instance.id) {
+        <div>{{ instance.annotation.title }}</div>
+    } @empty {
+        <span>No items found.</span>
+    }
+}

@@ -1,8 +1,10 @@
-import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { GroupRepository } from '../../../../repositories/group';
 import { StopwatchGroup } from '../../../../models/sequence/interfaces';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { GroupService } from '../../../../services/group/group.service';
+import { HeaderActionService } from '../../../../services/action/header-action.service';
+import { GLOBAL } from '../../../../utilities/constants';
 
 @Component({
   selector: 'group-list',
@@ -10,8 +12,9 @@ import { GroupService } from '../../../../services/group/group.service';
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
 })
-export class GroupListComponent {
+export class GroupListComponent implements OnInit, OnDestroy {
   private groupService = inject(GroupService);
+  public readonly headerActionService = inject(HeaderActionService);
 
   private readonly repository: GroupRepository  = new GroupRepository();
   private readonly stopwatchRepository: StopwatchRepository = new StopwatchRepository();
@@ -20,6 +23,9 @@ export class GroupListComponent {
   loading = signal(true);
   error = signal<Error | null>(null);
 
+  ngOnInit(): void {
+    this.headerActionService.set(GLOBAL.CREATE, this.createNew.bind(this));
+  }
 
   __after_load__ = effect(() => {
     this.getAll();
@@ -38,7 +44,6 @@ export class GroupListComponent {
           }
         })
       );
-      console.log(groups);
       this.instances.set(groups);
     } catch(e) {
       this.error.set(e as Error);
@@ -51,5 +56,11 @@ export class GroupListComponent {
     const instance = this.groupService.create('', '');
     this.repository.create(instance);
     this.instances.set([...this.instances(),instance]);
+  }
+
+  ngOnDestroy() {
+    if (this.headerActionService.has(GLOBAL.CREATE)) {
+      this.headerActionService.delete(GLOBAL.CREATE);
+    }
   }
 }
