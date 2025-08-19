@@ -1,0 +1,12 @@
+<p>group-list works!</p>
+
+@if(loading()) {
+
+}
+@else {
+    @for (instance of instances; track instance.id) {
+        <group-list-detail-view [instance]="instance" ></group-list-detail-view>
+    } @empty {
+        <span>No groups found.</span>
+    }
+}

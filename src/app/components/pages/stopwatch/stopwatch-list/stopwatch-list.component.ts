@@ -6,10 +6,12 @@ import { StopwatchService } from '../../../../services/stopwatch/stopwatch.servi
 import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry';
 import { HeaderActionService } from '../../../../services/action/header-action.service';
 import { GLOBAL } from '../../../../utilities/constants';
+import { StopwatchListGridViewComponent } from '../../../shared/stopwatch/views/grid/stopwatch-grid/stopwatch-list.component';
+import { StopwatchListViewComponent } from '../../../shared/stopwatch/views/list/stopwatch-list/stopwatch-list.component';
 
 @Component({
   selector: 'stopwatch-list',
-  imports: [],
+  imports: [StopwatchListGridViewComponent],
   templateUrl: './stopwatch-list.component.html',
   styleUrl: './stopwatch-list.component.scss'
 })

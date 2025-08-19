@@ -53,11 +53,11 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
    * Invalidates cache when state changes (called after adding events)
    */
   private invalidateCache(): void {
-    this.cache = { sequenceLength: this.state.sequence.length };
+    this.cache = { sequenceLength: -1 };
   }
 
   /**
-   * Updates the cache with current calculations
+   * Updates the cache with current calculations - fixed to handle edge cases properly
    */
   private updateCache(): void {
     if (this.isCacheValid()) {
@@ -70,7 +70,7 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
     const isRunning = this.isRunning();
     
     // Cache running intervals (expensive to compute)
-    this.cache.runningIntervals = this.findRunningIntervals();
+    this.cache.runningIntervals = super.findRunningIntervals();
     this.cache.isCurrentlyRunning = isRunning;
 
     if (events.length === 0) {
@@ -82,7 +82,7 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
       const lastEvent = events[events.length - 1];
       this.cache.lastEventTimestamp = lastEvent.timestamp;
       
-      // Calculate elapsed time up to the last event
+      // Calculate elapsed time up to the last event using corrected method
       this.cache.elapsedTimeUpToLastEvent = this.calculateElapsedTimeUpToEvent(events.length - 1);
       
       // Calculate total duration up to the last event
@@ -100,36 +100,34 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
   }
 
   /**
-   * Calculates elapsed time up to a specific event index
+   * Calculates elapsed time up to a specific event index using a simpler, more reliable approach
    */
   private calculateElapsedTimeUpToEvent(eventIndex: number): number {
-    if (!this.cache.runningIntervals) {
-      return 0;
-    }
-
-    let totalTime = 0;
     const events = this.state.sequence;
-
-    for (const interval of this.cache.runningIntervals) {
-      // Only count intervals that end before or at our target event
-      if (interval.end > eventIndex + 1) {
-        // This interval extends beyond our target, so calculate partial time
-        if (interval.start <= eventIndex) {
-          const startTime = events[interval.start].timestamp;
-          const endTime = events[eventIndex].timestamp;
-          totalTime += endTime.durationFrom(startTime);
-        }
-        break;
-      } else {
-        // This interval is completely within our range
-        const startTime = events[interval.start].timestamp;
-        const endTime = interval.end < events.length 
-          ? events[interval.end].timestamp 
-          : events[events.length - 1].timestamp;
-        totalTime += endTime.durationFrom(startTime);
+    const targetTimestamp = events[eventIndex].timestamp;
+    
+    // Iterate through events up to the target, tracking active periods
+    let totalTime = 0;
+    let currentRunStart: TZDate | null = null;
+    
+    for (let i = 0; i <= eventIndex; i++) {
+      const event = events[i];
+      
+      if (event.type === 'start' || event.type === 'resume') {
+        currentRunStart = event.timestamp;
+      } else if (event.type === 'stop' && currentRunStart !== null) {
+        // Add the duration of this completed active period
+        totalTime += event.timestamp.durationFrom(currentRunStart);
+        currentRunStart = null;
       }
     }
-
+    
+    // If we're still in an active period when we reach the target event,
+    // add the partial duration from the start of the period to the target timestamp
+    if (currentRunStart !== null) {
+      totalTime += targetTimestamp.durationFrom(currentRunStart);
+    }
+    
     return totalTime;
   }
 
@@ -236,7 +234,6 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
   
   override getElapsedTime(): number {
     this.updateCache();
-
     if (!this.cache.isCurrentlyRunning) {
       // Stopwatch is stopped, return cached complete value
       return this.cache.completeElapsedTime ?? 0;
@@ -278,10 +275,16 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
       }
     }
 
-    // Calculate result
+    // If asking for elapsed time from beginning to current moment and stopwatch is running,
+    // use the optimized caching approach
+    if (startEventId === null && endEventId === null && this.isRunning()) {
+      return this.getElapsedTime();
+    }
+
+    // Calculate result using parent implementation
     const result = super.getElapsedTimeBetweenEvents(startEventId, endEventId);
     
-    // Cache result if it doesn't involve current time
+    // Cache result only if it doesn't involve current time
     if (result !== -1 && startEventId !== null && endEventId !== null) {
       this.setCachedElapsedBetweenEvents(startEventId, endEventId, result);
     }

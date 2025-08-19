@@ -15,7 +15,7 @@ interface BaseCreationModificationDates {
 }
 
 interface CloneMetadata {
-    source: string;
+    source: UniqueIdentifier;
 }
 
 
@@ -247,6 +247,7 @@ export interface IStopwatchStateController {
     getDurationBetweenEvents(eventId1: string | number, eventId2: string | number): number;                         // Wall clock time between events
     getElapsedTimeBetweenEvents(startEventId: string | number | null, endEventId: string | number | null): number;  // Active time between events
     getLastEvent(type?: StopWatchEventType): StopwatchEvent | undefined;
+    getState(): StopwatchState;
     
     // State information
     isRunning(): boolean;

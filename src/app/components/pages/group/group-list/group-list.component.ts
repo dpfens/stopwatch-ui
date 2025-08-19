@@ -5,10 +5,11 @@ import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { GroupService } from '../../../../services/group/group.service';
 import { HeaderActionService } from '../../../../services/action/header-action.service';
 import { GLOBAL } from '../../../../utilities/constants';
+import { GroupGridViewComponent } from "../../../shared/group/views/grid/group-list/group-list.component";
 
 @Component({
   selector: 'group-list',
-  imports: [],
+  imports: [GroupGridViewComponent],
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
 })
@@ -55,7 +56,7 @@ export class GroupListComponent implements OnInit, OnDestroy {
   async createNew(): Promise<void> {
     const instance = this.groupService.create('', '');
     this.repository.create(instance);
-    this.instances.set([...this.instances(),instance]);
+    this.instances.set([...this.instances(), instance]);
   }
 
   ngOnDestroy() {

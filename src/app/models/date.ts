@@ -4,16 +4,6 @@ export interface TimeZonedDate {
   timeZoneOffset: number; // Offset in minutes at the time of creation
 }
 
-// Define our own Intl.DurationFormatOptions since it's not in the standard TS types
-export interface DurationFormatOptions {
-  days?: number;
-  hours?: number;
-  minutes?: number;
-  seconds?: number;
-  milliseconds?: number;
-}
-
-
 
 export class TZDate implements TimeZonedDate {
   public readonly timestamp: number;
@@ -144,45 +134,6 @@ export class TZDate implements TimeZonedDate {
       date: this.toUTCDate(),
       timeZone: this.timeZone
     };
-  }
-  
-  /**
-   * Get a duration object that can be used with Intl.DurationFormat
-   * @param otherTime The other time to calculate duration with
-   */
-  getDurationObject(otherTime: TZDate): DurationFormatOptions {
-    const durationMs = Math.abs(this.timestamp - otherTime.timestamp);
-    
-    const milliseconds = durationMs % 1000;
-    const seconds = Math.floor(durationMs / 1000) % 60;
-    const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
-    const hours = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
-    const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
-    
-    return { days, hours, minutes, seconds, milliseconds };
-  }
-  
-  /**
-   * Get values needed for RelativeTimeFormat
-   */
-  getRelativeTimeInfo(): { value: number; unit: Intl.RelativeTimeFormatUnit } {
-    const now = Date.now();
-    const diffMs = this.timestamp - now;
-    
-    // Calculate the appropriate unit and value
-    const seconds = diffMs / 1000;
-    const minutes = seconds / 60;
-    const hours = minutes / 60;
-    const days = hours / 24;
-    const months = days / 30; // Approximate
-    const years = days / 365; // Approximate
-    
-    if (Math.abs(seconds) < 60) return { value: Math.round(seconds), unit: 'second' };
-    if (Math.abs(minutes) < 60) return { value: Math.round(minutes), unit: 'minute' };
-    if (Math.abs(hours) < 24) return { value: Math.round(hours), unit: 'hour' };
-    if (Math.abs(days) < 30) return { value: Math.round(days), unit: 'day' };
-    if (Math.abs(months) < 12) return { value: Math.round(months), unit: 'month' };
-    return { value: Math.round(years), unit: 'year' };
   }
   
   /**

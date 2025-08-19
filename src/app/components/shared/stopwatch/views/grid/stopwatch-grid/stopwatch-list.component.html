@@ -1,0 +1,17 @@
+@if(loading()) {
+
+}
+@else {
+    <div class="row g-4">
+    @for (instance of instances; track instance.id) {
+        <stopwatch-grid-detail-view class="col-3" 
+            [instance]="instance"
+            (deleteEmitter)="handleDelete($event)"
+            (forkEmitter)="handleFork($event)"
+            >
+        </stopwatch-grid-detail-view>
+    } @empty {
+        <span>No stopwatches found.</span>
+    }
+    </div>
+}

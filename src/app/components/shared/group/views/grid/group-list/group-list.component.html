@@ -1,0 +1,10 @@
+@if(loading()) {
+
+}
+@else {
+    @for (instance of instances; track instance.id) {
+        <group-grid-detail-view [instance]="instance"></group-grid-detail-view>
+    } @empty {
+        <span>No groups found.</span>
+    }
+}

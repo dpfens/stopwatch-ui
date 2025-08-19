@@ -1,0 +1,10 @@
+@if(loading()) {
+
+}
+@else {
+    @for (instance of instances; track instance.id) {
+        <stopwatch-list-detail-view [instance]="instance"></stopwatch-list-detail-view>
+    } @empty {
+        <span>No stopwatches found.</span>
+    }
+}

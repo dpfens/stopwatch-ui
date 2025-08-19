@@ -1,0 +1,63 @@
+<mat-card id="{{ instance.id }}" appearance="outlined">
+  <mat-card-header class="d-flex align-items-center">
+    <div class="flex-grow-1">
+        <mat-card-title>{{ instance.annotation.title }}</mat-card-title>
+        <mat-card-subtitle></mat-card-subtitle>
+    </div>
+
+    <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+    <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu" xPosition="before" >
+        <button mat-menu-item (click)="fork()">
+            <mat-icon>fork_right</mat-icon>
+            <span>Fork</span>
+        </button>
+        <button mat-menu-item (click)="delete()">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+        </button>
+    </mat-menu>
+    
+  </mat-card-header>
+  <mat-card-content class="text-center">
+    <div class="d-flex justify-content-around">
+        <div class="d-flex justify-content-center">
+            {{ durationFormatter().format(totalDuration()) }}
+        </div>
+        @if(!!splitDuration() ) {
+            <div class="d-flex justify-content-center">
+                {{ durationFormatter().format(splitDuration()!) }}
+            </div>
+        }
+    </div>
+
+    <mat-button-toggle-group
+    class="mb-3"
+    name="favoriteColor"
+    aria-label="Favorite Color"
+    [hideSingleSelectionIndicator]="true"
+    >
+        @if(!controller().isActive()) {
+            <mat-button-toggle (click)="start()">Start</mat-button-toggle>
+        }
+        @if(controller().isActive() && !controller().isRunning()) {
+            <mat-button-toggle (click)="resume()">Resume</mat-button-toggle>
+            <mat-button-toggle (click)="reset()">Reset</mat-button-toggle>
+        }
+        @if(controller().isRunning()) {
+            <mat-button-toggle (click)="stop()">Stop</mat-button-toggle>
+            <mat-button-toggle (click)="split()">Split</mat-button-toggle>
+        }
+    </mat-button-toggle-group>
+  </mat-card-content>
+  @if(instance.groups) {
+    <mat-card-footer>
+    <mat-chip-set aria-label="Groups">
+        @for(group of instance.groups; track group.id) {
+            <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
+        }
+    </mat-chip-set>
+  </mat-card-footer>
+  }
+</mat-card>

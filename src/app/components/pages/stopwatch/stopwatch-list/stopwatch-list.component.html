@@ -4,9 +4,9 @@
 
 }
 @else {
-    @for (instance of instances(); track instance.id) {
-        <div>{{ instance.annotation.title }}</div>
-    } @empty {
+    @if (instances().length) {
+        <stopwatch-list-grid-view [instances]="instances()" ></stopwatch-list-grid-view>
+    } @else {
         <span>No items found.</span>
     }
 }

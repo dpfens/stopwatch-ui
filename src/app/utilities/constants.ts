@@ -7,6 +7,12 @@ export enum GLOBAL {
   SEARCH = 'global.search'
 }
 
+export enum Time {
+  ONE_MINUTE = 60000,
+  ONE_SECOND = 1000,
+  FIVE_SECONDS = 5000,
+  ZERO = 0
+}
 
 /**
  * Predefined objective type presets for common use cases
