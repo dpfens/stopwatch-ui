@@ -1,4 +1,4 @@
-import { GroupTraitPreset, GroupTraits, ObjectiveType } from "../models/sequence/interfaces";
+import { GroupTraitPreset, GroupTraits, ObjectiveType, SelectOptGroup, SelectOption, StopWatchEventType } from "../models/sequence/interfaces";
 
 // ACTIONS
 export enum GLOBAL {
@@ -54,3 +54,110 @@ export const GroupPresets: Record<GroupTraitPreset, GroupTraits> = {
     analytics: []
   }
 } as const;
+
+export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
+  {
+    display: 'User Controls',
+    options: [
+      {
+        display: 'User Start',
+        value: 'user_start'
+      },
+      {
+        display: 'User Stop',
+        value: 'user_stop'
+      },
+      {
+        display: 'User Resume',
+        value: 'user_resume'
+      }
+    ]
+  },
+  {
+    display: 'Performance Monitoring',
+    options: [
+      {
+        display: 'Split Time',
+        value: 'split'
+      },
+      {
+        display: 'Lap / Cyclic Event',
+        value: 'cyclic'
+      },
+      {
+        display: 'Latency Check',
+        value: 'latency'
+      },
+      {
+        display: 'Capacity Limit',
+        value: 'capacity'
+      },
+      {
+        display: 'Threshold Breach',
+        value: 'threshold'
+      }
+    ]
+  },
+  {
+    display: 'Quality & Stability',
+    options: [
+      {
+        display: 'Performance Drift',
+        value: 'drift'
+      },
+      {
+        display: 'System Equilibrium',
+        value: 'equilibrium'
+      },
+      {
+        display: 'Value Oscillation',
+        value: 'oscillation'
+      },
+      {
+        display: 'Data Variance',
+        value: 'variance'
+      },
+      {
+        display: 'Auto Compensation',
+        value: 'compensation'
+      },
+      {
+        display: 'Stability Check',
+        value: 'stability'
+      }
+    ]
+  },
+  {
+    display: 'Progress Tracking',
+    options: [
+      {
+        display: 'Data Accumulation',
+        value: 'accumulation'
+      },
+      {
+        display: 'Value Convergence',
+        value: 'convergence'
+      },
+      {
+        display: 'State Transition',
+        value: 'state-transition'
+      },
+      {
+        display: 'Saturation Point',
+        value: 'saturation'
+      },
+      {
+        display: 'Milestone Reached',
+        value: 'milestone'
+      },
+      {
+        display: 'Acceleration Event',
+        value: 'acceleration'
+      },
+      {
+        display: 'Deceleration Event',
+        value: 'deceleration'
+      }
+    ]
+  }
+] as const;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable } from '@angular/core';
 
 // Define our own Intl.DurationFormatOptions since it's not in the standard TS types
 export interface DurationFormatOptions {
@@ -14,6 +14,16 @@ export interface DurationFormatOptions {
   providedIn: 'root'
 })
 export class TimeService {
+  durationFormatter = computed(() => {
+    if ('DurationFormat' in Intl) {
+      return new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital' });
+    }
+    return {
+      format: (durationFormat: DurationFormatOptions) => {
+        return '';
+      }
+    }
+  });
 
   /**
    * Converts a duration (in milliseconds) to DurationFormat

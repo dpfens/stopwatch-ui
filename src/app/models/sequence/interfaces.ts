@@ -44,13 +44,14 @@ export interface Annotatable {
 }
 
 
-type FundamentalStopWatchEventType = 'start' | 'stop' | 'resume';
+type OperationalStopWatchEventType = 'start' | 'stop' | 'resume';
+type UserOperationalStopwatchEventType = 'user_start' | 'user_stop' | 'user_resume';
 type PerformanceMonitoringStopWatchEventType = 'split' | 'cyclic' | 'latency' | 'capacity' | 'threshold';
 type QualityStabilityStopWatchEventType = 'drift' | 'equilibrium' | 'oscillation' | 'variance' | 'compensation' | 'stability';
 type ProgressStopWatchEventType = 'accumulation' | 'convergence' | 'state-transition' | 'saturation' | 'milestone' | 'acceleration' | 'deceleration';
 type AnalyticEventType = 'forecast' | 'trend' | 'anomaly';
 export type ComputedEventType = AnalyticEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
-export type StopWatchEventType = FundamentalStopWatchEventType | PerformanceMonitoringStopWatchEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
+export type StopWatchEventType = OperationalStopWatchEventType | UserOperationalStopwatchEventType | PerformanceMonitoringStopWatchEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
 
 
 export type StopwatchAnalyticsTrait = 
@@ -235,6 +236,7 @@ export interface IStopwatchStateController {
     
     // Event management
     addEvent(type: StopWatchEventType, title: string, timestamp: Date, description?: string, unit?: UnitValue): void;
+    removeEvent(event: StopwatchEvent): void;
     
     // Time measurement
     getTotalDuration(): number;         // Get total wall clock duration since first start in milliseconds
@@ -267,4 +269,19 @@ export interface IContextualStopwatchController extends IAnnotatableController {
     setObjective(objective: Objective): void;
     getObjective(): Objective | undefined;
     evaluatePerformance(): number | undefined;
+}
+
+export interface SelectOption<T> {
+    display: string;
+    value: T;
+}
+
+export interface SelectOptGroup<T> {
+    display: string;
+    options: SelectOption<T>[];
+}
+
+export interface VisibleSplit {
+  duration: Intl.Duration;
+  event: StopwatchEvent;
 }

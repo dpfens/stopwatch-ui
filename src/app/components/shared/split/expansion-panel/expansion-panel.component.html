@@ -1,0 +1,35 @@
+<mat-expansion-panel>
+    <mat-expansion-panel-header>
+        <mat-panel-title>{{ instance.event.annotation.title }}</mat-panel-title>
+        <mat-panel-description>{{ timeService.durationFormatter().format(instance.duration) }}</mat-panel-description>
+        <mat-panel-description>{{ instance.event.type }}</mat-panel-description>
+        
+    </mat-expansion-panel-header>
+
+    <form class="d-flex justify-space-between" [formGroup]="form">
+        <mat-form-field>
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" (change)="handleChange()" />
+        </mat-form-field>
+
+        <mat-form-field class="ms-1">
+            <mat-label>Split Type</mat-label>
+            <mat-select [(value)]="instance.event.type" formControlName="splitType" (selectionChange)="handleChange()">
+                <mat-select-trigger>
+                {{ instance.event.type }}
+                </mat-select-trigger>
+                @for (group of selectableSplitTypes; track group) {
+                    <mat-optgroup [label]="group.display">
+                        @for(option of group.options; track option.value) {
+                            <mat-option [value]="option.value">{{ option.display }}</mat-option>
+                        }
+                    </mat-optgroup>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <button matIconButton (click)="delete()" [ariaLabel]="'Delete {{ instance.event.annotation.title }}'">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </form>
+</mat-expansion-panel>

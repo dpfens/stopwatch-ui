@@ -3,6 +3,7 @@ import {
   StopWatchEventType, 
   UnitValue, 
   IStopwatchStateController,
+  StopwatchEvent,
 } from "../../models/sequence/interfaces";
 import { StopwatchStateController } from "./stopwatch-state-controller";
 
@@ -209,6 +210,11 @@ export class CachedStopwatchStateController extends StopwatchStateController imp
     unit?: UnitValue
   ): void {
     super.addEvent(type, title, timestamp, description, unit);
+    this.invalidateCache();
+  }
+
+  override removeEvent(event: StopwatchEvent): void {
+    super.removeEvent(event);
     this.invalidateCache();
   }
 

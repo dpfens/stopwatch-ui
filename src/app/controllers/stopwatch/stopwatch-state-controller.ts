@@ -116,6 +116,14 @@ export class StopwatchStateController implements IStopwatchStateController {
       sequence: [...this.state.sequence, event]
     };
   }
+
+
+  removeEvent(event: StopwatchEvent): void {
+    const index = this.state.sequence.findIndex(evt => evt.id === event.id );
+    if (index > -1) {
+      this.state.sequence.splice(index, 1);
+    }
+  }
   
   /**
    * Gets the total duration (wall clock time) since the first start event

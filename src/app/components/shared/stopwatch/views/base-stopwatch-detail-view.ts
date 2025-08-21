@@ -7,7 +7,6 @@ import { CachedStopwatchStateController } from '../../../../controllers/stopwatc
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { DurationFormatOptions, TimeService } from '../../../../services/time/time.service';
 import { Time } from '../../../../utilities/constants';
-import { Writable } from 'stream';
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
@@ -52,17 +51,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit {
   splitDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   lapDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
-
-  durationFormatter = computed(() => {
-    if ('DurationFormat' in Intl) {
-      return new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital' });
-    }
-    return {
-      format: (durationFormat: DurationFormatOptions) => {
-        return '';
-      }
-    }
-  });
 
   ngAfterViewInit(): void {
     const controller = this.controller();
@@ -120,7 +108,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit {
 
   async split() {
     const now = new Date();
-    this.controller().addEvent('split', 'Split', now);
+    this.controller().addEvent('split', '', now);
     this.buildSplits();
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
@@ -170,12 +158,11 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit {
     this.startDurationUpdate(
       () => {
         const lastSplitEvent = this.controller().getState().sequence.findLast(event => event.type === 'split');
+        console
         return lastSplitEvent ? this.controller().getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
       },
       (durationMs, durationFormat) => {
-        if (durationMs > 0) {
           this.splitDuration.set(durationFormat);
-        }
       }
     );
 
@@ -186,9 +173,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit {
         return lastLapEvent ? this.controller().getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
       },
       (durationMs, durationFormat) => {
-        if (durationMs > 0) {
-          this.lapDuration.set(durationFormat);
-        }
+        this.lapDuration.set(durationFormat);
       }
     );
   }
@@ -233,7 +218,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit {
 
   private buildSplits() {
     const state = this.controller().getState();
-    const eligibleSplits = state.sequence.filter(event => !['start', 'stop', 'resume'].includes(event.type));
+    const eligibleSplits = state.sequence.filter(event => !['stop', 'resume'].includes(event.type));
     const visibleSplits: VisibleSplit[] = [];
     for(let i = 1; i < eligibleSplits.length; i++) {
       const rawSplitDuration = this.controller().getElapsedTimeBetweenEvents(eligibleSplits[i - 1].id, eligibleSplits[i].id);
@@ -241,5 +226,32 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit {
       visibleSplits.push({duration: splitDuration, event: eligibleSplits[i]});
     }
     this.visibleSplits.set(visibleSplits);
+  }
+
+  async handleSplitUpdate(instance: VisibleSplit) {
+    const event = instance.event;
+    const state = this.controller().getState();
+    const index = state.sequence.findIndex(evt => evt.id === event.id);
+    if (index) {
+      state.sequence[index] = event;
+      
+      const visibleSplits = this.visibleSplits();
+      const visibleSplitIndex = visibleSplits.findIndex(split => split.event.id === event.id);
+      visibleSplits[visibleSplitIndex] = instance;
+      this.visibleSplits.set([...visibleSplits]);
+
+      await this.repository.update({...this.instance, state: state});
+    }
+  }
+
+  async handleSplitDelete(instance: VisibleSplit) {
+    const event = instance.event;
+    this.controller().removeEvent(event);
+
+    const visibleSplits = this.visibleSplits();
+    const visibleSplitIndex = visibleSplits.findIndex(split => split.event.id === event.id);
+    visibleSplits.splice(visibleSplitIndex, 1);
+    this.visibleSplits.set([...visibleSplits]);
+    await this.repository.update({...this.instance, state: this.controller().getState()});
   }
 }

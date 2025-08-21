@@ -1,4 +1,4 @@
-<mat-card id="{{ instance.id }}" appearance="outlined">
+<mat-card id="{{ instance.id }}" appearance="outlined" class="pb-3">
   <mat-card-header class="d-flex align-items-center">
     <div class="flex-grow-1">
         <mat-card-title>{{ instance.annotation.title }}</mat-card-title>
@@ -23,11 +23,11 @@
   <mat-card-content class="text-center">
     <div class="d-flex justify-content-around">
         <div class="d-flex justify-content-center">
-            {{ durationFormatter().format(totalDuration()) }}
+            {{ timeService.durationFormatter().format(totalDuration()) }}
         </div>
         @if(!!splitDuration() ) {
             <div class="d-flex justify-content-center">
-                {{ durationFormatter().format(splitDuration()!) }}
+                {{ timeService.durationFormatter().format(splitDuration()!) }}
             </div>
         }
     </div>
@@ -50,6 +50,19 @@
             <mat-button-toggle (click)="split()">Split</mat-button-toggle>
         }
     </mat-button-toggle-group>
+
+    @if(visibleSplits().length) {
+        <mat-accordion>
+            @for(split of visibleSplits(); track $index) {
+                <split-expansion-panel
+                    [instance]="split"
+                    [stopwatchId]="instance.id"
+                    (updateEmitter)="handleSplitUpdate($event)"
+                    (deleteEmitter)="handleSplitDelete($event)">    
+                </split-expansion-panel>
+            }
+        </mat-accordion>
+    }
   </mat-card-content>
   @if(instance.groups) {
     <mat-card-footer>
