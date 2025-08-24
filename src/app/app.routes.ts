@@ -7,6 +7,7 @@ import { GroupListComponent } from './components/pages/group/group-list/group-li
 import { GroupDetailComponent } from './components/pages/group/group-detail/group-detail.component';
 import { StopwatchSettingsComponent } from './components/pages/stopwatch/stopwatch-settings/stopwatch-settings.component';
 import { GroupSettingsComponent } from './components/pages/group/group-settings/group-settings.component';
+import { AboutComponent } from './components/pages/about/about.component';
 
 export const routes: Routes = [
   { 
@@ -52,5 +53,10 @@ export const routes: Routes = [
     path: 'settings', 
     title: 'Settings',
     component: SettingsComponent
+  },
+  { 
+    path: 'about', 
+    title: 'About',
+    component: AboutComponent
   }
 ];
