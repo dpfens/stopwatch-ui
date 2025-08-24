@@ -1,35 +1,69 @@
-<mat-expansion-panel>
-    <mat-expansion-panel-header>
-        <mat-panel-title>{{ instance.event.annotation.title }}</mat-panel-title>
-        <mat-panel-description>{{ timeService.durationFormatter().format(instance.duration) }}</mat-panel-description>
-        <mat-panel-description>{{ instance.event.type }}</mat-panel-description>
-        
-    </mat-expansion-panel-header>
 
-    <form class="d-flex justify-space-between" [formGroup]="form">
-        <mat-form-field>
-            <mat-label>Title</mat-label>
-            <input matInput formControlName="title" (change)="handleChange()" />
-        </mat-form-field>
+<div class="">
+    <div class="d-flex text-start align-items-center">
+        <div class="flex-grow-1">
+            <span matListItemLine>{{ instance.event.type }}</span>
+            <span matListItemTitle>{{ instance.event.annotation.title }}</span>
+        </div>
+        <span matListItemTitle class="flex-grow-1">{{ timeService.durationFormatter().format(instance.duration) }}</span>
+        <div class="d-flex align-items-center">
+            @if (!isEditting()) {
+                <button matIconButton aria-label="Edit" (click)="isEditting.set(true)">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button matIconButton aria-label="Delete" (click)="delete()">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            }
+            @else {
+                <button matIconButton (click)="isEditting.set(false)" >
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+        </div>
+    </div>
+    @if(isEditting()) {
+        <form [formGroup]="form">
+            <div class="d-flex justify-space-between" >
+                <mat-form-field>
+                    <mat-label>Title</mat-label>
+                    <input matInput formControlName="title" (change)="handleChange()" />
+                </mat-form-field>
 
-        <mat-form-field class="ms-1">
-            <mat-label>Split Type</mat-label>
-            <mat-select [(value)]="instance.event.type" formControlName="splitType" (selectionChange)="handleChange()">
-                <mat-select-trigger>
-                {{ instance.event.type }}
-                </mat-select-trigger>
-                @for (group of selectableSplitTypes; track group) {
-                    <mat-optgroup [label]="group.display">
-                        @for(option of group.options; track option.value) {
-                            <mat-option [value]="option.value">{{ option.display }}</mat-option>
+                <mat-form-field class="ms-1">
+                    <mat-label>Split Type</mat-label>
+                    <mat-select [(value)]="instance.event.type" formControlName="splitType" (selectionChange)="handleChange()">
+                        <mat-select-trigger>
+                        {{ instance.event.type }}
+                        </mat-select-trigger>
+                        @for (group of selectableSplitTypes; track group) {
+                            <mat-optgroup [label]="group.display">
+                                @for(option of group.options; track option.value) {
+                                    <mat-option [value]="option.value">{{ option.display }}</mat-option>
+                                }
+                            </mat-optgroup>
                         }
-                    </mat-optgroup>
-                }
-            </mat-select>
-        </mat-form-field>
-
-        <button matIconButton (click)="delete()" [ariaLabel]="'Delete {{ instance.event.annotation.title }}'">
-            <mat-icon>delete</mat-icon>
-        </button>
-    </form>
-</mat-expansion-panel>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="d-flex flex-row">
+                    <mat-form-field class="example-full-width">
+                        <mat-label>@if(instance.event.type === 'split') {Split}@else{Lap} Distance</mat-label>
+                        <input type="tel" matInput placeholder="400" formControlName="splitValue" (change)="handleChange()">
+                    </mat-form-field>
+                    <mat-form-field class="flex-grow-1 ms-1">
+                        <mat-label>@if(instance.event.type === 'split') {Split}@else{Lap} Units</mat-label>
+                        <mat-select (selectionChange)="handleChange()" formControlName="splitUnit">
+                            @for (group of lapUnits; track group) {
+                                <mat-optgroup [label]="group.display">
+                                    @for(option of group.options; track option.value) {
+                                        <mat-option [value]="option.value">{{option.display}}</mat-option>
+                                    }
+                                </mat-optgroup>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+            </div>
+        </form>
+    }
+</div>

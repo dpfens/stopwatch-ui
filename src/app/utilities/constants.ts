@@ -161,3 +161,28 @@ export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
     ]
   }
 ] as const;
+
+
+export const LapUnits: SelectOptGroup<string>[] = [
+    {
+      display: 'Distance',
+      options: [
+        {
+          display: 'Meters',
+          value: 'm'
+        },
+        {
+          display: 'Kilometers',
+          value: 'km'
+        },
+        {
+          display: 'Miles',
+          value: 'mi'
+        },
+        {
+          display: 'Yards',
+          value: 'yd'
+        }
+      ]
+    }
+  ] as const;

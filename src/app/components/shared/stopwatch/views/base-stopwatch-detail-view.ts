@@ -2,15 +2,16 @@ import { AfterViewInit, Component, computed, EventEmitter, inject, Input, Output
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { ContextualStopwatchEntity, IStopwatchStateController, StopwatchEvent } from '../../../../models/sequence/interfaces';
+import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { CachedStopwatchStateController } from '../../../../controllers/stopwatch/cached-stopwatch-state-controller';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DurationFormatOptions, TimeService } from '../../../../services/time/time.service';
-import { Time } from '../../../../utilities/constants';
+import { LapUnits, Time } from '../../../../utilities/constants';
 import { AnimationTimerService } from '../../../../services/timer/animation-timer.service';
 import { TimerService } from '../../../../services/timer/timer.service';
+import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
@@ -33,6 +34,7 @@ interface TimerSubscription {
 
 @Component({
   selector: 'base-stopwatch-detail-view',
+  imports: [FormsModule],
   template: ''
 })
 export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestroy {
@@ -64,11 +66,25 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
 
   loading = signal(false);
   error = signal<Error | null>(null);
+  changingSettings = signal(false);
+  lapUnits: SelectOptGroup<string>[] = LapUnits;
 
   totalDuration: WritableSignal<DurationFormatOptions> = signal({milliseconds: Time.ZERO});
   splitDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   lapDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
+
+  settingsForm = new FormGroup({
+    title: new FormControl(''),
+    description: new FormControl(''),
+    lapValue: new FormControl(''),
+    lapUnit: new FormControl('')
+  });
+
+  ngOnInit(): void {
+    this.settingsForm.controls.title.patchValue(this.instance.annotation.title);
+    this.settingsForm.controls.description.patchValue(this.instance.annotation.description);
+  }
 
   /**
    * Tracks active timer subscriptions for proper cleanup.
@@ -207,19 +223,27 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
         return lastSplitEvent ? this.controller().getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
       },
       (durationMs, durationFormat) => {
-        this.splitDuration.set(durationFormat);
+        if (durationMs > 0) {
+          this.splitDuration.set(durationFormat);
+        } else {
+          this.splitDuration.set(undefined);
+        }
       }
     );
 
     // Start updating lap duration if we have lap events
     this.startDurationTimer(
-      'lap',
+      'cyclic',
       () => {
         const lastLapEvent = this.controller().getState().sequence.findLast(event => event.type === 'cyclic');
         return lastLapEvent ? this.controller().getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
       },
       (durationMs, durationFormat) => {
-        this.lapDuration.set(durationFormat);
+        if (durationMs > 0) {
+          this.lapDuration.set(durationFormat);
+        } else {
+          this.lapDuration.set(undefined);
+        }
       }
     );
   }
@@ -422,6 +446,16 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const visibleSplitIndex = visibleSplits.findIndex(split => split.event.id === event.id);
     visibleSplits.splice(visibleSplitIndex, 1);
     this.visibleSplits.set([...visibleSplits]);
+    await this.repository.update({...this.instance, state: this.controller().getState()});
+  }
+
+  async handleSettingsChange() {
+    if (this.settingsForm.controls.title) {
+      this.instance.annotation.title = this.settingsForm.controls.title.value as string;
+    }
+    if (this.settingsForm.controls.description) {
+      this.instance.annotation.description = this.settingsForm.controls.description.value as string;
+    }
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
 }

@@ -1,1 +1,9 @@
-<p>group-detail works!</p>
+@if(loading()) {
+
+} @else {
+    @if(!!instance()) {
+        <p>{{ instance()!.id }}</p>
+    } @else {
+        <p>{{ id() }} not found!</p>
+    }
+}

@@ -1,5 +1,4 @@
 import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
-import {MatExpansionModule} from '@angular/material/expansion';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -7,11 +6,18 @@ import { MatInputModule } from '@angular/material/input';
 import { BaseSplitComponent } from '../base-split.component';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { StopWatchEventType, VisibleSplit } from '../../../../models/sequence/interfaces';
+import { MatButtonModule } from '@angular/material/button';
+import { LapUnits } from '../../../../utilities/constants';
+import { MatListModule } from '@angular/material/list';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 
 @Component({
   selector: 'split-expansion-panel',
-  imports: [FormsModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatIconModule],
+  imports: [
+    MatExpansionModule,
+    FormsModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatInputModule,
+    MatListModule, MatButtonModule, MatIconModule],
   templateUrl: './expansion-panel.component.html',
   styleUrl: './expansion-panel.component.scss'
 })
@@ -19,7 +25,11 @@ export class SplitExpansionPanelComponent extends BaseSplitComponent implements 
   form = new FormGroup({
     title: new FormControl(''),
     splitType: new FormControl(''),
+    splitValue: new FormControl(''),
+    splitUnit: new FormControl('')
   });
+  isEditting = signal(false);
+  lapUnits = LapUnits;
 
   @Output() updateEmitter: EventEmitter<VisibleSplit> = new EventEmitter<VisibleSplit>();
   @Output() deleteEmitter: EventEmitter<VisibleSplit> = new EventEmitter<VisibleSplit>();

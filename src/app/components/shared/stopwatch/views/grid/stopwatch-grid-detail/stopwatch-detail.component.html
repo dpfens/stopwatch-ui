@@ -1,76 +1,137 @@
 <mat-card id="{{ instance.id }}" appearance="outlined" class="pb-3">
   <mat-card-header class="d-flex align-items-center">
-    <div class="flex-grow-1">
-        <mat-card-title>{{ instance.annotation.title }}</mat-card-title>
-        <mat-card-subtitle></mat-card-subtitle>
-    </div>
-
-    <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-    <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu" xPosition="before" >
-        <button mat-menu-item (click)="fork()">
-            <mat-icon>fork_right</mat-icon>
-            <span>Fork</span>
+    @if(!changingSettings()) {
+        <div class="flex-grow-1">
+            <mat-card-title>{{ instance.annotation.title }}</mat-card-title>
+            <mat-card-subtitle></mat-card-subtitle>
+        </div>
+        <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <mat-icon>more_vert</mat-icon>
         </button>
-        <button mat-menu-item (click)="delete()">
-            <mat-icon>delete</mat-icon>
-            <span>Delete</span>
-        </button>
-    </mat-menu>
+        <mat-menu #menu="matMenu" xPosition="before" >   
+            <button mat-menu-item (click)="fork()">
+                <mat-icon>fork_right</mat-icon>
+                <span>Fork</span>
+            </button>
+            <button mat-menu-item (click)="changingSettings.set(true)">
+                <mat-icon>gear</mat-icon>
+                <span>Settings</span>
+            </button>
+            <button mat-menu-item (click)="delete()">
+                <mat-icon>delete</mat-icon>
+                <span>Delete</span>
+            </button>
+        </mat-menu>
+    }
     
   </mat-card-header>
-  <mat-card-content class="text-center">
-    <div class="d-flex justify-content-around">
-        <div class="d-flex justify-content-center">
-            {{ timeService.durationFormatter().format(totalDuration()) }}
-        </div>
-        @if(!!splitDuration() ) {
-            <div class="d-flex justify-content-center">
-                {{ timeService.durationFormatter().format(splitDuration()!) }}
+  @if(changingSettings()) {
+    <mat-card-content>
+        <form [formGroup]="settingsForm" class="d-flex flex-column">
+            <mat-form-field class="example-full-width">
+                <mat-label>Title</mat-label>
+                <input matInput placeholder="Ex. Pizza" formControlName="title" (change)="handleSettingsChange()">
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+                <mat-label>Description</mat-label>
+                <textarea matInput 
+                    placeholder=""
+                    formControlName="description"
+                    (change)="handleSettingsChange()"
+                    >
+                </textarea>
+            </mat-form-field>
+
+            <div class="d-flex flex-row">
+                <mat-form-field class="example-full-width">
+                    <mat-label>Lap Distance</mat-label>
+                    <input type="tel" matInput placeholder="400" formControlName="lapValue" (change)="handleSettingsChange()">
+                </mat-form-field>
+                <mat-form-field class="flex-grow-1">
+                    <mat-label>Lap Units</mat-label>
+                    <mat-select (change)="handleSettingsChange()" formControlName="lapUnit">
+                        @for (group of lapUnits; track group) {
+                            <mat-optgroup [label]="group.display">
+                                @for(option of group.options; track option.value) {
+                                    <mat-option [value]="option.value">{{option.display}}</mat-option>
+                                }
+                            </mat-optgroup>
+                        }
+                    </mat-select>
+                </mat-form-field>
             </div>
-        }
-    </div>
-
-    <mat-button-toggle-group
-    class="mb-3"
-    name="favoriteColor"
-    aria-label="Favorite Color"
-    [hideSingleSelectionIndicator]="true"
-    >
-        @if(!controller().isActive()) {
-            <mat-button-toggle (click)="start()">Start</mat-button-toggle>
-        }
-        @if(controller().isActive() && !controller().isRunning()) {
-            <mat-button-toggle (click)="resume()">Resume</mat-button-toggle>
-            <mat-button-toggle (click)="reset()">Reset</mat-button-toggle>
-        }
-        @if(controller().isRunning()) {
-            <mat-button-toggle (click)="stop()">Stop</mat-button-toggle>
-            <mat-button-toggle (click)="split()">Split</mat-button-toggle>
-        }
-    </mat-button-toggle-group>
-
-    @if(visibleSplits().length) {
-        <mat-accordion>
-            @for(split of visibleSplits(); track $index) {
-                <split-expansion-panel
-                    [instance]="split"
-                    [stopwatchId]="instance.id"
-                    (updateEmitter)="handleSplitUpdate($event)"
-                    (deleteEmitter)="handleSplitDelete($event)">    
-                </split-expansion-panel>
+            <button matButton="tonal" (click)="changingSettings.set(false)">
+                <span>Done</span>
+            </button>
+        </form>
+    </mat-card-content>
+  } @else {
+    <mat-card-content class="text-center">
+        <div class="d-flex justify-content-around align-items-center">
+            <div class="d-flex flex-column align-items-start">
+                @if(lapDuration() || splitDuration()) {
+                    <label class="text-uppercase">total</label>
+                }
+                <time>{{ timeService.durationFormatter().format(totalDuration()) }}</time>
+            </div>
+            @if(!!splitDuration() || !!lapDuration()) {
+                <div class="d-flex flex-column">
+                    @if(!!lapDuration()) {
+                        <div class="d-flex flex-column align-items-start">
+                            <label class="text-uppercase">lap</label>
+                            <time>{{ timeService.durationFormatter().format(lapDuration()!) }}</time>
+                        </div>
+                    }
+                    @if(!!splitDuration()) {
+                        <div class="d-flex flex-column align-items-start mt-3">
+                            <label class="text-uppercase">split</label>
+                            <time>{{ timeService.durationFormatter().format(splitDuration()!) }}</time>
+                        </div>
+                    }
+                </div> 
             }
-        </mat-accordion>
-    }
-  </mat-card-content>
-  @if(instance.groups) {
-    <mat-card-footer>
-    <mat-chip-set aria-label="Groups">
-        @for(group of instance.groups; track group.id) {
-            <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
+        </div>
+
+        <mat-button-toggle-group
+        class="mb-3"
+        name="favoriteColor"
+        aria-label="Favorite Color"
+        [hideSingleSelectionIndicator]="true"
+        >
+            @if(!controller().isActive()) {
+                <mat-button-toggle (click)="start()">Start</mat-button-toggle>
+            }
+            @if(controller().isActive() && !controller().isRunning()) {
+                <mat-button-toggle (click)="resume()">Resume</mat-button-toggle>
+                <mat-button-toggle (click)="reset()">Reset</mat-button-toggle>
+            }
+            @if(controller().isRunning()) {
+                <mat-button-toggle (click)="stop()">Stop</mat-button-toggle>
+                <mat-button-toggle (click)="split()">Split</mat-button-toggle>
+            }
+        </mat-button-toggle-group>
+
+        @if(visibleSplits().length) {
+            <mat-list>
+                @for(split of visibleSplits(); track $index) {
+                    <split-expansion-panel
+                        [instance]="split"
+                        (updateEmitter)="handleSplitUpdate($event)"
+                        (deleteEmitter)="handleSplitDelete($event)">    
+                    </split-expansion-panel>
+                }
+            </mat-list>
         }
-    </mat-chip-set>
-  </mat-card-footer>
+    </mat-card-content>
+    @if(instance.groups) {
+        <mat-card-footer>
+        <mat-chip-set aria-label="Groups">
+            @for(group of instance.groups; track group.id) {
+                <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
+            }
+        </mat-chip-set>
+    </mat-card-footer>
+    }
   }
 </mat-card>

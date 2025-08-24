@@ -1,4 +1,6 @@
-<div id="{{ instance.id }}" class="d-flex">
+<a
+    routerLink="/group/{{ instance.id }}" routerLinkActive="active" ariaCurrentWhenActive="page"
+    id="{{ instance.id }}" class="d-flex">
     <div class="flex-grow-1">
         <span matListItemLine>{{ instance.view }}</span>
         <span matListItemTitle>{{ instance.annotation.title || 'Untitled Group' }}</span>
@@ -12,4 +14,4 @@
             <mat-icon>delete</mat-icon>
         </button>
     </div>
-</div>
+</a>

@@ -3,8 +3,13 @@
 }
 @else {
     @if (instances().length) {
-        <div class="col-3">
-            <group-list-view [instances]="instances()"></group-list-view>
+        <div class="row">
+            <div class="col-3">
+                <group-list-view [instances]="instances()"></group-list-view>
+            </div>
+            <div class="col-9">
+                <router-outlet></router-outlet>
+            </div>
         </div>
     } @else {
         <span>No groups found.</span>

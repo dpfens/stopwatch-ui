@@ -7,10 +7,11 @@ import { HeaderActionService } from '../../../../services/action/header-action.s
 import { GLOBAL } from '../../../../utilities/constants';
 import { GroupGridViewComponent } from "../../../shared/group/views/grid/group-list/group-list.component";
 import { GroupListViewComponent } from '../../../shared/group/views/list/group-list/group-list.component';
+import {RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'group-list',
-  imports: [GroupListViewComponent],
+  imports: [GroupListViewComponent, RouterOutlet],
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
 })

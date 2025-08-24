@@ -5,8 +5,6 @@ import { StopwatchListComponent } from './components/pages/stopwatch/stopwatch-l
 import { StopwatchDetailComponent } from './components/pages/stopwatch/stopwatch-detail/stopwatch-detail.component';
 import { GroupListComponent } from './components/pages/group/group-list/group-list.component';
 import { GroupDetailComponent } from './components/pages/group/group-detail/group-detail.component';
-import { StopwatchSettingsComponent } from './components/pages/stopwatch/stopwatch-settings/stopwatch-settings.component';
-import { GroupSettingsComponent } from './components/pages/group/group-settings/group-settings.component';
 import { AboutComponent } from './components/pages/about/about.component';
 
 export const routes: Routes = [
@@ -24,30 +22,18 @@ export const routes: Routes = [
     path: 'stopwatch/:id',
     title: 'Stopwatch',
     component: StopwatchDetailComponent,
-    children: [
-      {
-        path: 'settings',
-        title: 'Settings',
-        component: StopwatchSettingsComponent
-      }
-    ],
   },
   { 
     path: 'group', 
     title: 'Groups',
     component: GroupListComponent,
-  },
-  {
-    path: 'group/:id',
-    title: 'Group',
-    component: GroupDetailComponent,
     children: [
       {
-        path: 'settings',
-        title: 'Settings',
-        component: GroupSettingsComponent
+        path: ':id',
+        title: 'Group',
+        component: GroupDetailComponent,
       }
-    ],
+    ]
   },
   { 
     path: 'settings', 
