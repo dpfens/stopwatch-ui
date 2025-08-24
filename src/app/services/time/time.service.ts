@@ -19,8 +19,19 @@ export class TimeService {
       return new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital' });
     }
     return {
-      format: (durationFormat: DurationFormatOptions) => {
-        return '';
+      format: (options: DurationFormatOptions) => {
+        return 'DurationFormat not supported';
+      }
+    }
+  });
+
+  relativeTimeFormatter = computed(() => {
+    if ('RelativeTimeFormat' in Intl) {
+      return new Intl.RelativeTimeFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'short' });
+    }
+    return {
+      format: (options: Intl.RelativeTimeFormatOptions) => {
+        return 'RelativeTimeFormat not supported';
       }
     }
   });

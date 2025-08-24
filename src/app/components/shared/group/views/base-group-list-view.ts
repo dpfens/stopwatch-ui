@@ -18,4 +18,9 @@ export class BaseGroupListViewComponent {
 
   loading = signal(false);
   error = signal<Error | null>(null);
+
+  handleDelete(instance: StopwatchGroup) {
+      const index = this.instances.lastIndexOf(instance);
+      this.instances.splice(index, 1);
+  }
 }

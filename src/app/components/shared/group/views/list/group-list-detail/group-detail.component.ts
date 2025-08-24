@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { BaseGroupDetailViewComponent } from '../../base-group-detail-view';
+import {MatListModule} from '@angular/material/list';
+import { MatIcon } from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   selector: 'group-list-detail-view',
-  imports: [],
+  imports: [MatListModule, MatButtonModule, MatIcon],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss'
 })

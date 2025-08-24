@@ -1,12 +1,15 @@
-<p>group-list works!</p>
-
 @if(loading()) {
 
 }
 @else {
+    <mat-list>
     @for (instance of instances; track instance.id) {
-        <group-list-detail-view [instance]="instance" ></group-list-detail-view>
+        <group-list-detail-view
+        [instance]="instance" 
+        (deleteEmitter)="handleDelete($event)" >
+        </group-list-detail-view>
     } @empty {
         <span>No groups found.</span>
     }
+    </mat-list>
 }

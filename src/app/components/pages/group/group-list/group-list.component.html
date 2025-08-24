@@ -1,12 +1,12 @@
-<p>group-list works!</p>
-
 @if(loading()) {
 
 }
 @else {
     @if (instances().length) {
-        <group-grid-view [instances]="instances()"></group-grid-view>
+        <div class="col-3">
+            <group-list-view [instances]="instances()"></group-list-view>
+        </div>
     } @else {
-        <span>No items found.</span>
+        <span>No groups found.</span>
     }
 }

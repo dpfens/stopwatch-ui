@@ -6,10 +6,11 @@ import { GroupService } from '../../../../services/group/group.service';
 import { HeaderActionService } from '../../../../services/action/header-action.service';
 import { GLOBAL } from '../../../../utilities/constants';
 import { GroupGridViewComponent } from "../../../shared/group/views/grid/group-list/group-list.component";
+import { GroupListViewComponent } from '../../../shared/group/views/list/group-list/group-list.component';
 
 @Component({
   selector: 'group-list',
-  imports: [GroupGridViewComponent],
+  imports: [GroupListViewComponent],
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
 })

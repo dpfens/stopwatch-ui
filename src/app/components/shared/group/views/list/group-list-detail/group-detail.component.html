@@ -1,2 +1,15 @@
-<p>group-list-detail works!</p>
-<p>ID: {{ instance.id }}</p>
+<div id="{{ instance.id }}" class="d-flex">
+    <div class="flex-grow-1">
+        <span matListItemLine>{{ instance.view }}</span>
+        <span matListItemTitle>{{ instance.annotation.title || 'Untitled Group' }}</span>
+    </div>
+    <div class="flex-grow-1 d-flex align-items-center">
+        <span matListItemLine>{{ members().length }} Stopwatches</span>
+    </div>
+    <div class="d-flex align-items-center">
+        <span matListItemLine>{{ relativeTime(instance.metadata.creation.timestamp) }}</span>
+        <button matIconButton aria-label="Delete" (click)="delete()">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </div>
+</div>
