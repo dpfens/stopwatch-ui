@@ -163,7 +163,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
 
   async split() {
     const now = new Date();
-    this.controller().addEvent('split', '', now);
+    const eventType = 'split';
+    const eventName = this.findAvailableEventName(eventType);
+    this.controller().addEvent(eventType, eventName, now);
     this.buildSplits();
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
@@ -472,5 +474,21 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       this._instance.set({...this.instance, groups});
     }
     await this.repository.update({...this.instance, state: this.controller().getState()});
+  }
+
+  private findAvailableEventName(eventType: string): string {
+    const existingEvents = this.controller().getState().sequence.filter(event => event.type === eventType).length;
+    let exists = true;
+    let newEventName: string = '';
+    let newNumber = existingEvents;
+    while (exists) {
+      newNumber++;
+      newEventName = `${eventType} #${newNumber}`;
+      exists = !!this.controller().getState().sequence.find(event => event.annotation.title === newEventName);
+      if (!exists) {
+        break;
+      }
+    }
+    return newEventName;
   }
 }
