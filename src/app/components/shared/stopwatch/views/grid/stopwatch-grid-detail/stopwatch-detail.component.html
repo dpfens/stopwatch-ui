@@ -61,6 +61,16 @@
                     </mat-select>
                 </mat-form-field>
             </div>
+            <div class="d-flex">
+                <mat-form-field>
+                    <mat-label>Groups</mat-label>
+                    <mat-select formControlName="groups" multiple (selectionChange)="handleSettingsChange()">
+                        @for (group of groups(); track group.id) {
+                        <mat-option [value]="group.id">{{ group.annotation.title || group.id }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
             <button matButton="tonal" (click)="changingSettings.set(false)">
                 <span>Done</span>
             </button>

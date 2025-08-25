@@ -2,7 +2,7 @@ import { AfterViewInit, Component, computed, EventEmitter, inject, Input, Output
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent } from '../../../../models/sequence/interfaces';
+import { BaseStopwatchGroup, ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { CachedStopwatchStateController } from '../../../../controllers/stopwatch/cached-stopwatch-state-controller';
@@ -73,17 +73,20 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   splitDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   lapDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
+  groups: WritableSignal<BaseStopwatchGroup[]> = signal([]);
 
   settingsForm = new FormGroup({
     title: new FormControl(''),
     description: new FormControl(''),
     lapValue: new FormControl(''),
-    lapUnit: new FormControl('')
+    lapUnit: new FormControl(''),
+    groups: new FormControl([])
   });
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.settingsForm.controls.title.patchValue(this.instance.annotation.title);
     this.settingsForm.controls.description.patchValue(this.instance.annotation.description);
+    this.groups.set(await this.groupRepository.getAll());
   }
 
   /**
@@ -450,11 +453,23 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   }
 
   async handleSettingsChange() {
-    if (this.settingsForm.controls.title) {
+    if (this.settingsForm.controls.title.value) {
       this.instance.annotation.title = this.settingsForm.controls.title.value as string;
     }
-    if (this.settingsForm.controls.description) {
+    if (this.settingsForm.controls.description.value) {
       this.instance.annotation.description = this.settingsForm.controls.description.value as string;
+    }
+    const existingGroupAssignments = this.instance.groups.map((group) => group.id);
+    if (JSON.stringify(this.settingsForm.controls.groups.value) !== JSON.stringify(existingGroupAssignments)) {
+      const groupIds = (this.settingsForm.controls.groups.value || []) as UniqueIdentifier[];
+      const groups = await this.groupRepository.getByIds(groupIds);
+      await Promise.all(
+        groups.map((group) => this.groupRepository.removeMember(group.id, this.instance.id))
+      );
+      await Promise.all(
+        groups.map((group) => this.groupRepository.addMember(group.id, this.instance.id))
+      );
+      this._instance.set({...this.instance, groups});
     }
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }

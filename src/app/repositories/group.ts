@@ -223,7 +223,7 @@ export class GroupRepository extends BaseRepository {
    * @param groupId - The ID of the group
    * @returns A promise that resolves when the operation is complete
    */
-  async removeMember(groupId: string, stopwatchId: string): Promise<void> {
+  async removeMember(groupId: UniqueIdentifier, stopwatchId: UniqueIdentifier): Promise<void> {
     const indexRepo = this.membershipAdapter.getIndexRepository();
     const membershipRepo = this.membershipAdapter.getRepository();
     

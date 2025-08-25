@@ -205,7 +205,16 @@ export class StopwatchRepository extends BaseRepository {
           // Convert serialized TimeZonedDate to TZDate instance
           timestamp: event.timestamp instanceof TZDate ? 
             event.timestamp : 
-            TZDate.fromJSON(event.timestamp)
+            TZDate.fromJSON(event.timestamp),
+          metadata: {
+            creation: {
+              timestamp: TZDate.fromJSON(event.metadata.creation.timestamp)
+            },
+            lastModification: {
+              timestamp: TZDate.fromJSON(event.metadata.lastModification.timestamp)
+            }
+          }
+            
         }))
       },
       metadata: {

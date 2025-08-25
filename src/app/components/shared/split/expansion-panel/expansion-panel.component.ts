@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { LapUnits } from '../../../../utilities/constants';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { TZDate } from '../../../../models/date';
+import { TimeService } from '../../../../services/time/time.service';
 
 
 @Component({
@@ -22,6 +24,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
   styleUrl: './expansion-panel.component.scss'
 })
 export class SplitExpansionPanelComponent extends BaseSplitComponent implements OnInit {
+  time = inject(TimeService);
   form = new FormGroup({
     title: new FormControl(''),
     splitType: new FormControl(''),
@@ -35,6 +38,7 @@ export class SplitExpansionPanelComponent extends BaseSplitComponent implements 
   @Output() deleteEmitter: EventEmitter<VisibleSplit> = new EventEmitter<VisibleSplit>();
 
   ngOnInit(): void {
+    console.log(this.instance);
     this.form.controls.splitType.patchValue(this.instance.event.type);
     this.form.controls.title.patchValue(this.instance.event.annotation.title);
   }
