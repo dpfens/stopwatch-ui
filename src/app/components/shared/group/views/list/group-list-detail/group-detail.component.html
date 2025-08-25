@@ -1,6 +1,6 @@
 <a
     routerLink="/group/{{ instance.id }}" routerLinkActive="active" ariaCurrentWhenActive="page"
-    id="{{ instance.id }}" class="d-flex">
+    id="{{ instance.id }}" class="d-flex text-decoration-none">
     <div class="flex-grow-1">
         <span matListItemLine>{{ instance.view }}</span>
         <span matListItemTitle>{{ instance.annotation.title || 'Untitled Group' }}</span>
@@ -10,7 +10,7 @@
     </div>
     <div class="d-flex align-items-center">
         <span matListItemLine>{{ relativeTime(instance.metadata.creation.timestamp) }}</span>
-        <button matIconButton aria-label="Delete" (click)="delete()">
+        <button matIconButton aria-label="Delete" (click)="delete($event)">
             <mat-icon>delete</mat-icon>
         </button>
     </div>

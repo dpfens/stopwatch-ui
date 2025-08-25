@@ -212,7 +212,7 @@ export interface SerializedStopwatchGroup extends Omit<BaseStopwatchGroup, 'meta
 }
 
 export interface StopwatchGroup extends BaseStopwatchGroup {
-    members: StopwatchEntity[];
+    members: ContextualStopwatchEntity[];
 }
 
 /**

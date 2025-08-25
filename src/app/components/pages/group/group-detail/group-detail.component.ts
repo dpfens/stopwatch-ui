@@ -4,11 +4,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
 import { GroupRepository } from '../../../../repositories/group';
-import { StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { BaseStopwatchGroup, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { StopwatchListGridViewComponent } from '../../../shared/stopwatch/views/grid/stopwatch-grid/stopwatch-list.component';
+import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry';
 
 @Component({
   selector: 'group-detail',
-  imports: [],
+  imports: [StopwatchListGridViewComponent],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss'
 })
@@ -38,13 +40,31 @@ export class GroupDetailComponent {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const baseGroup = await this.repository.get(id);
+      const [baseGroup, baseStopwatches, groups] = await Promise.all([
+          this.repository.get(id),
+          this.stopwatchRepository.byGroup(id),
+          this.repository.getAll()
+      ]);
       if (!baseGroup) {
         return;
       }
+      const groupLookup = groups.reduce<Record<UniqueIdentifier, BaseStopwatchGroup>>((acc, item) => {
+          acc[item.id] = item;
+          return acc;
+      }, {});
+      const stopwatches = await Promise.all(
+        baseStopwatches.map(async baseStopwatch => {
+          const groupIds = await this.repository.byStopwatch(baseStopwatch.id);
+          return  {
+            ...baseStopwatch,
+            groups: groupIds.map(id => groupLookup[id]),
+            analysis: new AnalysisRegistry()
+          }
+        })
+      );
       this.instance.set({
         ...baseGroup,
-        members: await this.stopwatchRepository.byGroup(id)
+        members: stopwatches
       });
     } catch(e) {
       this.error.set(e as Error);

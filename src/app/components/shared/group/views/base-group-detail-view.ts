@@ -32,7 +32,9 @@ export class BaseGroupDetailViewComponent implements OnInit {
     this.members.set(members);
   }
 
-  async delete() {
+  async delete(event: Event) {
+      event.preventDefault();
+      event.stopPropagation();
       this.deleteEmitter.emit(this.instance);
       await this.repository.delete(this.instance.id);
       this.snackbar.open(`Deleted group "${this.instance.annotation.title || this.instance.id}"`, 'Close');
