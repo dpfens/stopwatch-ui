@@ -282,6 +282,6 @@ export interface SelectOptGroup<T> {
 }
 
 export interface VisibleSplit {
-  duration: Intl.Duration;
-  event: StopwatchEvent;
+    duration: Intl.Duration;
+    event: StopwatchEvent;
 }

@@ -73,7 +73,7 @@ export class TZDate implements TimeZonedDate {
   format(options?: Intl.DateTimeFormatOptions, locale?: string): string {
     return new Intl.DateTimeFormat(locale || 'default', {
       timeZone: this.timeZone,
-      dateStyle: 'full',
+      dateStyle: 'long',
       timeStyle: 'long',
       ...options
     }).format(this.toUTCDate());

@@ -14,7 +14,7 @@
                 <span>Fork</span>
             </button>
             <button mat-menu-item (click)="changingSettings.set(true)">
-                <mat-icon>gear</mat-icon>
+                <mat-icon>settings</mat-icon>
                 <span>Settings</span>
             </button>
             <button mat-menu-item (click)="delete()">
@@ -66,11 +66,14 @@
                     <mat-label>Groups</mat-label>
                     <mat-select formControlName="groups" multiple (selectionChange)="handleSettingsChange()">
                         @for (group of groups(); track group.id) {
-                        <mat-option [value]="group.id">{{ group.annotation.title || group.id }}</mat-option>
+                            <mat-option [value]="group.id">{{ group.annotation.title || group.id }}</mat-option>
                         }
                     </mat-select>
                 </mat-form-field>
             </div>
+            <p>Created At: <time [dateTime]="instance.metadata.creation.timestamp.toISOString()">{{ instance.metadata.creation.timestamp.format() }}</time></p>
+            <p>Last Modified At: <time [dateTime]="instance.metadata.lastModification.timestamp.toISOString()">{{ instance.metadata.lastModification.timestamp.format() }}</time></p>
+
             <button matButton="tonal" (click)="changingSettings.set(false)">
                 <span>Done</span>
             </button>

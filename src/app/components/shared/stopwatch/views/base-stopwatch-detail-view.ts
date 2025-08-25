@@ -12,6 +12,7 @@ import { LapUnits, Time } from '../../../../utilities/constants';
 import { AnimationTimerService } from '../../../../services/timer/animation-timer.service';
 import { TimerService } from '../../../../services/timer/timer.service';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
+import { TZDate } from '../../../../models/date';
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
@@ -144,6 +145,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const now = new Date();
     this.controller().start(now);
     this.startClock();
+    this.instance.metadata.lastModification = {
+      timestamp: TZDate.now()
+    }
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
 
@@ -151,6 +155,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const now = new Date();
     this.controller().stop(now);
     this.cancelInstanceTimers();
+    this.instance.metadata.lastModification = {
+      timestamp: TZDate.now()
+    }
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
 
@@ -158,6 +165,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const now = new Date();
     this.controller().resume(now);
     this.startClock();
+    this.instance.metadata.lastModification = {
+      timestamp: TZDate.now()
+    }
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
 
@@ -166,6 +176,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const eventType = 'split';
     const eventName = this.findAvailableEventName(eventType);
     this.controller().addEvent(eventType, eventName, now);
+    this.instance.metadata.lastModification = {
+      timestamp: TZDate.now()
+    }
     this.buildSplits();
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
@@ -179,6 +192,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     this.lapDuration.set(undefined);
     this.visibleSplits.set([]);
     this.cancelInstanceTimers();
+    this.instance.metadata.lastModification = {
+      timestamp: TZDate.now()
+    }
     await this.repository.update({...this.instance, state: this.controller().getState()});
   }
 
