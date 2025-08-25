@@ -38,7 +38,6 @@ export class SplitExpansionPanelComponent extends BaseSplitComponent implements 
   @Output() deleteEmitter: EventEmitter<VisibleSplit> = new EventEmitter<VisibleSplit>();
 
   ngOnInit(): void {
-    console.log(this.instance);
     this.form.controls.splitType.patchValue(this.instance.event.type);
     this.form.controls.title.patchValue(this.instance.event.annotation.title);
   }
