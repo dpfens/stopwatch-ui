@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StopwatchGroup } from '../../models/sequence/interfaces';
 import { TZDate } from '../../models/date';
+import { GroupPresets } from '../../utilities/constants';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,7 @@ export class GroupService {
         description,
       },
       members: [],
-      view: 'normal',
+      traits: GroupPresets.normal,
       metadata: {
         creation: {timestamp: now},
         lastModification: {timestamp: now}

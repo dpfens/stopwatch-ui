@@ -81,7 +81,7 @@
     </mat-card-content>
   } @else {
     <mat-card-content class="text-center">
-        <div class="d-flex justify-content-around align-items-center">
+        <div class="d-flex justify-content-around align-items-center mt-3">
             <div class="d-flex flex-column align-items-start">
                 @if(lapDuration() || splitDuration()) {
                     <label class="text-uppercase">total</label>
@@ -97,7 +97,7 @@
                         </div>
                     }
                     @if(!!splitDuration()) {
-                        <div class="d-flex flex-column align-items-start mt-3">
+                        <div class="d-flex flex-column align-items-start" [class.mt-3]="lapDuration()">
                             <label class="text-uppercase">split</label>
                             <time>{{ timeService.durationFormatter().format(splitDuration()!) }}</time>
                         </div>
@@ -107,7 +107,7 @@
         </div>
 
         <mat-button-toggle-group
-        class="mb-3"
+        class="my-3"
         name="favoriteColor"
         aria-label="Favorite Color"
         [hideSingleSelectionIndicator]="true"
@@ -139,7 +139,7 @@
     </mat-card-content>
     @if(instance.groups) {
         <mat-card-footer>
-        <mat-chip-set aria-label="Groups">
+        <mat-chip-set aria-label="Groups" class="mx-3">
             @for(group of instance.groups; track group.id) {
                 <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
             }

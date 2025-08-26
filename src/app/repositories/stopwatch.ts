@@ -215,7 +215,7 @@ export class StopwatchRepository extends BaseRepository {
             }
           }
             
-        }))
+        })),
       },
       metadata: {
         creation: {

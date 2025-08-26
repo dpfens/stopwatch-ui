@@ -74,7 +74,7 @@ export class GroupRepository extends BaseRepository {
       id: group.id || this.generateId(),
       annotation: group.annotation,
       metadata: group.metadata,
-      view: 'normal'
+      traits: group.traits
     };
     
     await repo.add(GroupRepository.GROUP_STORE, persistentGroup);
@@ -102,7 +102,7 @@ export class GroupRepository extends BaseRepository {
       id: group.id,
       annotation: group.annotation,
       metadata: group.metadata,
-      view: 'normal'
+      traits: group.traits
     };
     
     await repo.update(GroupRepository.GROUP_STORE, persistentGroup);

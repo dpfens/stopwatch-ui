@@ -2,12 +2,7 @@
 
 } @else {
     @if(!!instance()) {
-        <p>{{ instance()!.id }}</p>
-        @if(instance()?.members?.length) {
-            <stopwatch-list-grid-view [instances]="instance()?.members ?? []"></stopwatch-list-grid-view>
-        } @else {
-            No stopwatches in group.
-        }
+        <full-group-detail [instance]="instance()!"></full-group-detail>
     } @else {
         <p>{{ id() }} not found!</p>
     }

@@ -1,10 +1,10 @@
 import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { StopwatchEntity, StopwatchGroup } from '../../../../models/sequence/interfaces';
+import { GroupTraitPreset, GroupTraits, StopwatchEntity, StopwatchGroup } from '../../../../models/sequence/interfaces';
 import { GroupRepository } from '../../../../repositories/group';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
-import { Time } from '../../../../utilities/constants';
+import { GroupPresets, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
 
@@ -27,9 +27,21 @@ export class BaseGroupDetailViewComponent implements OnInit {
   loading = signal(false);
   error = signal<Error | null>(null);
 
+  preset = computed(() => {
+    if (!this.instance.traits) {
+      return 'Custom';
+    }
+    const presets: GroupTraitPreset[] = Object.keys(GroupPresets) as GroupTraitPreset[];
+    const matchingPreset = presets.find(preset => {
+      const traits: GroupTraits = GroupPresets[preset];
+      return this.instance.traits.timing == traits.timing 
+        && this.instance.traits.evaluation.sort().join(',') === traits.evaluation.sort().join(',')
+    });
+    return matchingPreset ?? 'Custom';
+  });
+
   async ngOnInit(): Promise<void> {
-    const members = await this.stopwatchRepository.byGroup(this.instance.id);
-    this.members.set(members);
+    
   }
 
   async delete(event: Event) {

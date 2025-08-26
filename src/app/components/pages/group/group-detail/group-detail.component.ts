@@ -7,10 +7,11 @@ import { GroupRepository } from '../../../../repositories/group';
 import { BaseStopwatchGroup, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { StopwatchListGridViewComponent } from '../../../shared/stopwatch/views/grid/stopwatch-grid/stopwatch-list.component';
 import { AnalysisRegistry } from '../../../../models/sequence/analysis/registry';
+import { FullGroupDetailComponent } from "../../../shared/group/views/full/full.component";
 
 @Component({
   selector: 'group-detail',
-  imports: [StopwatchListGridViewComponent],
+  imports: [FullGroupDetailComponent],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss'
 })

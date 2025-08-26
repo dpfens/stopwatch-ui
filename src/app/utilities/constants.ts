@@ -1,4 +1,4 @@
-import { GroupTraitPreset, GroupTraits, ObjectiveType, SelectOptGroup, SelectOption, StopWatchEventType } from "../models/sequence/interfaces";
+import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, GroupTraits, ObjectiveType, SelectOptGroup, SelectOption, StopWatchEventType } from "../models/sequence/interfaces";
 
 // ACTIONS
 export enum GLOBAL {
@@ -185,4 +185,76 @@ export const LapUnits: SelectOptGroup<string>[] = [
         }
       ]
     }
-  ] as const;
+] as const;
+
+/** 
+ * Group Traits
+ */
+export const GroupPresetOptions: SelectOption<GroupTraitPreset>[] = [
+  {
+    value: 'normal',
+    display: 'Normal'
+  },
+  {
+    value: 'competition',
+    display: 'Competition'
+  },
+  {
+    value: 'workflow',
+    display: 'Workflow'
+  },
+  {
+    value: 'billing',
+    display: 'Billing'
+  },
+] as const;
+
+export const GroupTimingOptions: SelectOption<GroupTimingBehavior>[] = [
+  {
+    value: 'independent',
+    display: 'Independent'
+  },
+  {
+    value: 'overlapping',
+    display: 'Overlapping'
+  },
+  {
+    value: 'parallel',
+    display: 'Parallel'
+  },
+  {
+    value: 'sequential',
+    display: 'Sequential'
+  },
+  {
+    value: 'synchronized',
+    display: 'Synchronized'
+  }
+] as const;
+
+export const GroupEvaluationBehaviorOptions: SelectOption<GroupEvaluationBehavior>[] = [
+  {
+    value: 'independent',
+    display: 'Independent'
+  },
+  {
+    value: 'comparative',
+    display: 'Comparative'
+  },
+  {
+    value: 'cumulative',
+    display: 'Parallel'
+  },
+  {
+    value: 'threshold',
+    display: 'Sequential'
+  },
+  {
+    value: 'proportional',
+    display: 'Synchronized'
+  },
+  {
+    value: 'trending',
+    display: 'Trending'
+  }
+] as const;
