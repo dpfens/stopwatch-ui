@@ -234,7 +234,6 @@ export class StopwatchRepository extends BaseRepository {
         configuration: persistent.objective.configuration
       });
     }
-
     return instance;
   }
 }

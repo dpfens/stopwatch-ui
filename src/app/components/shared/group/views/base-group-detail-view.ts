@@ -1,55 +1,56 @@
-import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { GroupTraitPreset, GroupTraits, StopwatchEntity, StopwatchGroup } from '../../../../models/sequence/interfaces';
-import { GroupRepository } from '../../../../repositories/group';
-import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
+import { GroupTraitPreset, GroupTraits, StopwatchEntity, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupPresets, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
+import { GroupService } from '../../../../services/group/group.service';
 
 
 @Component({
   selector: 'base-group-detail-view',
   template: ''
 })
-export class BaseGroupDetailViewComponent implements OnInit {
-  @Input({required: true}) instance!: StopwatchGroup;
-  protected readonly service = inject(StopwatchService);
+export class BaseGroupDetailViewComponent {
+  protected readonly service = inject(GroupService);
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly time = inject(TimeService);
 
-  protected readonly repository: GroupRepository = new GroupRepository();
-  protected readonly stopwatchRepository: StopwatchRepository = new StopwatchRepository();
+  id = input.required<UniqueIdentifier>();
+  instance = computed(() =>
+    this.service.instances().find(inst => inst.id === this.id())
+  );
 
-  @Output() deleteEmitter: EventEmitter<StopwatchGroup> = new EventEmitter();
-  members = signal<StopwatchEntity[]>([]);
-  loading = signal(false);
-  error = signal<Error | null>(null);
+  getInstance(): StopwatchGroup {
+      const inst = this.instance();
+      if (!inst) {
+        throw new Error(`Group ${this.id()} not found`);
+      }
+      return inst;
+  }
+
+  // Single signal for the entire instance
+  loading = this.service.isLoading;
+  error = this.service.error;
 
   preset = computed(() => {
-    if (!this.instance.traits) {
+    if (!this.getInstance().traits) {
       return 'Custom';
     }
     const presets: GroupTraitPreset[] = Object.keys(GroupPresets) as GroupTraitPreset[];
     const matchingPreset = presets.find(preset => {
       const traits: GroupTraits = GroupPresets[preset];
-      return this.instance.traits.timing == traits.timing 
-        && this.instance.traits.evaluation.sort().join(',') === traits.evaluation.sort().join(',')
+      return this.getInstance().traits.timing == traits.timing 
+        && this.getInstance().traits.evaluation.sort().join(',') === traits.evaluation.sort().join(',')
     });
     return matchingPreset ?? 'Custom';
   });
 
-  async ngOnInit(): Promise<void> {
-    
-  }
-
   async delete(event: Event) {
       event.preventDefault();
       event.stopPropagation();
-      this.deleteEmitter.emit(this.instance);
-      await this.repository.delete(this.instance.id);
-      this.snackbar.open(`Deleted group "${this.instance.annotation.title || this.instance.id}"`, 'Close');
+      await this.service.delete(this.getInstance().id);
+      this.snackbar.open(`Deleted group "${this.getInstance().annotation.title || this.getInstance().id}"`, 'Close');
       setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
   }
 

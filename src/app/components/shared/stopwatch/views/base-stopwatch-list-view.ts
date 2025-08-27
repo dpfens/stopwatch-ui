@@ -1,7 +1,4 @@
-import { Component,  inject,  Input,  signal } from '@angular/core';
-import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { ContextualStopwatchEntity } from '../../../../models/sequence/interfaces';
-import { GroupRepository } from '../../../../repositories/group';
+import { Component, inject } from '@angular/core';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 
 
@@ -10,21 +7,9 @@ import { StopwatchService } from '../../../../services/stopwatch/stopwatch.servi
   template: ''
 })
 export class BaseStopwatchListViewComponent {
-  @Input({required: true}) instances: ContextualStopwatchEntity[] = [];
   protected readonly service = inject(StopwatchService);
+  instances = this.service.instances;
 
-  protected readonly repository: StopwatchRepository = new StopwatchRepository();
-  protected readonly groupRepository: GroupRepository = new GroupRepository();
-
-  loading = signal(false);
-  error = signal<Error | null>(null);
-
-  handleDelete(instance: ContextualStopwatchEntity) {
-    const index = this.instances.lastIndexOf(instance);
-    this.instances.splice(index, 1);
-  }
-
-  handleFork(instance: ContextualStopwatchEntity) {
-    this.instances.push(instance);
-  }
+  loading = this.service.isLoading;
+  error = this.service.error;
 }

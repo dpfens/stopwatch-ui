@@ -1,9 +1,8 @@
 @if(loading()) {
 
 } @else {
-    @if(!!instance()) {
-        <full-group-detail [instance]="instance()!"></full-group-detail>
+    @if (error()) {
     } @else {
-        <p>{{ id() }} not found!</p>
+        <full-group-detail [id]="id()!"></full-group-detail>
     }
 }

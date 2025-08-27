@@ -1,19 +1,19 @@
 <mat-card class="example-card" appearance="outlined">
   <div class="d-flex mx-3 mt-3">
     <div class="flex-grow-1">
-        <mat-card-title>{{ instance.annotation.title || 'Untitled' }}</mat-card-title>
+        <mat-card-title>{{ getInstance().annotation.title || 'Untitled' }}</mat-card-title>
         <mat-card-subtitle class="fw-light">{{ preset() }}</mat-card-subtitle>
     </div>
     <div>
       @if(isEditting()) {
-        <button matIconButton (click)="isEditting.set(false)" aria-label="Example icon button with a vertical three dot icon">
+        <button matIconButton (click)="isEditting.set(false)" aria-label="">
             <mat-icon>close</mat-icon>
         </button>
       } @else {
-        <button matIconButton (click)="isEditting.set(true)" aria-label="Example icon button with a vertical three dot icon">
+        <button matIconButton (click)="isEditting.set(true)" aria-label="">
             <mat-icon>edit</mat-icon>
         </button>
-        <button matIconButton aria-label="Example icon button with a open in new tab icon">
+        <button matIconButton aria-label="">
             <mat-icon>delete</mat-icon>
         </button>
       } 
@@ -26,13 +26,13 @@
             <div class="col-12 col-sm-6 col-md-4 d-flex flex-column">
                 <mat-form-field class="example-full-width">
                     <mat-label>Title</mat-label>
-                    <input matInput placeholder="Ex. Pizza" formControlName="title" />
+                    <input matInput placeholder="Ex. Pizza" formControlName="title" (change)="saveSettings()" />
                     <mat-hint></mat-hint>
                 </mat-form-field>
 
                 <mat-form-field class="mt-3">
                     <mat-label>Description</mat-label>
-                    <textarea matInput formControlName="description"></textarea>
+                    <textarea matInput formControlName="description" (change)="saveSettings()"></textarea>
                     <mat-hint></mat-hint>
                 </mat-form-field>
             </div>
@@ -57,7 +57,7 @@
                     <div class="col-12 col-sm-6 col-md-4">
                         <mat-form-field class="mt-3">
                             <mat-label>Timing</mat-label>
-                            <mat-select formControlName="traitTiming">
+                            <mat-select formControlName="traitTiming" (selectionChange)="saveSettings()">
                                 @for(option of groupTimingOptions; track option.value) {
                                     <mat-option [value]="option.value">{{ option.display }}</mat-option>
                                 }
@@ -67,7 +67,7 @@
 
                         <mat-form-field class="ms-1 mt-3">
                             <mat-label>Evaluation</mat-label>
-                            <mat-select formControlName="traitEvaluation" multiple>
+                            <mat-select formControlName="traitEvaluation" multiple (selectionChange)="saveSettings()">
                                 @for(option of groupEvaluationBehaviorOptions; track option.value) {
                                     <mat-option [value]="option.value">{{ option.display }}</mat-option>
                                 }
@@ -79,16 +79,15 @@
             </div>
         </div>
         <div class="my-2">
-            <button matButton="tonal" (click)="isEditting.set(false)" aria-label="Example icon button with a vertical three dot icon">
+            <button matButton="tonal" (click)="isEditting.set(false)" aria-label="">
                 <mat-icon>save</mat-icon>
                 <span>Save</span>
             </button>
         </div>
     </form>
   } @else {
-    @if (instance.members.length) {
+    @if (getInstance().members.length) {
         <mat-card-content class="mt-5 mb-3">
-            <stopwatch-list-grid-view [instances]="instance.members"></stopwatch-list-grid-view>
         </mat-card-content>
     }
   }

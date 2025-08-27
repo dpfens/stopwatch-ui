@@ -3,11 +3,8 @@
 }
 @else {
     <mat-list>
-    @for (instance of instances; track instance.id) {
-        <group-list-detail-view
-        [instance]="instance" 
-        (deleteEmitter)="handleDelete($event)" >
-        </group-list-detail-view>
+    @for (instance of instances(); track instance.id) {
+        <group-list-detail-view [id]="instance.id" ></group-list-detail-view>
     } @empty {
         <span>No groups found.</span>
     }

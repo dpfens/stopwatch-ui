@@ -1,8 +1,8 @@
-<mat-card id="{{ instance.id }}" appearance="outlined" class="pb-3">
+<mat-card id="{{ getInstance().id }}" appearance="outlined" class="pb-3">
   <mat-card-header class="d-flex align-items-center">
     @if(!changingSettings()) {
         <div class="flex-grow-1">
-            <mat-card-title>{{ instance.annotation.title }}</mat-card-title>
+            <mat-card-title>{{ getInstance().annotation.title }}</mat-card-title>
             <mat-card-subtitle></mat-card-subtitle>
         </div>
         <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
@@ -71,8 +71,8 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <p>Created At: <time [dateTime]="instance.metadata.creation.timestamp.toISOString()">{{ instance.metadata.creation.timestamp.format() }}</time></p>
-            <p>Last Modified At: <time [dateTime]="instance.metadata.lastModification.timestamp.toISOString()">{{ instance.metadata.lastModification.timestamp.format() }}</time></p>
+            <p>Created At: <time [dateTime]="getInstance().metadata.creation.timestamp.toISOString()">{{ getInstance().metadata.creation.timestamp.format() }}</time></p>
+            <p>Last Modified At: <time [dateTime]="getInstance().metadata.lastModification.timestamp.toISOString()">{{ getInstance().metadata.lastModification.timestamp.format() }}</time></p>
 
             <button matButton="tonal" (click)="changingSettings.set(false)">
                 <span>Done</span>
@@ -129,18 +129,16 @@
             <mat-list>
                 @for(split of visibleSplits(); track $index) {
                     <split-expansion-panel
-                        [instance]="split"
-                        (updateEmitter)="handleSplitUpdate($event)"
-                        (deleteEmitter)="handleSplitDelete($event)">    
+                        [instance]="split">    
                     </split-expansion-panel>
                 }
             </mat-list>
         }
     </mat-card-content>
-    @if(instance.groups) {
+    @if(getInstance().groups) {
         <mat-card-footer>
         <mat-chip-set aria-label="Groups" class="mx-3">
-            @for(group of instance.groups; track group.id) {
+            @for(group of getInstance().groups; track group.id) {
                 <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
             }
         </mat-chip-set>

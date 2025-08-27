@@ -1,9 +1,7 @@
-import { AfterViewInit, Component, computed, EventEmitter, inject, Input, Output, signal, WritableSignal, DestroyRef, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, WritableSignal, DestroyRef, OnDestroy, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { StopwatchRepository } from '../../../../repositories/stopwatch';
-import { BaseStopwatchGroup, ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier } from '../../../../models/sequence/interfaces';
-import { GroupRepository } from '../../../../repositories/group';
+import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { CachedStopwatchStateController } from '../../../../controllers/stopwatch/cached-stopwatch-state-controller';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,6 +11,7 @@ import { AnimationTimerService } from '../../../../services/timer/animation-time
 import { TimerService } from '../../../../services/timer/timer.service';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
+import { GroupService } from '../../../../services/group/group.service';
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
@@ -40,33 +39,29 @@ interface TimerSubscription {
 })
 export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestroy {
   protected readonly service = inject(StopwatchService);
+  protected readonly groupService = inject(GroupService);
+
   protected readonly timeService = inject(TimeService);
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly animationTimer = inject(AnimationTimerService);
   protected readonly intervalTimer = inject(TimerService);
   protected readonly destroyRef = inject(DestroyRef);
-  protected readonly repository: StopwatchRepository = new StopwatchRepository();
-  protected readonly groupRepository: GroupRepository = new GroupRepository();
+  id = input.required<UniqueIdentifier>();
+  instance = computed(() => 
+    this.service.instances().find(inst => inst.id === this.id())
+  );
 
-  @Output() forkEmitter: EventEmitter<ContextualStopwatchEntity> = new EventEmitter();
-  @Output() deleteEmitter: EventEmitter<ContextualStopwatchEntity> = new EventEmitter();
-
-  private _instance = signal<ContextualStopwatchEntity | undefined>(undefined);
-  
-  @Input({required: true}) 
-  set instance(value: ContextualStopwatchEntity) {
-    this._instance.set(value);
-  }
-  get instance(): ContextualStopwatchEntity {
-    const instance = this._instance();
-    if (!instance) {
-      throw new Error('Instance not set');
+  getInstance(): ContextualStopwatchEntity {
+    const inst = this.instance();
+    if (!inst) {
+      throw new Error(`Stopwatch ${this.id()} not found`);
     }
-    return instance;
+    return inst;
   }
 
-  loading = signal(false);
-  error = signal<Error | null>(null);
+  groups = this.groupService.instances;
+  loading = this.service.isLoading;
+  error = this.service.error;
   changingSettings = signal(false);
   lapUnits: SelectOptGroup<string>[] = LapUnits;
 
@@ -74,7 +69,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   splitDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   lapDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
-  groups: WritableSignal<BaseStopwatchGroup[]> = signal([]);
 
   settingsForm = new FormGroup({
     title: new FormControl(''),
@@ -83,13 +77,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     lapUnit: new FormControl(''),
     groups: new FormControl([])
   });
-
-  async ngOnInit(): Promise<void> {
-    this.settingsForm.controls.title.patchValue(this.instance.annotation.title);
-    this.settingsForm.controls.description.patchValue(this.instance.annotation.description);
-    this.groups.set(await this.groupRepository.getAll());
-  }
-
   /**
    * Tracks active timer subscriptions for proper cleanup.
    * @private
@@ -131,7 +118,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   private _controllerCache?: IStopwatchStateController;
   
   readonly controller = computed(() => {
-    const instance = this._instance();
+    const instance = this.instance();
     if (!instance) {
       throw new Error('Instance must be set before accessing controller');
     }
@@ -145,30 +132,33 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const now = new Date();
     this.controller().start(now);
     this.startClock();
-    this.instance.metadata.lastModification = {
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
       timestamp: TZDate.now()
-    }
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    };
+    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
   }
 
   async stop() {
     const now = new Date();
     this.controller().stop(now);
     this.cancelInstanceTimers();
-    this.instance.metadata.lastModification = {
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
       timestamp: TZDate.now()
-    }
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    };
+    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
   }
 
   async resume() {
     const now = new Date();
     this.controller().resume(now);
     this.startClock();
-    this.instance.metadata.lastModification = {
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
       timestamp: TZDate.now()
-    }
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    };
+    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
   }
 
   async split() {
@@ -176,11 +166,12 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const eventType = 'split';
     const eventName = this.findAvailableEventName(eventType);
     this.controller().addEvent(eventType, eventName, now);
-    this.instance.metadata.lastModification = {
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
       timestamp: TZDate.now()
-    }
+    };
     this.buildSplits();
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
   }
 
   async reset() {
@@ -192,30 +183,30 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     this.lapDuration.set(undefined);
     this.visibleSplits.set([]);
     this.cancelInstanceTimers();
-    this.instance.metadata.lastModification = {
+
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
       timestamp: TZDate.now()
-    }
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    };
+    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
   }
 
   async fork() {
     const newInstance = {
-      ...this.instance,
+      ...this.getInstance(),
       id: crypto.randomUUID(),
       state: this.controller().getState(),
       metadata: {
-        ...this.instance.metadata,
-        clone: { source: this.instance.id}
+        ...this.getInstance().metadata,
+        clone: { source: this.getInstance().id}
       }
     };
-    this.forkEmitter.emit(newInstance);
-    await this.repository.create(newInstance);
+    await this.service.create(newInstance);
   }
 
   async delete() {
-    this.deleteEmitter.emit(this.instance);
-    await this.repository.delete(this.instance.id);
-    this.snackbar.open(`Deleted stopwatch "${this.instance.annotation.title || this.instance.id}"`, 'Close');
+    await this.service.delete(this.getInstance().id);
+    this.snackbar.open(`Deleted stopwatch "${this.getInstance().annotation.title || this.getInstance().id}"`, 'Close');
     setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
   }
 
@@ -289,7 +280,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     }
 
     // Create instance-specific timer ID
-    const timerId = `${this.instance.id}-${timerType}`;
+    const timerId = `${this.getInstance().id}-${timerType}`;
 
     // Calculate initial duration to determine timer type
     const initialDuration = calculateDuration();
@@ -327,7 +318,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       },
       error: (error) => {
         console.error(`Timer ${timerId} error:`, error);
-        this.error.set(error);
       }
     });
 
@@ -376,7 +366,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
    * @private
    */
   private cancelInstanceTimers(): void {
-    const instanceId = this.instance.id;
+    const instanceId = this.getInstance().id;
     const timerTypes = ['total', 'split', 'lap'];
     
     timerTypes.forEach(timerType => {
@@ -455,7 +445,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       visibleSplits[visibleSplitIndex] = instance;
       this.visibleSplits.set([...visibleSplits]);
 
-      await this.repository.update({...this.instance, state: state});
+      this.service.update({...this.getInstance(), state});
     }
   }
 
@@ -467,29 +457,34 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const visibleSplitIndex = visibleSplits.findIndex(split => split.event.id === event.id);
     visibleSplits.splice(visibleSplitIndex, 1);
     this.visibleSplits.set([...visibleSplits]);
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    this.service.update({...this.getInstance(), state: this.controller().getState()});
   }
 
-  async handleSettingsChange() {
+  showSettings(){
+    this.settingsForm.controls.title.patchValue(this.getInstance().annotation.title);
+    this.settingsForm.controls.description.patchValue(this.getInstance().annotation.description);
+  }
+
+  async handleSettingsChange() {this.getInstance();
+    const instance = this.getInstance();
     if (this.settingsForm.controls.title.value) {
-      this.instance.annotation.title = this.settingsForm.controls.title.value as string;
+      instance.annotation.title = this.settingsForm.controls.title.value as string;
     }
     if (this.settingsForm.controls.description.value) {
-      this.instance.annotation.description = this.settingsForm.controls.description.value as string;
+      instance.annotation.description = this.settingsForm.controls.description.value as string;
     }
-    const existingGroupAssignments = this.instance.groups.map((group) => group.id);
+    const existingGroupAssignments = instance.groups.map((group) => group.id);
     if (JSON.stringify(this.settingsForm.controls.groups.value) !== JSON.stringify(existingGroupAssignments)) {
       const groupIds = (this.settingsForm.controls.groups.value || []) as UniqueIdentifier[];
-      const groups = await this.groupRepository.getByIds(groupIds);
+      const groups = this.groups();
       await Promise.all(
-        groups.map((group) => this.groupRepository.removeMember(group.id, this.instance.id))
+        groups.map((group) => this.groupService.removeMember(group.id, instance.id))
       );
       await Promise.all(
-        groups.map((group) => this.groupRepository.addMember(group.id, this.instance.id))
+        groups.map((group) => this.groupService.addMember(group.id, instance.id))
       );
-      this._instance.set({...this.instance, groups});
     }
-    await this.repository.update({...this.instance, state: this.controller().getState()});
+    await this.service.update({...instance, state: this.controller().getState()});
   }
 
   private findAvailableEventName(eventType: string): string {
