@@ -243,15 +243,15 @@ export const GroupEvaluationBehaviorOptions: SelectOption<GroupEvaluationBehavio
   },
   {
     value: 'cumulative',
-    display: 'Parallel'
+    display: 'Cumulative'
   },
   {
     value: 'threshold',
-    display: 'Sequential'
+    display: 'Threshold'
   },
   {
     value: 'proportional',
-    display: 'Synchronized'
+    display: 'Proportional'
   },
   {
     value: 'trending',
