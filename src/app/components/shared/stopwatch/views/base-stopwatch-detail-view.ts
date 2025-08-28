@@ -62,7 +62,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   groups = this.groupService.instances;
   loading = this.service.isLoading;
   error = this.service.error;
-  changingSettings = signal(false);
+  displaySettings = signal(false);
   lapUnits: SelectOptGroup<string>[] = LapUnits;
 
   totalDuration: WritableSignal<DurationFormatOptions> = signal({milliseconds: Time.ZERO});
@@ -75,7 +75,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     description: new FormControl(''),
     lapValue: new FormControl(''),
     lapUnit: new FormControl(''),
-    groups: new FormControl([])
+    groups: new FormControl<UniqueIdentifier[]>([])
   });
   /**
    * Tracks active timer subscriptions for proper cleanup.
@@ -205,8 +205,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   }
 
   async delete() {
-    await this.service.delete(this.getInstance().id);
-    this.snackbar.open(`Deleted stopwatch "${this.getInstance().annotation.title || this.getInstance().id}"`, 'Close');
+    const instance = this.getInstance();
+    await this.service.delete(instance.id);
+    this.snackbar.open(`Deleted stopwatch "${instance.annotation.title || instance.id}"`, 'Close');
     setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
   }
 
@@ -366,7 +367,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
    * @private
    */
   private cancelInstanceTimers(): void {
-    const instanceId = this.getInstance().id;
+    const instanceId = this.id();
     const timerTypes = ['total', 'split', 'lap'];
     
     timerTypes.forEach(timerType => {
@@ -461,8 +462,11 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   }
 
   showSettings(){
-    this.settingsForm.controls.title.patchValue(this.getInstance().annotation.title);
-    this.settingsForm.controls.description.patchValue(this.getInstance().annotation.description);
+    const instance = this.getInstance();
+    this.settingsForm.controls.title.patchValue(instance.annotation.title);
+    this.settingsForm.controls.description.patchValue(instance.annotation.description);
+    this.settingsForm.controls.groups.patchValue(instance.groups.map(group => group.id));
+    this.displaySettings.set(true);
   }
 
   async handleSettingsChange() {this.getInstance();
@@ -481,7 +485,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
         groups.map((group) => this.groupService.removeMember(group.id, instance.id))
       );
       await Promise.all(
-        groups.map((group) => this.groupService.addMember(group.id, instance.id))
+        groupIds.map((id) => this.groupService.addMember(id, instance.id))
       );
     }
     await this.service.update({...instance, state: this.controller().getState()});

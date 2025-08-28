@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { GroupService } from '../../../../services/group/group.service';
+import { StopwatchGroup } from '../../../../models/sequence/interfaces';
 
 
 @Component({
@@ -8,7 +9,7 @@ import { GroupService } from '../../../../services/group/group.service';
 })
 export class BaseGroupListViewComponent {
   protected readonly service = inject(GroupService);
-  instances = this.service.instances;
+  instances = input.required<StopwatchGroup[]>();
 
   loading = this.service.isLoading;
   error = this.service.error;

@@ -10,14 +10,16 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { MatSelectModule } from '@angular/material/select';
 import { GroupEvaluationBehaviorOptions, GroupPresetOptions, GroupTimingOptions } from '../../../../../utilities/constants';
 import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset } from '../../../../../models/sequence/interfaces';
+import { StopwatchGridDetailViewComponent } from "../../../stopwatch/views/grid/stopwatch-grid-detail/stopwatch-detail.component";
 
 @Component({
   selector: 'full-group-detail',
   imports: [
     MatCardModule,
     FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatButtonModule, MatIconModule
-  ],
+    MatButtonModule, MatIconModule,
+    StopwatchListGridViewComponent
+],
   templateUrl: './full.component.html',
   styleUrl: './full.component.scss'
 })

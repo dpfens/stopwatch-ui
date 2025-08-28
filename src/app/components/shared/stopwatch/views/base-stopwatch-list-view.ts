@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
+import { ContextualStopwatchEntity } from '../../../../models/sequence/interfaces';
 
 
 @Component({
@@ -8,7 +9,7 @@ import { StopwatchService } from '../../../../services/stopwatch/stopwatch.servi
 })
 export class BaseStopwatchListViewComponent {
   protected readonly service = inject(StopwatchService);
-  instances = this.service.instances;
+  instances = input.required<ContextualStopwatchEntity[]>();
 
   loading = this.service.isLoading;
   error = this.service.error;

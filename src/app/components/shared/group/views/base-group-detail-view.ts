@@ -5,6 +5,7 @@ import { GroupPresets, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
 import { GroupService } from '../../../../services/group/group.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -15,6 +16,7 @@ export class BaseGroupDetailViewComponent {
   protected readonly service = inject(GroupService);
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly time = inject(TimeService);
+  protected readonly router = inject(Router);
 
   id = input.required<UniqueIdentifier>();
   instance = computed(() =>
@@ -46,11 +48,12 @@ export class BaseGroupDetailViewComponent {
     return matchingPreset ?? 'Custom';
   });
 
-  async delete(event: Event) {
-      event.preventDefault();
-      event.stopPropagation();
-      await this.service.delete(this.getInstance().id);
-      this.snackbar.open(`Deleted group "${this.getInstance().annotation.title || this.getInstance().id}"`, 'Close');
+  async delete() {
+      const instance = this.getInstance();
+      await this.service.delete(instance.id);
+      this.snackbar.open(`Deleted group "${instance.annotation.title || instance.id}"`, 'Close');
+      // navigate away from group URL to prevent re-loading attempt
+      this.router.navigate(['/group']);
       setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
   }
 
