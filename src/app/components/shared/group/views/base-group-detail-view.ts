@@ -1,6 +1,6 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GroupTraitPreset, GroupTraits, StopwatchEntity, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { GroupTraitPreset, GroupTraits, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupPresets, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
@@ -48,13 +48,15 @@ export class BaseGroupDetailViewComponent {
     return matchingPreset ?? 'Custom';
   });
 
-  async delete() {
-      const instance = this.getInstance();
-      await this.service.delete(instance.id);
-      this.snackbar.open(`Deleted group "${instance.annotation.title || instance.id}"`, 'Close');
-      // navigate away from group URL to prevent re-loading attempt
-      this.router.navigate(['/group']);
-      setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
+  async delete(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const instance = this.getInstance();
+    await this.service.delete(instance.id);
+    this.snackbar.open(`Deleted group "${instance.annotation.title || instance.id}"`, 'Close');
+    // navigate away from group URL to prevent re-loading attempt
+    this.router.navigate(['/group']);
+    setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
   }
 
   relativeTime(date: TZDate): string {
