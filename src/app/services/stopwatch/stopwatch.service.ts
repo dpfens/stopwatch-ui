@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal, computed, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, signal, WritableSignal, computed, PLATFORM_ID, inject, DestroyRef } from '@angular/core';
 import { 
   ContextualStopwatchEntity, 
   StopwatchEntity, 
@@ -10,6 +10,8 @@ import { StopwatchRepository } from '../../repositories/stopwatch';
 import { GroupRepository } from '../../repositories/group';
 import { AnalysisRegistry } from '../../models/sequence/analysis/registry';
 import { isPlatformBrowser } from '@angular/common';
+import { SynchronizationService } from '../synchronization/synchronization.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +20,9 @@ export class StopwatchService {
   platformId = inject(PLATFORM_ID);
   private repository = new StopwatchRepository();
   private groupRepository = new GroupRepository();
+
+  private destroyRef = inject(DestroyRef);
+  private syncService = inject(SynchronizationService);
   
   private _instances: WritableSignal<ContextualStopwatchEntity[]> = signal<ContextualStopwatchEntity[]>([]);
   private _isLoading: WritableSignal<boolean> = signal<boolean>(false);
@@ -35,6 +40,22 @@ export class StopwatchService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       this.loadInstances();
+
+      // Listen for group membership changes and refresh OUR OWN stopwatch data
+      this.syncService.groupEvents$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(event => {
+          if (['updated', 'deleted'].includes(event.action)) {
+            this.refreshStopwatchesByGroup(event.groupId);
+          }
+        });
+      
+      // Listen for group membership changes and refresh OUR OWN stopwatch data
+      this.syncService.membershipEvents$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(event => {
+          this.refreshGroups(event.stopwatchId);
+        });
     }
   }
 
@@ -167,6 +188,7 @@ export class StopwatchService {
       
       // Save to repository
       await this.repository.update(instance);
+      this.syncService.notifyStopwatchUpdated(instance.id);
       
       // Update in-memory state
       const index = this.instances().findIndex(inst => inst.id === instance.id);
@@ -246,6 +268,18 @@ export class StopwatchService {
     } catch (error) {
       console.error('Error refreshing groups for stopwatch:', error);
     }
+  }
+
+  private async refreshStopwatchesByGroup(groupId: UniqueIdentifier): Promise<void> {
+    const entities = await this.getByGroupId(groupId);
+    const instances = this.instances();
+    entities.forEach(entity => {
+      const index = instances.findIndex(instance => instance.id === entity.id);
+      if (index > -1) {
+        instances[index] = entity;
+      }
+    });
+    this._instances.set([...instances]);
   }
 
   /**

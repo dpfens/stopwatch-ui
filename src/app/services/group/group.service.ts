@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, signal, WritableSignal, computed, inject, PLATFORM_ID, DestroyRef } from '@angular/core';
 import { 
   StopwatchGroup, 
   BaseStopwatchGroup, 
@@ -13,12 +13,17 @@ import { GroupRepository } from '../../repositories/group';
 import { StopwatchRepository } from '../../repositories/stopwatch';
 import { AnalysisRegistry } from '../../models/sequence/analysis/registry';
 import { isPlatformBrowser } from '@angular/common';
+import { SynchronizationService } from '../synchronization/synchronization.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroupService {
   platformId = inject(PLATFORM_ID);
+
+  private destroyRef = inject(DestroyRef);
+  private syncService = inject(SynchronizationService);
 
   private repository = new GroupRepository();
   private stopwatchRepository = new StopwatchRepository();
@@ -39,6 +44,17 @@ export class GroupService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       this.loadInstances();
+
+      // Listen for stopwatch changes and refresh OUR OWN groups
+      this.syncService.stopwatchEvents$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(event => {
+          if (['updated', 'deleted'].includes(event.action)) {
+            if (event.stopwatchId) {
+              this.refreshGroupsContainingStopwatch(event.stopwatchId);
+            }
+          }
+        });
     }
   }
 
@@ -209,6 +225,7 @@ export class GroupService {
       
       // Save to repository
       await this.repository.update(group);
+      this.syncService.notifyGroupUpdated(group.id);
       
       // Update in-memory state
       const index = this.instances().findIndex(inst => inst.id === group.id);
@@ -236,6 +253,7 @@ export class GroupService {
       
       // Delete from repository (this will also clear memberships)
       await this.repository.delete(id);
+      this.syncService.notifyGroupDeleted(id);
       
       // Update in-memory state
       const instances = this.instances().filter(inst => inst.id !== id);
@@ -261,6 +279,7 @@ export class GroupService {
       
       // Refresh the affected group in memory
       await this.refreshGroup(groupId);
+      this.syncService.notifyGroupMembershipChanged(groupId, stopwatchId);
       
       return true;
     } catch (error) {
@@ -279,6 +298,7 @@ export class GroupService {
       
       // Remove membership in repository
       await this.repository.removeMember(groupId, stopwatchId);
+      this.syncService.notifyGroupMembershipChanged(groupId, stopwatchId);
       
       // Refresh the affected group in memory
       await this.refreshGroup(groupId);
@@ -396,5 +416,23 @@ export class GroupService {
         description: 'Independent timing with cumulative and proportional evaluation'
       }
     ];
+  }
+
+  /**
+   * Refreshes all groups that contain a specific stopwatch
+   * Called when we receive events about stopwatch changes
+   */
+  private async refreshGroupsContainingStopwatch(stopwatchId: UniqueIdentifier): Promise<void> {
+    try {
+      // Get all groups that contain this stopwatch
+      const groupIds = await this.repository.byStopwatch(stopwatchId);
+      
+      // Refresh each affected group
+      await Promise.all(
+        groupIds.map(groupId => this.refreshGroup(groupId))
+      );
+    } catch (error) {
+      console.error('Error refreshing groups containing stopwatch:', error);
+    }
   }
 }
