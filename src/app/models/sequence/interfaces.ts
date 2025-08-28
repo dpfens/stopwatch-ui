@@ -46,7 +46,7 @@ export interface Annotatable {
 
 type OperationalStopWatchEventType = 'start' | 'stop' | 'resume';
 type UserOperationalStopwatchEventType = 'user_start' | 'user_stop' | 'user_resume';
-type PerformanceMonitoringStopWatchEventType = 'split' | 'cyclic' | 'latency' | 'capacity' | 'threshold';
+type PerformanceMonitoringStopWatchEventType = 'split' | 'lap' | 'interval' | 'latency' | 'capacity' | 'threshold';
 type QualityStabilityStopWatchEventType = 'drift' | 'equilibrium' | 'oscillation' | 'variance' | 'compensation' | 'stability';
 type ProgressStopWatchEventType = 'accumulation' | 'convergence' | 'state-transition' | 'saturation' | 'milestone' | 'acceleration' | 'deceleration';
 type AnalyticEventType = 'forecast' | 'trend' | 'anomaly';
@@ -139,14 +139,12 @@ export interface ComputedEvent extends BaseEvent<ComputedEventType> {
 
 export interface StopwatchState {
     sequence: StopwatchEvent[];
-    lap?: {
-        value: number;
-        unit: string;
-    };
+    lap: UnitValue | null;
 }
 
 export interface SerializedStopwatchState {
     sequence: SerializedStopwatchEvent[];
+    lap?: UnitValue | null;
 }
 
 export interface BaseStopwatchEntity extends UniquelyIdentifiable {
@@ -250,6 +248,9 @@ export interface IStopwatchStateController {
     getElapsedTimeBetweenEvents(startEventId: string | number | null, endEventId: string | number | null): number;  // Active time between events
     getLastEvent(type?: StopWatchEventType): StopwatchEvent | undefined;
     getState(): StopwatchState;
+    
+    setLap(value: UnitValue | null): void;
+    getLap(): UnitValue | null;
     
     // State information
     isRunning(): boolean;

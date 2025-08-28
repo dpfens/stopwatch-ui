@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, WritableSignal, DestroyRef, OnDestroy, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { CachedStopwatchStateController } from '../../../../controllers/stopwatch/cached-stopwatch-state-controller';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,6 +12,7 @@ import { TimerService } from '../../../../services/timer/timer.service';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
+import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
@@ -19,6 +20,7 @@ type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOption
 interface VisibleSplit {
   duration: Intl.Duration;
   event: StopwatchEvent;
+  unit?: UnitValue
 }
 
 /**
@@ -73,8 +75,8 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   settingsForm = new FormGroup({
     title: new FormControl(''),
     description: new FormControl(''),
-    lapValue: new FormControl(''),
-    lapUnit: new FormControl(''),
+    lapValue: new FormControl<number>(0),
+    lapUnit: new FormControl('m'),
     groups: new FormControl<UniqueIdentifier[]>([])
   });
   /**
@@ -103,7 +105,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
         const rawSplitElapsedTime = lastSplitEvent ? controller.getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
         this.splitDuration.set(this.timeService.toDurationObject(rawSplitElapsedTime));
 
-        const lastLapEvent = controller.getState().sequence.findLast(event => event.type === 'cyclic');
+        const lastLapEvent = controller.getState().sequence.findLast(event => event.type === 'lap');
         const rawLapElapsedTime = lastLapEvent ? controller.getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
         this.lapDuration.set(this.timeService.toDurationObject(rawLapElapsedTime));
       }
@@ -118,7 +120,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   private _controllerCache?: IStopwatchStateController;
   
   readonly controller = computed(() => {
-    const instance = this.instance();
+    const instance = this.getInstance();
     if (!instance) {
       throw new Error('Instance must be set before accessing controller');
     }
@@ -159,6 +161,28 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       timestamp: TZDate.now()
     };
     await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
+  }
+
+  async lap() {
+    const now = new Date();
+    const eventType = 'lap';
+    const eventName = this.findAvailableEventName(eventType);
+    this.controller().addEvent(eventType, eventName, now);
+    const state = this.controller().getState();
+    if (state.lap) {
+      const lapEvents = this.controller().getEvents('lap');
+      const lastLapEvent = lapEvents.at(-1);
+      if (lastLapEvent) {
+        lastLapEvent.unit = {value: state.lap!.value * lapEvents.length, unit: state.lap?.unit};
+      }
+    }
+
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
+      timestamp: TZDate.now()
+    };
+    this.buildSplits();
+    await this.service.update({...this.getInstance(), metadata, state});
   }
 
   async split() {
@@ -248,7 +272,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     this.startDurationTimer(
       'cyclic',
       () => {
-        const lastLapEvent = this.controller().getState().sequence.findLast(event => event.type === 'cyclic');
+        const lastLapEvent = this.controller().getState().sequence.findLast(event => event.type === 'lap');
         return lastLapEvent ? this.controller().getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
       },
       (durationMs, durationFormat) => {
@@ -429,7 +453,8 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     for(let i = 1; i < eligibleSplits.length; i++) {
       const rawSplitDuration = this.controller().getElapsedTimeBetweenEvents(eligibleSplits[i - 1].id, eligibleSplits[i].id);
       const splitDuration = this.timeService.toDurationObject(rawSplitDuration);
-      visibleSplits.push({duration: splitDuration, event: eligibleSplits[i]});
+      const event = eligibleSplits[i];
+      visibleSplits.push({duration: splitDuration, event, unit: event.unit});
     }
     this.visibleSplits.set(visibleSplits);
   }
@@ -487,6 +512,13 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       await Promise.all(
         groupIds.map((id) => this.groupService.addMember(id, instance.id))
       );
+    }
+    const state = this.controller().getState();
+    if (this.settingsForm.controls.lapValue.value && this.settingsForm.controls.lapUnit.value) {
+      const lap = {value: this.settingsForm.controls.lapValue.value, unit: this.settingsForm.controls.lapUnit.value};
+      this.controller().setLap(lap);
+    } else {
+      this.controller().setLap(null);
     }
     await this.service.update({...instance, state: this.controller().getState()});
   }

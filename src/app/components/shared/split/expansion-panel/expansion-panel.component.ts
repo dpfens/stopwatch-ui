@@ -28,7 +28,7 @@ export class SplitExpansionPanelComponent extends BaseSplitComponent implements 
   form = new FormGroup({
     title: new FormControl(''),
     splitType: new FormControl(''),
-    splitValue: new FormControl(''),
+    splitValue: new FormControl<number>(0),
     splitUnit: new FormControl('')
   });
   isEditting = signal(false);
@@ -40,6 +40,12 @@ export class SplitExpansionPanelComponent extends BaseSplitComponent implements 
   ngOnInit(): void {
     this.form.controls.splitType.patchValue(this.instance.event.type);
     this.form.controls.title.patchValue(this.instance.event.annotation.title);
+    if (this.instance.event.unit?.value) {
+      this.form.controls.splitValue.patchValue(this.instance.event.unit?.value);
+    }
+    if (this.instance.event.unit?.unit) {
+      this.form.controls.splitUnit.patchValue(this.instance.event.unit.unit);
+    }
   }
 
   handleChange() {

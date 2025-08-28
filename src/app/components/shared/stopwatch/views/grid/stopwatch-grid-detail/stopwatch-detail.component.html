@@ -121,7 +121,11 @@
             }
             @if(controller().isRunning()) {
                 <mat-button-toggle (click)="stop()">Stop</mat-button-toggle>
+                @if (!!getInstance().state.lap) {
+                    <mat-button-toggle (click)="lap()">Lap</mat-button-toggle>
+                }
                 <mat-button-toggle (click)="split()">Split</mat-button-toggle>
+
             }
         </mat-button-toggle-group>
 

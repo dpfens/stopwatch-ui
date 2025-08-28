@@ -82,7 +82,11 @@ export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
       },
       {
         display: 'Lap / Cyclic Event',
-        value: 'cyclic'
+        value: 'lap'
+      },
+      {
+        display: 'Interval Event',
+        value: 'interval'
       },
       {
         display: 'Latency Check',

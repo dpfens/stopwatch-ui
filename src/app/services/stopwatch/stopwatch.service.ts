@@ -71,7 +71,8 @@ export class StopwatchService {
         description
       },
       state: { 
-        sequence: []
+        sequence: [],
+        lap: null
       },
       metadata: {
         creation: { timestamp: now },

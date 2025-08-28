@@ -55,7 +55,8 @@ export class StopwatchStateController implements IStopwatchStateController {
    */
   reset(timestamp: Date): void {
     // Clear all events
-    this.state = { sequence: [] };
+    const lap = this.state.lap;
+    this.state = { sequence: [], lap};
   }
   
   /**
@@ -113,7 +114,8 @@ export class StopwatchStateController implements IStopwatchStateController {
     
     // Add to sequence
     this.state = {
-      sequence: [...this.state.sequence, event]
+      sequence: [...this.state.sequence, event],
+      lap: this.state.lap
     };
   }
 
@@ -419,6 +421,14 @@ export class StopwatchStateController implements IStopwatchStateController {
    */
   getState(): StopwatchState {
     return { ...this.state };
+  }
+
+  setLap(value: UnitValue |null): void {
+    this.state.lap = value;
+  }
+
+  getLap(): UnitValue | null {
+    return this.state.lap ? {...this.state.lap} : null;
   }
   
   /**
