@@ -183,12 +183,15 @@
     </mat-card-content>
     @if(getInstance().groups) {
         <mat-card-footer>
-        <mat-chip-set aria-label="Groups" class="mx-3">
-            @for(group of getInstance().groups; track group.id) {
-                <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
-            }
-        </mat-chip-set>
-    </mat-card-footer>
+            <div class="mx-3">
+                <span class="groups-label text-muted text-uppercase">Groups</span>
+                <mat-chip-set aria-label="Groups" class="mt-1">
+                    @for(group of getInstance().groups; track group.id) {
+                        <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
+                    }
+                </mat-chip-set>
+            </div>
+        </mat-card-footer>
     }
   }
 </mat-card>

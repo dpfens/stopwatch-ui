@@ -458,8 +458,13 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const timerId = `${this.getInstance().id}-${timerType}`;
 
     // Calculate initial duration to determine timer type
+
     const initialDuration = calculateDuration();
+    const useAnimationTimer = initialDuration < Time.ONE_MINUTE;
     const durationFormat = this.timeService.toDurationObject(initialDuration);
+    if (!useAnimationTimer) {
+      durationFormat.milliseconds = 0;
+    }
     updateCallback(initialDuration, durationFormat);
 
     // Create timer subscription record
@@ -471,7 +476,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     };
 
     // Choose appropriate timer service based on duration
-    const useAnimationTimer = initialDuration < Time.ONE_MINUTE;
     const timerService = useAnimationTimer ? this.animationTimer : this.intervalTimer;
     
     // Create timer configuration with instance-specific ID
@@ -512,7 +516,14 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     }
 
     const currentDuration = timerSub.calculator();
+    const includeMs = currentDuration < Time.ONE_MINUTE;
     const durationFormat = this.timeService.toDurationObject(currentDuration);
+    durationFormat.milliseconds = durationFormat.milliseconds || 0;
+    if (includeMs) {
+      durationFormat.milliseconds = parseInt(durationFormat.milliseconds.toString().substring(0, 3).padEnd(3, '0'));
+    } else {
+      durationFormat.milliseconds = 0;
+    }
     timerSub.updater(currentDuration, durationFormat);
 
     // Check if we need to switch timer types
