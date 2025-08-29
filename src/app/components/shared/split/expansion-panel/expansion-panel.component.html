@@ -1,12 +1,21 @@
 <div class="">
     <div class="d-flex text-start align-items-center">
         <div class="flex-grow-1">
-            <span matListItemLine>{{ instance.event.type }}</span>
-            <span matListItemTitle>{{ instance.event.annotation.title }}</span>
+            <div class="fw-semibold">{{ instance.event.annotation.title }}</div>
+            <small class="text-muted">{{ instance.event.type }}</small>
         </div>
-        <span matListItemTitle class="flex-grow-1">
-            {{ timeService.durationFormatter().format(instance.duration) }}
-        </span>
+
+        <div class="text-end me-2">
+            @if (instance.event.unit && instance.event.unit.value && instance.event.unit.unit) {
+                <div class="fw-bold text-primary small">
+                    {{ instance.event.unit.value }}{{ instance.event.unit.unit }}
+                </div>
+            }
+            <div class="fw-medium">
+                {{ timeService.durationFormatter().format(instance.duration) }}
+            </div>
+        </div>
+    
         <div class="d-flex align-items-center">
             @if (!isEditing()) {
                 <button matIconButton aria-label="Edit" (click)="isEditing.set(true)">

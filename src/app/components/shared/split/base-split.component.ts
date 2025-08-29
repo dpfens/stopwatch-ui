@@ -1,6 +1,5 @@
 import { Component, inject, Input, signal } from '@angular/core';
 import { VisibleSplit } from '../../../models/sequence/interfaces';
-import {MatExpansionModule} from '@angular/material/expansion';
 import { SelectableSplitTypes } from '../../../utilities/constants';
 import { TimeService } from '../../../services/time/time.service';
 
