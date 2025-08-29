@@ -29,6 +29,10 @@ export class TZDate implements TimeZonedDate {
     // Store the timeZone offset at creation time
     this.timeZoneOffset = this.getOffsetForTimeZone(this.timeZone, now);
   }
+
+  toString(): string {
+    return this.toISOString();
+  }
   
   /**
    * Validate that a timeZone string is a valid IANA identifier
