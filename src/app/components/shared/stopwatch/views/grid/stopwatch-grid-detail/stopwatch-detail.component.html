@@ -133,7 +133,9 @@
             <mat-list>
                 @for(split of visibleSplits(); track $index) {
                     <split-expansion-panel
-                        [instance]="split">    
+                        [instance]="split"
+                        (updateEmitter)="handleSplitUpdate($event)"
+                        (deleteEmitter)="handleSplitDelete($event)">    
                     </split-expansion-panel>
                 }
             </mat-list>
