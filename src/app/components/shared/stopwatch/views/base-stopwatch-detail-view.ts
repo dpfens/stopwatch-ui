@@ -12,7 +12,6 @@ import { TimerService } from '../../../../services/timer/timer.service';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
-import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
