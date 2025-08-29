@@ -12,6 +12,7 @@ import { TimerService } from '../../../../services/timer/timer.service';
 import { FormBuilder, FormGroup, FormControl, FormsModule, Validators } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
+import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 
 // Define strongly-typed form interface
 interface StopwatchSettingsForm {
@@ -155,7 +156,8 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       throw new Error('Instance must be set before accessing controller');
     }
     if (!this._controllerCache) {
-      this._controllerCache = new CachedStopwatchStateController(instance.state);
+      // this._controllerCache = new CachedStopwatchStateController(instance.state);
+      this._controllerCache = new StopwatchStateController(instance.state);
     }
     return this._controllerCache;
   });
@@ -418,7 +420,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
 
     // Start updating lap duration if we have lap events
     this.startDurationTimer(
-      'cyclic',
+      'lap',
       () => {
         const lastLapEvent = this.controller().getState().sequence.findLast(event => event.type === 'lap');
         return lastLapEvent ? this.controller().getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
