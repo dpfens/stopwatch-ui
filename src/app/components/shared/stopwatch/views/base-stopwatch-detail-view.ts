@@ -478,11 +478,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   async handleSplitDelete(instance: VisibleSplit) {
     const event = instance.event;
     this.controller().removeEvent(event);
-
-    const visibleSplits = this.visibleSplits();
-    const visibleSplitIndex = visibleSplits.findIndex(split => split.event.id === event.id);
-    visibleSplits.splice(visibleSplitIndex, 1);
-    this.visibleSplits.set([...visibleSplits]);
+    this.buildSplits();
     this.service.update({...this.getInstance(), state: this.controller().getState()});
   }
 
