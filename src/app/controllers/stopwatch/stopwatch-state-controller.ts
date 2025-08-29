@@ -208,10 +208,9 @@ export class StopwatchStateController implements IStopwatchStateController {
     if (indices === null) return -1;
     
     const { startIndex, endIndex } = indices;
-    
     // Fast path: check if we can use simple calculation
     if (this.canUseSimpleElapsedCalculation(startIndex, endIndex)) {
-      return this.calculateSimpleElapsedTime(startIndex, endIndex);
+      return this.calculateSimpleElapsedTime(startIndex, endIndex, endEventId === null);
     }
     
     // Complex path: use interval-based calculation
@@ -291,14 +290,15 @@ export class StopwatchStateController implements IStopwatchStateController {
    * Calculates elapsed time using the simple method (no stops/resumes)
    * @param startIndex Start event index
    * @param endIndex End event index
+   * @param useCurrentTime Whether to use current time for end (only when endEventId was null)
    * @returns Elapsed time in milliseconds
    */
-  protected calculateSimpleElapsedTime(startIndex: number, endIndex: number): number {
+  protected calculateSimpleElapsedTime(startIndex: number, endIndex: number, useCurrentTime: boolean = false): number {
     const events = this.state.sequence;
     
     // Simple case: all time is elapsed time
-    const endTime = endIndex === events.length - 1 && this.isRunning() 
-      ? new TZDate()  // Use current time if still running
+    const endTime = useCurrentTime && this.isRunning()
+      ? new TZDate()  // Use current time only when explicitly requested and running
       : events[endIndex].timestamp;
       
     return endTime.durationFrom(events[startIndex].timestamp);
@@ -308,9 +308,10 @@ export class StopwatchStateController implements IStopwatchStateController {
    * Calculates elapsed time using the interval-based method
    * @param startIndex Start event index
    * @param endIndex End event index
+   * @param useCurrentTime Whether to use current time for end (only when endEventId was null)
    * @returns Elapsed time in milliseconds
    */
-  protected calculateIntervalBasedElapsedTime(startIndex: number, endIndex: number): number {
+  protected calculateIntervalBasedElapsedTime(startIndex: number, endIndex: number, useCurrentTime: boolean = false): number {
     const events = this.state.sequence;
     
     // Build a map of active intervals
@@ -332,7 +333,7 @@ export class StopwatchStateController implements IStopwatchStateController {
       // For the edge case where interval.end is beyond our events array
       const endEvent = overlapEnd < events.length 
         ? events[overlapEnd] 
-        : (this.isRunning() ? { timestamp: new TZDate() } : null);
+        : (useCurrentTime && this.isRunning() ? { timestamp: new TZDate() } : null);
       
       if (endEvent) {
         const startEvent = events[overlapStart];
