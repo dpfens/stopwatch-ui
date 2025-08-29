@@ -48,8 +48,21 @@ export class TimeService {
     const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
     const hours = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
     const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
-      
-    return { days, hours, minutes, seconds, milliseconds };
+    
+    // Filter out zero values
+    const duration: DurationFormatOptions = {};
+    if (days > 0) duration.days = days;
+    if (hours > 0) duration.hours = hours;
+    if (minutes > 0) duration.minutes = minutes;
+    if (seconds > 0) duration.seconds = seconds;
+    if (milliseconds > 0) duration.milliseconds = milliseconds;
+    
+    // Ensure at least one unit is present
+    if (Object.keys(duration).length === 0) {
+        duration.seconds = 0;
+    }
+    console.log(duration);
+    return duration;
   }
 
   /**
