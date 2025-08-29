@@ -206,61 +206,71 @@ export class StopwatchStateController implements IStopwatchStateController {
     // Determine start and end indices
     const indices = this.getEventIndices(startEventId, endEventId);
     if (indices === null) return -1;
-    
+    const useCurrentTime = endEventId === null;
     const { startIndex, endIndex } = indices;
     // Fast path: check if we can use simple calculation
     if (this.canUseSimpleElapsedCalculation(startIndex, endIndex)) {
-      return this.calculateSimpleElapsedTime(startIndex, endIndex, endEventId === null);
+      return this.calculateSimpleElapsedTime(startIndex, endIndex, useCurrentTime);
     }
-    
+
     // Complex path: use interval-based calculation
-    return this.calculateIntervalBasedElapsedTime(startIndex, endIndex);
+    return this.calculateIntervalBasedElapsedTime(startIndex, endIndex, useCurrentTime);
   }
   
   /**
-   * Gets the start and end indices for the elapsed time calculation
-   * @param startEventId ID of start event, or null for first event
-   * @param endEventId ID of end event, or null for last event
-   * @returns Object with start and end indices, or null if events not found
-   */
-  protected getEventIndices(startEventId: string | number | null, endEventId: string | number | null): { startIndex: number, endIndex: number } | null {
-    const events = this.state.sequence;
-    
-    let startIndex = 0;
-    let endIndex = events.length - 1;
-    
-    if (startEventId !== null) {
-      const startEventIndex = events.findIndex(e => e.id === startEventId);
-      if (startEventIndex === -1) return null;
-      startIndex = startEventIndex;
-    }
-    
-    if (endEventId !== null) {
-      const endEventIndex = events.findIndex(e => e.id === endEventId);
-      if (endEventIndex === -1) return null;
-      endIndex = endEventIndex;
-    }
-    
-    // Ensure start comes before end
-    if (startIndex > endIndex) {
-      return null;
-    }
-    
-    return { startIndex, endIndex };
+ * Gets the start and end indices for the elapsed time calculation
+ * @param startEventId ID of start event, or null for first event
+ * @param endEventId ID of end event, or null for current time (if running)
+ * @returns Object with start and end indices, or null if events not found
+ * Note: endIndex can be events.length to indicate "use current time"
+ */
+protected getEventIndices(startEventId: string | number | null, endEventId: string | number | null): { startIndex: number, endIndex: number } | null {
+  const events = this.state.sequence;
+  
+  let startIndex = 0;
+  let endIndex: number;
+  
+  // Handle start event
+  if (startEventId !== null) {
+    const startEventIndex = events.findIndex(e => e.id === startEventId);
+    if (startEventIndex === -1) return null;
+    startIndex = startEventIndex;
   }
+  
+  // Handle end event
+  if (endEventId !== null) {
+    const endEventIndex = events.findIndex(e => e.id === endEventId);
+    if (endEventIndex === -1) return null;
+    endIndex = endEventIndex;
+  } else {
+    // endEventId is null - this means "use current time if running"
+    // Set endIndex to events.length to indicate this special case
+    endIndex = events.length;
+  }
+  
+  // Ensure start comes before end (but allow endIndex = events.length)
+  if (startIndex > endIndex) {
+    return null;
+  }
+  
+  return { startIndex, endIndex };
+}
   
   /**
    * Checks if the fast path calculation can be used
    * @param startIndex Start event index
-   * @param endIndex End event index
+   * @param endIndex End event index (can be events.length for current time)
    * @returns True if simple calculation can be used
    */
   protected canUseSimpleElapsedCalculation(startIndex: number, endIndex: number): boolean {
     const events = this.state.sequence;
     
+    // Determine the actual end index for checking events
+    const actualEndIndex = endIndex >= events.length ? events.length - 1 : endIndex;
+    
     // Check if there are any stop or resume events in our range
     const hasStopOrResumeEvents = events
-      .slice(startIndex, endIndex + 1)
+      .slice(startIndex, actualEndIndex + 1)
       .some(e => e.type === 'stop' || e.type === 'resume');
       
     if (hasStopOrResumeEvents) {
@@ -289,28 +299,28 @@ export class StopwatchStateController implements IStopwatchStateController {
   /**
    * Calculates elapsed time using the simple method (no stops/resumes)
    * @param startIndex Start event index
-   * @param endIndex End event index
-   * @param useCurrentTime Whether to use current time for end (only when endEventId was null)
+   * @param endIndex End event index (can be events.length for current time)
+   * @param useCurrentTime Whether to use current time for end (only when endIndex >= events.length)
    * @returns Elapsed time in milliseconds
    */
   protected calculateSimpleElapsedTime(startIndex: number, endIndex: number, useCurrentTime: boolean = false): number {
     const events = this.state.sequence;
     
-    // Simple case: all time is elapsed time
-    const endTime = useCurrentTime && this.isRunning()
-      ? new TZDate()  // Use current time only when explicitly requested and running
-      : events[endIndex].timestamp;
-      
+    // Determine end time
+    const endTime = (endIndex >= events.length && useCurrentTime && this.isRunning())
+      ? new TZDate()  // Use current time when beyond events array and running
+      : events[Math.min(endIndex, events.length - 1)].timestamp;
+        
     return endTime.durationFrom(events[startIndex].timestamp);
   }
   
   /**
-   * Calculates elapsed time using the interval-based method
-   * @param startIndex Start event index
-   * @param endIndex End event index
-   * @param useCurrentTime Whether to use current time for end (only when endEventId was null)
-   * @returns Elapsed time in milliseconds
-   */
+  * Calculates elapsed time using the interval-based method
+  * @param startIndex Start event index
+  * @param endIndex End event index (can be events.length for current time)
+  * @param useCurrentTime Whether to use current time when endIndex >= events.length
+  * @returns Elapsed time in milliseconds
+  */
   protected calculateIntervalBasedElapsedTime(startIndex: number, endIndex: number, useCurrentTime: boolean = false): number {
     const events = this.state.sequence;
     
@@ -330,10 +340,27 @@ export class StopwatchStateController implements IStopwatchStateController {
       const overlapStart = Math.max(interval.start, startIndex);
       const overlapEnd = Math.min(interval.end, endIndex + 1);
       
-      // For the edge case where interval.end is beyond our events array
-      const endEvent = overlapEnd < events.length 
-        ? events[overlapEnd] 
-        : (useCurrentTime && this.isRunning() ? { timestamp: new TZDate() } : null);
+      // Handle the case where we need current time
+      let endEvent: { timestamp: TZDate } | null = null;
+      
+      if (overlapEnd > events.length) {
+        // We're asking for time beyond the last event
+        if (useCurrentTime && this.isRunning()) {
+          endEvent = { timestamp: new TZDate() };
+        } else {
+          continue; // Skip this interval
+        }
+      } else if (overlapEnd < events.length) {
+        endEvent = events[overlapEnd];
+      } else {
+        // overlapEnd === events.length
+        if (useCurrentTime && this.isRunning()) {
+          endEvent = { timestamp: new TZDate() };
+        } else {
+          // Use the last event
+          endEvent = events[events.length - 1];
+        }
+      }
       
       if (endEvent) {
         const startEvent = events[overlapStart];
