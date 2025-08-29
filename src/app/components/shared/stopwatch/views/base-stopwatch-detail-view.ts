@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, WritableSignal, DestroyRef, OnDestroy, input } from '@angular/core';
+import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, WritableSignal, DestroyRef, OnDestroy, input, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { CachedStopwatchStateController } from '../../../../controllers/stopwatch/cached-stopwatch-state-controller';
@@ -9,9 +9,18 @@ import { DurationFormatOptions, TimeService } from '../../../../services/time/ti
 import { LapUnits, Time } from '../../../../utilities/constants';
 import { AnimationTimerService } from '../../../../services/timer/animation-timer.service';
 import { TimerService } from '../../../../services/timer/timer.service';
-import { FormControl, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, FormsModule, Validators } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
+
+// Define strongly-typed form interface
+interface StopwatchSettingsForm {
+  title: FormControl<string | null>;
+  description: FormControl<string | null>;
+  lapValue: FormControl<number | null>;
+  lapUnit: FormControl<string | null>;
+  groups: FormControl<UniqueIdentifier[]>;
+}
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
@@ -22,9 +31,6 @@ interface VisibleSplit {
   unit?: UnitValue
 }
 
-/**
- * Timer subscription tracking for proper cleanup and management.
- */
 interface TimerSubscription {
   id: string;
   calculator: DurationCalculator;
@@ -41,12 +47,13 @@ interface TimerSubscription {
 export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestroy {
   protected readonly service = inject(StopwatchService);
   protected readonly groupService = inject(GroupService);
-
   protected readonly timeService = inject(TimeService);
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly animationTimer = inject(AnimationTimerService);
   protected readonly intervalTimer = inject(TimerService);
   protected readonly destroyRef = inject(DestroyRef);
+  protected readonly fb = inject(FormBuilder);
+
   id = input.required<UniqueIdentifier>();
   instance = computed(() => 
     this.service.instances().find(inst => inst.id === this.id())
@@ -71,24 +78,49 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   lapDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
 
-  settingsForm = new FormGroup({
-    title: new FormControl(''),
-    description: new FormControl(''),
-    lapValue: new FormControl<number>(0),
-    lapUnit: new FormControl('m'),
-    groups: new FormControl<UniqueIdentifier[]>([])
+  // Strongly-typed reactive form
+  settingsForm = this.fb.group<StopwatchSettingsForm>({
+    title: this.fb.control<string | null>(null),
+    description: this.fb.control<string | null>(null),
+    lapValue: this.fb.control<number | null>(null, [Validators.min(0.01)]),
+    lapUnit: this.fb.control<string | null>('m'),
+    groups: this.fb.control<UniqueIdentifier[]>([], { nonNullable: true })
   });
-  /**
-   * Tracks active timer subscriptions for proper cleanup.
-   * @private
-   */
-  private activeTimers: Map<string, TimerSubscription> = new Map();
 
-  /**
-   * Subject for coordinating timer cleanup.
-   * @private
-   */
+  // Computed form state signals
+  readonly hasLapSettings = computed(() => {
+    const lapValue = this.settingsForm.controls.lapValue.value;
+    const lapUnit = this.settingsForm.controls.lapUnit.value;
+    return !!(lapValue && lapUnit);
+  });
+
+  private activeTimers: Map<string, TimerSubscription> = new Map();
   private stopTimers$ = new Subject<void>();
+
+  constructor() {
+    // Auto-save form changes with debouncing
+    effect(() => {
+      if (this.displaySettings()) {
+        this.settingsForm.valueChanges.pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe(() => {
+          if (this.settingsForm.valid) {
+            this.handleSettingsChange();
+          }
+        });
+      }
+    });
+
+    // Auto-populate form when instance changes
+    effect(() => {
+      const instance = this.instance();
+      if (instance && this.displaySettings()) {
+        this.populateForm(instance);
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     const controller = this.controller();
@@ -112,7 +144,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   }
 
   ngOnDestroy(): void {
-    // Only cancel timers specific to this stopwatch instance
     this.cancelInstanceTimers();
   }
   
@@ -128,6 +159,124 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     }
     return this._controllerCache;
   });
+
+  // Simplified form population
+  private populateForm(instance: ContextualStopwatchEntity): void {
+    const state = this.controller().getState();
+    
+    this.settingsForm.patchValue({
+      title: instance.annotation.title || null,
+      description: instance.annotation.description || null,
+      lapValue: state.lap?.value || null,
+      lapUnit: state.lap?.unit || 'm',
+      groups: instance.groups.map(group => group.id)
+    }, { emitEvent: false }); // Don't trigger valueChanges during initial population
+  }
+
+  showSettings(): void {
+    const instance = this.getInstance();
+    this.populateForm(instance);
+    this.displaySettings.set(true);
+  }
+
+  // Simplified and more reactive settings change handler
+  async handleSettingsChange(): Promise<void> {
+    if (!this.settingsForm.valid) {
+      return;
+    }
+
+    const instance = this.getInstance();
+    const formValue = this.settingsForm.value;
+
+    // Update instance annotation
+    if (formValue.title !== undefined) {
+      instance.annotation.title = formValue.title || '';
+    }
+    if (formValue.description !== undefined) {
+      instance.annotation.description = formValue.description || '';
+    }
+
+    // Handle group assignments
+    await this.updateGroupAssignments(instance, formValue.groups || []);
+
+    // Handle lap settings
+    const state = this.controller().getState();
+    if (formValue.lapValue && formValue.lapUnit) {
+      const lap = { value: formValue.lapValue, unit: formValue.lapUnit };
+      this.controller().setLap(lap);
+    } else {
+      this.controller().setLap(null);
+    }
+
+    // Update metadata
+    instance.metadata.lastModification = {
+      timestamp: TZDate.now()
+    };
+
+    await this.service.update({ ...instance, state: this.controller().getState() });
+  }
+
+  // Extracted group assignment logic for better reusability
+  private async updateGroupAssignments(instance: ContextualStopwatchEntity, newGroupIds: UniqueIdentifier[]): Promise<void> {
+    const existingGroupIds = instance.groups.map(group => group.id);
+    const groupsChanged = JSON.stringify(newGroupIds.sort()) !== JSON.stringify(existingGroupIds.sort());
+    
+    if (!groupsChanged) {
+      return;
+    }
+
+    const allGroups = this.groups();
+    
+    // Remove from all existing groups
+    await Promise.all(
+      allGroups.map(group => 
+        this.groupService.removeMember(group.id, instance.id)
+      )
+    );
+
+    // Add to new groups
+    await Promise.all(
+      newGroupIds.map(groupId => 
+        this.groupService.addMember(groupId, instance.id)
+      )
+    );
+  }
+
+  // Form validation helpers
+  getFieldError(fieldName: keyof StopwatchSettingsForm): string | null {
+    const control = this.settingsForm.controls[fieldName];
+    if (control.errors && control.touched) {
+      if (control.errors['required']) return `${fieldName} is required`;
+      if (control.errors['min']) return `${fieldName} must be greater than 0`;
+    }
+    return null;
+  }
+
+  // Reset form to initial state
+  resetForm(): void {
+    this.settingsForm.reset();
+    this.populateForm(this.getInstance());
+  }
+
+  // Check if form has unsaved changes
+  hasUnsavedChanges(): boolean {
+    return this.settingsForm.dirty;
+  }
+
+  // Discard changes and close settings
+  discardChanges(): void {
+    this.resetForm();
+    this.displaySettings.set(false);
+  }
+
+  // Save and close settings
+  async saveAndClose(): Promise<void> {
+    if (this.settingsForm.valid) {
+      await this.handleSettingsChange();
+      this.settingsForm.markAsPristine();
+      this.displaySettings.set(false);
+    }
+  }
 
   async start() {
     const now = new Date();
@@ -479,43 +628,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     this.controller().removeEvent(event);
     this.buildSplits();
     this.service.update({...this.getInstance(), state: this.controller().getState()});
-  }
-
-  showSettings(){
-    const instance = this.getInstance();
-    this.settingsForm.controls.title.patchValue(instance.annotation.title);
-    this.settingsForm.controls.description.patchValue(instance.annotation.description);
-    this.settingsForm.controls.groups.patchValue(instance.groups.map(group => group.id));
-    this.displaySettings.set(true);
-  }
-
-  async handleSettingsChange() {this.getInstance();
-    const instance = this.getInstance();
-    if (this.settingsForm.controls.title.value) {
-      instance.annotation.title = this.settingsForm.controls.title.value as string;
-    }
-    if (this.settingsForm.controls.description.value) {
-      instance.annotation.description = this.settingsForm.controls.description.value as string;
-    }
-    const existingGroupAssignments = instance.groups.map((group) => group.id);
-    if (JSON.stringify(this.settingsForm.controls.groups.value) !== JSON.stringify(existingGroupAssignments)) {
-      const groupIds = (this.settingsForm.controls.groups.value || []) as UniqueIdentifier[];
-      const groups = this.groups();
-      await Promise.all(
-        groups.map((group) => this.groupService.removeMember(group.id, instance.id))
-      );
-      await Promise.all(
-        groupIds.map((id) => this.groupService.addMember(id, instance.id))
-      );
-    }
-    const state = this.controller().getState();
-    if (this.settingsForm.controls.lapValue.value && this.settingsForm.controls.lapUnit.value) {
-      const lap = {value: this.settingsForm.controls.lapValue.value, unit: this.settingsForm.controls.lapUnit.value};
-      this.controller().setLap(lap);
-    } else {
-      this.controller().setLap(null);
-    }
-    await this.service.update({...instance, state: this.controller().getState()});
   }
 
   private findAvailableEventName(eventType: string): string {

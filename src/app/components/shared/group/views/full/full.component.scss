@@ -1,0 +1,260 @@
+// full.component.scss
+
+// full.component.scss
+
+.small-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.info-icon {
+  cursor: help;
+  color: #757575;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #2196f3;
+  }
+}
+
+// Custom tooltip styles
+:host ::ng-deep .large-tooltip {
+  max-width: 350px !important;
+  white-space: pre-line !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  padding: 8px 12px !important;
+}
+
+// Clean up select options
+:host ::ng-deep .mat-select-panel {
+  .mat-option {
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &:hover {
+      background-color: rgba(0,0,0,0.04) !important;
+    }
+  }
+}
+
+.preset-info {
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    border-color: #ccc;
+    background-color: #f8f9fa !important;
+  }
+}
+
+.text-warning {
+  color: #ff9800 !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+// Information Panel Styles
+.info-panel {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+  max-height: 600px;
+  overflow-y: auto;
+  
+  @media (max-width: 991px) {
+    margin-top: 24px;
+  }
+}
+
+.info-panel-title {
+  color: #495057;
+  margin-bottom: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.info-section {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  &.warning-section {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 12px;
+    
+    .info-description {
+      color: #856404;
+    }
+  }
+}
+
+.info-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #495057;
+}
+
+.section-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.info-description {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.use-cases {
+  margin-top: 12px;
+}
+
+.use-cases-title {
+  font-weight: 600;
+  color: #495057;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.use-cases-list {
+  margin: 0;
+  padding-left: 16px;
+  
+  li {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 2px;
+  }
+}
+
+.evaluation-item {
+  margin-bottom: 12px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.evaluation-title {
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+// Select Option Styles
+.option-content {
+  padding: 4px 0;
+}
+
+.option-title {
+  font-weight: 500;
+  color: #333;
+  line-height: 1.3;
+}
+
+.option-description {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  margin-top: 2px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+// Material Select Panel Override
+:host ::ng-deep .mat-select-panel {
+  .mat-option {
+    height: auto !important;
+    min-height: 48px;
+    padding: 8px 16px;
+    line-height: normal;
+    
+    .mat-option-text {
+      white-space: normal;
+      line-height: normal;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .info-panel {
+    margin-top: 16px;
+  }
+  
+  .option-description {
+    font-size: 11px;
+  }
+  
+  .info-description {
+    font-size: 13px;
+  }
+}
+
+// Optional: Animation for preset changes
+.mat-form-field {
+  transition: all 0.2s ease-in-out;
+}
+
+.preset-sync-animation {
+  animation: preset-highlight 0.5s ease-in-out;
+}
+
+@keyframes preset-highlight {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(33, 150, 243, 0.1); }
+  100% { background-color: transparent; }
+}
+
+// Scrollbar styling for info panel
+.info-panel {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}

@@ -29,32 +29,6 @@ export const ObjectivePresets: Record<ObjectiveType, unknown> = {
     }
 } as const;
 
-/**
- * Predefined group type presets for common use cases
- */
-export const GroupPresets: Record<GroupTraitPreset, GroupTraits> = {
-  normal: {
-    timing: 'independent',
-    evaluation: [],
-    analytics: []
-  },
-  competition: {
-    timing: 'parallel',
-    evaluation: ['comparative'],
-    analytics: []
-  },
-  workflow: {
-    timing: 'sequential',
-    evaluation: ['threshold', 'cumulative'],
-    analytics: []
-  },
-  billing: {
-    timing: 'independent',
-    evaluation: ['cumulative', 'proportional'],
-    analytics: []
-  }
-} as const;
-
 export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
   {
     display: 'User Controls',
@@ -194,71 +168,134 @@ export const LapUnits: SelectOptGroup<string>[] = [
 /** 
  * Group Traits
  */
+// Updated interfaces to include descriptions
+
+
+export interface PresetConfig {
+  timing: GroupTimingBehavior;
+  evaluation: GroupEvaluationBehavior[];
+  analytics: unknown[];
+  description: string;
+  useCases: string[];
+}
+
+/**
+ * Predefined group type presets for common use cases
+ */
+export const GroupPresets: Record<GroupTraitPreset, PresetConfig> = {
+  normal: {
+    timing: 'independent',
+    evaluation: [],
+    analytics: [],
+    description: 'Standard configuration for general-purpose timing. Each stopwatch operates independently without any special evaluation criteria.',
+    useCases: ['General time tracking', 'Personal productivity', 'Simple task timing', 'Basic time logging']
+  },
+  competition: {
+    timing: 'parallel',
+    evaluation: ['comparative'],
+    analytics: [],
+    description: 'Designed for competitive scenarios where multiple participants start simultaneously and performance is compared against each other.',
+    useCases: ['Sports events', 'Racing', 'Performance contests', 'Speed competitions', 'Team challenges']
+  },
+  workflow: {
+    timing: 'sequential',
+    evaluation: ['threshold', 'cumulative'],
+    analytics: [],
+    description: 'Perfect for process workflows where tasks must be completed in order, with performance thresholds and cumulative time tracking.',
+    useCases: ['Manufacturing processes', 'Assembly lines', 'Multi-step procedures', 'Quality control workflows', 'Project phases']
+  },
+  billing: {
+    timing: 'independent',
+    evaluation: ['cumulative', 'proportional'],
+    analytics: [],
+    description: 'Optimized for time-based billing scenarios with cumulative tracking and proportional calculations for accurate invoicing.',
+    useCases: ['Client billing', 'Hourly services', 'Consulting work', 'Freelance projects', 'Service time tracking']
+  }
+} as const;
+
+/** 
+ * Group Traits with descriptions
+ */
 export const GroupPresetOptions: SelectOption<GroupTraitPreset>[] = [
   {
     value: 'normal',
-    display: 'Normal'
+    display: 'Normal',
+    description: 'Standard timing for everyday use'
   },
   {
     value: 'competition',
-    display: 'Competition'
+    display: 'Competition',
+    description: 'Competitive timing with performance comparison'
   },
   {
     value: 'workflow',
-    display: 'Workflow'
+    display: 'Workflow',
+    description: 'Sequential process timing with thresholds'
   },
   {
     value: 'billing',
-    display: 'Billing'
+    display: 'Billing',
+    description: 'Time tracking optimized for billing and invoicing'
   },
 ] as const;
 
 export const GroupTimingOptions: SelectOption<GroupTimingBehavior>[] = [
   {
     value: 'independent',
-    display: 'Independent'
+    display: 'Independent',
+    description: 'Each timer operates separately without coordination. Start and stop times are not synchronized with other timers.'
   },
   {
     value: 'overlapping',
-    display: 'Overlapping'
+    display: 'Overlapping',
+    description: 'Timers can run simultaneously with overlapping periods. Useful for tracking concurrent activities or multitasking scenarios.'
   },
   {
     value: 'parallel',
-    display: 'Parallel'
+    display: 'Parallel',
+    description: 'All timers start at the same time and run simultaneously. Perfect for competitions or synchronized activities.'
   },
   {
     value: 'sequential',
-    display: 'Sequential'
+    display: 'Sequential',
+    description: 'Timers run one after another in a specific order. The next timer starts when the previous one stops, ideal for workflows.'
   },
   {
     value: 'synchronized',
-    display: 'Synchronized'
+    display: 'Synchronized',
+    description: 'All timers are coordinated and controlled together. Start, stop, and pause actions affect all timers simultaneously.'
   }
 ] as const;
 
 export const GroupEvaluationBehaviorOptions: SelectOption<GroupEvaluationBehavior>[] = [
   {
     value: 'independent',
-    display: 'Independent'
+    display: 'Independent',
+    description: 'Each timer is evaluated separately without comparison to others. Results are standalone metrics.'
   },
   {
     value: 'comparative',
-    display: 'Comparative'
+    display: 'Comparative',
+    description: 'Timers are compared against each other to determine rankings, winners, or relative performance metrics.'
   },
   {
     value: 'cumulative',
-    display: 'Cumulative'
+    display: 'Cumulative',
+    description: 'All timer values are added together to create a total sum. Useful for calculating total work time or combined efforts.'
   },
   {
     value: 'threshold',
-    display: 'Threshold'
+    display: 'Threshold',
+    description: 'Timers are evaluated against predefined time limits or performance thresholds. Triggers alerts when limits are exceeded.'
   },
   {
     value: 'proportional',
-    display: 'Proportional'
+    display: 'Proportional',
+    description: 'Timer values are calculated as percentages or ratios relative to the total or to each other. Useful for billing and allocation.'
   },
   {
     value: 'trending',
-    display: 'Trending'
+    display: 'Trending',
+    description: 'Analyzes timer patterns over time to identify trends, improvements, or degradations in performance.'
   }
 ] as const;

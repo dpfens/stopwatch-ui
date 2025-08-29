@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GroupTraitPreset, GroupTraits, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
-import { GroupPresets, Time } from '../../../../utilities/constants';
+import { GroupPresets, PresetConfig, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
 import { GroupService } from '../../../../services/group/group.service';
@@ -41,7 +41,7 @@ export class BaseGroupDetailViewComponent {
     }
     const presets: GroupTraitPreset[] = Object.keys(GroupPresets) as GroupTraitPreset[];
     const matchingPreset = presets.find(preset => {
-      const traits: GroupTraits = GroupPresets[preset];
+      const traits: PresetConfig = GroupPresets[preset];
       return this.getInstance().traits.timing == traits.timing 
         && this.getInstance().traits.evaluation.sort().join(',') === traits.evaluation.sort().join(',')
     });

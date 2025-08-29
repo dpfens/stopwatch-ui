@@ -273,8 +273,9 @@ export interface IContextualStopwatchController extends IAnnotatableController {
 }
 
 export interface SelectOption<T> {
-    display: string;
-    value: T;
+  value: T;
+  display: string;
+  description?: string;
 }
 
 export interface SelectOptGroup<T> {
