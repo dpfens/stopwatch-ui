@@ -1,0 +1,138 @@
+// Group List Detail View Styles
+.group-list-item {
+  transition: all 0.15s ease-in-out;
+  border-left: 3px solid transparent;
+  min-height: 72px;
+  
+  // Completely neutral color palette
+  --text-primary: #212529;
+  --text-muted: #6c757d;
+  --text-secondary: #495057;
+  --text-emphasis: #000000;
+  --bg-hover: #f8f9fa;
+  --bg-active: #e9ecef;
+  --border-active: #343a40;
+  
+  &:hover {
+    background-color: var(--bg-hover);
+    text-decoration: none;
+    
+    .delete-button {
+      opacity: 1;
+    }
+  }
+  
+  &.active {
+    background-color: var(--bg-active);
+    border-left-color: var(--border-active);
+    
+    .group-title {
+      color: var(--text-emphasis);
+      font-weight: 700;
+    }
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: -2px;
+  }
+}
+
+// Typography hierarchy
+.group-title {
+  color: var(--text-primary);
+  line-height: 1.3;
+  font-weight: 600;
+  
+  .group-list-item:not(.active) & {
+    font-weight: 500;
+  }
+}
+
+.group-preset {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+.stopwatch-count {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  
+  .text-primary {
+    font-weight: 700;
+    color: var(--text-emphasis) !important;
+  }
+}
+
+.creation-time {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+// Action button
+.delete-button {
+  opacity: 0.6;
+  transition: opacity 0.15s ease-in-out;
+  color: var(--text-muted);
+  
+  &:hover {
+    opacity: 1;
+    background-color: rgba(73, 80, 87, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .mat-icon {
+    font-size: 1.125rem;
+  }
+}
+
+// Utility classes for font sizes
+.fs-6 { font-size: 1rem !important; }
+.fs-7 { font-size: 0.875rem !important; }
+.fs-8 { font-size: 0.8125rem !important; }
+
+// Ensure proper text handling
+.min-width-0 {
+  min-width: 0;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .group-list-item {
+    padding: 0.75rem !important;
+    min-height: 64px;
+    
+    .creation-time {
+      display: none;
+    }
+    
+    .stopwatch-count {
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// Dark mode support (if needed)
+@media (prefers-color-scheme: dark) {
+  .group-list-item {
+    --text-primary: #f8f9fa;
+    --text-muted: #adb5bd;
+    --text-secondary: #dee2e6;
+    --text-emphasis: #ffffff;
+    --bg-hover: #343a40;
+    --bg-active: #495057;
+    --border-active: #f8f9fa;
+  }
+}

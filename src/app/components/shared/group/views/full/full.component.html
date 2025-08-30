@@ -213,7 +213,7 @@
   } @else {
     @if (getInstance().members.length) {
         <mat-card-content class="mt-5 mb-3">
-            <stopwatch-list-grid-view [instances]="getInstance().members"></stopwatch-list-grid-view>
+            <stopwatch-list-grid-view [instances]="getInstance().members" columns="col-12 col-lg-6 col-xl-4"></stopwatch-list-grid-view>
         </mat-card-content>
     }
   }
