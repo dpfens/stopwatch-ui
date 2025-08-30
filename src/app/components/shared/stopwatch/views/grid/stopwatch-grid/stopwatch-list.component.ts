@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { BaseStopwatchListViewComponent } from '../../base-stopwatch-list-view';
 import { StopwatchGridDetailViewComponent } from '../stopwatch-grid-detail/stopwatch-detail.component';
 
@@ -9,4 +9,5 @@ import { StopwatchGridDetailViewComponent } from '../stopwatch-grid-detail/stopw
   styleUrl: './stopwatch-list.component.scss'
 })
 export class StopwatchListGridViewComponent extends BaseStopwatchListViewComponent {
+  columns = input('col-3')
 }

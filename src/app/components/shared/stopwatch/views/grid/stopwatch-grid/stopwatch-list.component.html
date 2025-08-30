@@ -4,7 +4,7 @@
 @else {
     <div class="row g-4">
     @for (instance of instances(); track instance.id) {
-        <stopwatch-grid-detail-view [id]="instance.id" class="col-3">
+        <stopwatch-grid-detail-view [id]="instance.id" [class]="columns()">
         </stopwatch-grid-detail-view>
     } @empty {
         <span>No stopwatches found.</span>
