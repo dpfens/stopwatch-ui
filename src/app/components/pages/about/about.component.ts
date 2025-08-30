@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-about',
-  imports: [],
+  imports: [MatCardModule, MatExpansionModule, MatIconModule],
   templateUrl: './about.component.html',
   styleUrl: './about.component.scss'
 })
