@@ -1,0 +1,191 @@
+<!-- Global Action Bar - Slides up when selections are made -->
+<div class="global-action-bar position-fixed bottom-0 start-0 end-0 bg-white shadow-lg border-top" 
+     [class.visible]="hasSelection()"
+     [class.processing]="isProcessing()">
+  
+  <!-- Progress indicator for bulk operations -->
+   @if(isProcessing()) {
+    <mat-progress-bar 
+    mode="indeterminate" 
+    class="w-100">
+    </mat-progress-bar>
+   }
+
+  <div class="d-flex justify-content-between align-items-center px-3 py-2">
+    <!-- Left: Selection Info -->
+    <div class="d-flex align-items-center gap-2">
+      <mat-icon class="text-primary">check_circle</mat-icon>
+      <span class="fw-medium">{{ selectedCount() }} selected</span>
+      <button 
+        mat-icon-button 
+        class="ms-2"
+        (click)="clearSelection()"
+        [disabled]="isProcessing()"
+        matTooltip="Clear selection">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+
+    <!-- Center: Action Buttons -->
+    <div class="d-flex gap-3">
+      
+      <!-- Control Actions Group -->
+      @if(canStartAll() || canStopAll() || canResumeAll()) {
+        <div class="d-flex gap-2">
+          <!-- Start -->
+          @if(canStartAll()) {
+            <button 
+              mat-flat-button 
+              [disabled]="isProcessing()"
+              (click)="executeStartAll()"
+              class="d-flex align-items-center gap-1"
+              matTooltip="Start stopwatches">
+              <mat-icon>play_arrow</mat-icon>
+              <span>Start</span>
+              <span class="text-muted small">({{ getStartableCount() }})</span>
+            </button>
+          }
+
+          <!-- Stop -->
+          @if(canStopAll()) {
+            <button 
+              mat-flat-button 
+              [disabled]="isProcessing()"
+              (click)="executeStopAll()"
+              class="d-flex align-items-center gap-1"
+              matTooltip="Stop stopwatches">
+              <mat-icon>stop</mat-icon>
+              <span>Stop</span>
+              <span class="text-muted small">({{ getStoppableCount() }})</span>
+            </button>
+          }
+
+          <!-- Resume -->
+          @if(canResumeAll()) {
+            <button 
+              mat-flat-button 
+              [disabled]="isProcessing()"
+              (click)="executeResumeAll()"
+              class="d-flex align-items-center gap-1"
+              matTooltip="Resume stopwatches">
+              <mat-icon>play_circle_outline</mat-icon>
+              <span>Resume</span>
+              <span class="text-muted small">({{ getResumableCount() }})</span>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Event Actions Group -->
+      @if(canSplitAll() || canLapAll()) {
+        <div class="d-flex gap-2">
+          <!-- Split -->
+          @if(canSplitAll()) {
+            <button 
+              mat-stroked-button 
+              [disabled]="isProcessing()"
+              (click)="executeSplitAll()"
+              class="d-flex align-items-center gap-1"
+              matTooltip="Add splits to running stopwatches">
+              <mat-icon>call_split</mat-icon>
+              <span>Split</span>
+              <span class="text-muted small">({{ getRunningCount() }})</span>
+            </button>
+          }
+
+          <!-- Lap -->
+          @if(canLapAll()) {
+            <button 
+              mat-stroked-button 
+              [disabled]="isProcessing()"
+              (click)="executeLapAll()"
+              class="d-flex align-items-center gap-1"
+              matTooltip="Add laps to running stopwatches">
+              <mat-icon>track_changes</mat-icon>
+              <span>Lap</span>
+              <span class="text-muted small">({{ getLappableCount() }})</span>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Management Actions Group -->
+      <div class="d-flex gap-2">
+        <!-- Reset -->
+        @if(canResetAll()) {
+          <button 
+            mat-stroked-button 
+            [disabled]="isProcessing()"
+            (click)="executeResetAll()"
+            class="d-flex align-items-center gap-1"
+            matTooltip="Reset stopwatches">
+            <mat-icon>restart_alt</mat-icon>
+            <span>Reset</span>
+            <span class="text-muted small">({{ getResetableCount() }})</span>
+          </button>
+        }
+
+        <!-- Duplicate -->
+        <button 
+          mat-stroked-button 
+          [disabled]="isProcessing()"
+          (click)="executeForkAll()"
+          class="d-flex align-items-center gap-1"
+          matTooltip="Fork selected stopwatches">
+          <mat-icon>fork_right</mat-icon>
+          <span>Fork</span>
+          <span class="text-muted small">({{ selectedCount() }})</span>
+        </button>
+
+        <!-- Delete -->
+        <button 
+          mat-stroked-button 
+          [disabled]="isProcessing()"
+          (click)="executeDeleteAll()"
+          class="d-flex align-items-center gap-1 text-danger"
+          matTooltip="Delete selected stopwatches">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+          <span class="text-muted small">({{ selectedCount() }})</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: Quick Actions (Mobile) -->
+    <div class="d-flex align-items-center">
+      <!-- Primary action based on state -->
+      @if(canStartAll()) {
+        <button 
+          mat-fab 
+          [disabled]="isProcessing()"
+          (click)="executeStartAll()"
+          class="bg-success text-white"
+          matTooltip="Start {{ getStartableCount() }} stopwatches">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+      }
+
+      @if(!canStartAll() && canStopAll()) {
+        <button 
+          mat-fab 
+          [disabled]="isProcessing()"
+          (click)="executeStopAll()"
+          class="bg-danger text-white"
+          matTooltip="Stop {{ getStoppableCount() }} stopwatches">
+          <mat-icon>stop</mat-icon>
+        </button>
+      }
+
+      @if(!canStartAll() && !canStopAll() && canResumeAll()) {
+        <button 
+          mat-fab 
+          [disabled]="isProcessing()"
+          (click)="executeResumeAll()"
+          class="bg-warning text-white"
+          matTooltip="Resume {{ getResumableCount() }} stopwatches">
+          <mat-icon>play_circle_outline</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+</div>

@@ -13,13 +13,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from "@angular/material/list";
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'stopwatch-grid-detail-view',
   imports: [
     MatCardModule, MatButtonToggleModule, MatButtonModule, MatMenuModule, MatIconModule, MatChipsModule, MatExpansionModule, SplitExpansionPanelComponent,
     FormsModule, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatListModule
+    MatListModule, MatCheckboxModule
 ],
   templateUrl: './stopwatch-detail.component.html',
   styleUrl: './stopwatch-detail.component.scss'

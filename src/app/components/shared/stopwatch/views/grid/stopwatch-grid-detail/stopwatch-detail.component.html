@@ -1,11 +1,42 @@
-<mat-card id="{{ getInstance().id }}" appearance="outlined" class="pb-3">
+<mat-card 
+    id="{{ getInstance().id }}"
+    appearance="outlined"
+    class="pb-3 stopwatch-card"
+    [class.selected]="isSelected()"
+    [class.selection-mode]="selectionMode() || hasAnySelection()"
+    (click)="onCardClick($event)"
+    >
+
+    <div class="selection-checkbox-container d-flex align-items-center justify-content-center p-1"
+        [class.visible]="selectionMode() || hasAnySelection()">
+        <mat-icon
+        (click)="onSelectionChange($event)"
+        role="checkbox"
+        [attr.aria-checked]="isSelected()"
+        aria-label="Select stopwatch"
+        tabindex="0"
+        (keydown.enter)="onSelectionChange($event)"
+        (keydown.space)="onSelectionChange($event)"
+        class="selection-icon">
+        @if(isSelected()) {
+            check_circle
+        } @else {
+            check
+        }
+        </mat-icon>
+    </div>
+
   <mat-card-header class="d-flex align-items-center">
     @if(!displaySettings()) {
         <div class="flex-grow-1">
             <mat-card-title>{{ getInstance().annotation.title }}</mat-card-title>
             <mat-card-subtitle></mat-card-subtitle>
         </div>
-        <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <button matIconButton 
+                [matMenuTriggerFor]="menu" 
+                aria-label="Example icon-button with a menu"
+                class="control-button"
+                [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
             <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu" xPosition="before" >   
@@ -147,10 +178,11 @@
         </div>
 
         <mat-button-toggle-group
-        class="my-3"
+        class="my-3 control-buttons"
         name="favoriteColor"
         aria-label="Favorite Color"
         [hideSingleSelectionIndicator]="true"
+        [class.disabled-in-selection]="selectionMode() || hasAnySelection()"
         >
             @if(!controller().isActive()) {
                 <mat-button-toggle (click)="start()">Start</mat-button-toggle>
@@ -175,7 +207,8 @@
                     <split-expansion-panel
                         [instance]="split"
                         (updateEmitter)="handleSplitUpdate($event)"
-                        (deleteEmitter)="handleSplitDelete($event)">    
+                        (deleteEmitter)="handleSplitDelete($event)"
+                        [class.disabled-in-selection]="selectionMode() || hasAnySelection()">    
                     </split-expansion-panel>
                 }
             </mat-list>

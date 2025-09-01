@@ -1,18 +1,18 @@
-import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, WritableSignal, DestroyRef, OnDestroy, input, effect } from '@angular/core';
+import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
-import { CachedStopwatchStateController } from '../../../../controllers/stopwatch/cached-stopwatch-state-controller';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DurationFormatOptions, TimeService } from '../../../../services/time/time.service';
 import { LapUnits, Time } from '../../../../utilities/constants';
 import { AnimationTimerService } from '../../../../services/timer/animation-timer.service';
 import { TimerService } from '../../../../services/timer/timer.service';
-import { FormBuilder, FormGroup, FormControl, FormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, Validators } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
 import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
+import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwatch-selection/stopwatch-selection.service';
 
 // Define strongly-typed form interface
 interface StopwatchSettingsForm {
@@ -54,11 +54,13 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   protected readonly intervalTimer = inject(TimerService);
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly fb = inject(FormBuilder);
+  protected readonly selectionService = inject(StopwatchSelectionService);
 
   id = input.required<UniqueIdentifier>();
   instance = computed(() => 
     this.service.instances().find(inst => inst.id === this.id())
   );
+  selectionMode = input(false);
 
   getInstance(): ContextualStopwatchEntity {
     const inst = this.instance();
@@ -98,6 +100,33 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   private activeTimers: Map<string, TimerSubscription> = new Map();
   private stopTimers$ = new Subject<void>();
 
+  // FIXED: Controller with proper cache invalidation based on instance changes
+  private _controllerCache?: IStopwatchStateController;
+  private _lastInstanceVersion?: string;
+  
+  readonly controller = computed(() => {
+    const instance = this.getInstance();
+    if (!instance) {
+      throw new Error('Instance must be set before accessing controller');
+    }
+    
+    // Create a version string based on instance modification timestamp
+    const currentVersion = `${instance.id}-${instance.metadata.lastModification?.timestamp || 0}`;
+    
+    // Invalidate cache if instance has changed
+    if (this._lastInstanceVersion !== currentVersion) {
+      this._controllerCache = undefined;
+      this._lastInstanceVersion = currentVersion;
+    }
+    
+    // Create new controller if not cached
+    if (!this._controllerCache) {
+      this._controllerCache = new StopwatchStateController(instance.state);
+    }
+    
+    return this._controllerCache;
+  });
+
   constructor() {
     // Auto-save form changes with debouncing
     effect(() => {
@@ -121,6 +150,61 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
         this.populateForm(instance);
       }
     });
+
+    // FIXED: Effect to handle external updates (like bulk operations)
+    effect(() => {
+      const instance = this.instance();
+      if (!instance) return;
+      
+      // Track the modification timestamp to detect external changes
+      const modificationTimestamp = instance.metadata.lastModification?.timestamp;
+      
+      // Update component state when instance changes externally
+      // This will trigger when bulk operations update the stopwatch
+      this.refreshComponentState();
+    });
+  }
+
+  // FIXED: Method to refresh component state when instance changes
+  private refreshComponentState(): void {
+    const controller = this.controller();
+    
+    if (controller.isActive()) {
+      this.buildSplits();
+      this.updateStaticDurations();
+      
+      // Only start clock if currently running and timers aren't already active
+      if (controller.isRunning() && this.activeTimers.size === 0) {
+        this.startClock();
+      } else if (!controller.isRunning()) {
+        this.cancelInstanceTimers();
+      }
+    } else {
+      // Reset for inactive stopwatches
+      this.totalDuration.set({milliseconds: Time.ZERO});
+      this.splitDuration.set(undefined);
+      this.lapDuration.set(undefined);
+      this.visibleSplits.set([]);
+      this.cancelInstanceTimers();
+    }
+  }
+
+  // FIXED: Update static durations without starting timers
+  private updateStaticDurations(): void {
+    const controller = this.controller();
+    
+    if (!controller.isRunning()) {
+      const rawTotalElapsedTime = controller.getElapsedTime();
+      this.totalDuration.set(this.timeService.toDurationObject(rawTotalElapsedTime));
+
+      const lastSplitEvent = controller.getState().sequence.findLast(event => event.type === 'split');
+      const rawSplitElapsedTime = lastSplitEvent ? controller.getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
+      this.splitDuration.set(rawSplitElapsedTime > 0 ? this.timeService.toDurationObject(rawSplitElapsedTime) : undefined);
+
+      const lastLapEvent = controller.getState().sequence.findLast(event => event.type === 'lap');
+      const rawLapElapsedTime = lastLapEvent ? controller.getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
+      this.lapDuration.set(rawLapElapsedTime > 0 ? this.timeService.toDurationObject(rawLapElapsedTime) : undefined);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -130,16 +214,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       if (controller.isRunning()) {
         this.startClock();
       } else {
-        const rawTotalElapsedTime = controller.getElapsedTime();
-        this.totalDuration.set(this.timeService.toDurationObject(rawTotalElapsedTime));
-
-        const lastSplitEvent = controller.getState().sequence.findLast(event => event.type === 'split');
-        const rawSplitElapsedTime = lastSplitEvent ? controller.getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
-        this.splitDuration.set(this.timeService.toDurationObject(rawSplitElapsedTime));
-
-        const lastLapEvent = controller.getState().sequence.findLast(event => event.type === 'lap');
-        const rawLapElapsedTime = lastLapEvent ? controller.getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
-        this.lapDuration.set(this.timeService.toDurationObject(rawLapElapsedTime));
+        this.updateStaticDurations();
       }
     }
   }
@@ -147,20 +222,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   ngOnDestroy(): void {
     this.cancelInstanceTimers();
   }
-  
-  private _controllerCache?: IStopwatchStateController;
-  
-  readonly controller = computed(() => {
-    const instance = this.getInstance();
-    if (!instance) {
-      throw new Error('Instance must be set before accessing controller');
-    }
-    if (!this._controllerCache) {
-      // this._controllerCache = new CachedStopwatchStateController(instance.state);
-      this._controllerCache = new StopwatchStateController(instance.state);
-    }
-    return this._controllerCache;
-  });
 
   // Simplified form population
   private populateForm(instance: ContextualStopwatchEntity): void {
@@ -202,7 +263,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     await this.updateGroupAssignments(instance, formValue.groups || []);
 
     // Handle lap settings
-    const state = this.controller().getState();
     if (formValue.lapValue && formValue.lapUnit) {
       const lap = { value: formValue.lapValue, unit: formValue.lapUnit };
       this.controller().setLap(lap);
@@ -458,7 +518,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const timerId = `${this.getInstance().id}-${timerType}`;
 
     // Calculate initial duration to determine timer type
-
     const initialDuration = calculateDuration();
     const useAnimationTimer = initialDuration < Time.ONE_MINUTE;
     const durationFormat = this.timeService.toDurationObject(initialDuration);
@@ -657,5 +716,50 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       }
     }
     return newEventName;
+  }
+
+  // Computed selection state
+  readonly isSelected = computed(() => 
+    this.selectionService.isSelected(this.id())
+  );
+  
+  readonly hasAnySelection = computed(() => 
+    this.selectionService.hasSelection()
+  );
+
+  /**
+   * Toggles selection state of this stopwatch
+   */
+  toggleSelection(): void {
+    this.selectionService.toggleSelection(this.id());
+  }
+
+  /**
+   * Handles card click - toggles selection when in selection mode
+   */
+  onCardClick(event: Event): void {
+    // Only handle selection when in selection mode
+    if (this.selectionMode() || this.hasAnySelection()) {
+      // Don't prevent default here - let it bubble up to parent if needed
+      this.toggleSelection();
+    }
+  }
+
+  /**
+   * Handles selection icon click/keyboard interaction
+   */
+  onSelectionChange(event: Event): void {
+    // Always stop propagation for the selection icon to prevent card click
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // For keyboard events, only respond to Enter and Space
+    if (event instanceof KeyboardEvent) {
+      if (event.code !== 'Enter' && event.code !== 'Space') {
+        return;
+      }
+    }
+    
+    this.toggleSelection();
   }
 }

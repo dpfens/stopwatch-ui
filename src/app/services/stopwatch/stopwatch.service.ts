@@ -2,8 +2,7 @@ import { Injectable, signal, WritableSignal, computed, PLATFORM_ID, inject, Dest
 import { 
   ContextualStopwatchEntity, 
   StopwatchEntity, 
-  UniqueIdentifier,
-  BaseStopwatchGroup 
+  UniqueIdentifier
 } from '../../models/sequence/interfaces';
 import { TZDate } from '../../models/date';
 import { StopwatchRepository } from '../../repositories/stopwatch';
