@@ -186,13 +186,19 @@
         >
             @if(!controller().isActive()) {
                 <mat-button-toggle (click)="start()">
-                    <mat-icon>play</mat-icon>
+                    <mat-icon>play_arrow</mat-icon>
                     Start
                 </mat-button-toggle>
             }
             @if(controller().isActive() && !controller().isRunning()) {
-                <mat-button-toggle (click)="resume()">Resume</mat-button-toggle>
-                <mat-button-toggle (click)="reset()">Reset</mat-button-toggle>
+                <mat-button-toggle (click)="resume()">
+                    <mat-icon>play_circle_outline</mat-icon>
+                    Resume
+                </mat-button-toggle>
+                <mat-button-toggle (click)="reset()">
+                    <mat-icon>restart_alt</mat-icon>
+                    Reset
+                </mat-button-toggle>
             }
             @if(controller().isRunning()) {
                 <mat-button-toggle (click)="stop()">
@@ -226,7 +232,7 @@
             </mat-list>
         }
     </mat-card-content>
-    @if(getInstance().groups) {
+    @if(getInstance().groups.length) {
         <mat-card-footer>
             <div class="mx-3">
                 <span class="groups-label text-muted text-uppercase">Groups</span>
