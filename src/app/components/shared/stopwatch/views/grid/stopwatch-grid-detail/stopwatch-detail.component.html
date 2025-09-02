@@ -185,18 +185,30 @@
         [class.disabled-in-selection]="selectionMode() || hasAnySelection()"
         >
             @if(!controller().isActive()) {
-                <mat-button-toggle (click)="start()">Start</mat-button-toggle>
+                <mat-button-toggle (click)="start()">
+                    <mat-icon>play</mat-icon>
+                    Start
+                </mat-button-toggle>
             }
             @if(controller().isActive() && !controller().isRunning()) {
                 <mat-button-toggle (click)="resume()">Resume</mat-button-toggle>
                 <mat-button-toggle (click)="reset()">Reset</mat-button-toggle>
             }
             @if(controller().isRunning()) {
-                <mat-button-toggle (click)="stop()">Stop</mat-button-toggle>
+                <mat-button-toggle (click)="stop()">
+                    <mat-icon>stop</mat-icon>
+                    Stop
+                </mat-button-toggle>
                 @if (!!getInstance().state.lap) {
-                    <mat-button-toggle (click)="lap()">Lap</mat-button-toggle>
+                    <mat-button-toggle (click)="lap()">
+                        <mat-icon>track_changes</mat-icon>
+                        Lap
+                    </mat-button-toggle>
                 }
-                <mat-button-toggle (click)="split()">Split</mat-button-toggle>
+                <mat-button-toggle (click)="split()">
+                    <mat-icon>call_split</mat-icon>
+                    Split
+                </mat-button-toggle>
 
             }
         </mat-button-toggle-group>
