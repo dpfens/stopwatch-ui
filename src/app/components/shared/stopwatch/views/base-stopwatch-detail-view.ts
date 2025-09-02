@@ -436,6 +436,9 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       }
     };
     await this.service.create(newInstance);
+    await Promise.all(
+      this.getInstance().groups.map(g => this.groupService.addMember(g.id, newInstance.id))
+    );
   }
 
   async delete() {

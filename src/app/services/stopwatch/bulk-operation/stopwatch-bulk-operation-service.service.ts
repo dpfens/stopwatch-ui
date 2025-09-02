@@ -3,6 +3,7 @@ import { ContextualStopwatchEntity, StopWatchEventType, UnitValue } from '../../
 import { StopwatchService } from '../stopwatch.service';
 import { TZDate } from '../../../models/date';
 import { StopwatchStateController } from '../../../controllers/stopwatch/stopwatch-state-controller';
+import { GroupService } from '../../group/group.service';
 
 export interface BulkOperationResult {
   successful: ContextualStopwatchEntity[];
@@ -27,6 +28,7 @@ export interface BulkEventOptions {
 })
 export class StopwatchBulkOperationsService {
   private readonly stopwatchService = inject(StopwatchService);
+  private readonly groupService = inject(GroupService);
 
   /**
    * Starts all provided stopwatches that are not currently running
@@ -253,6 +255,7 @@ export class StopwatchBulkOperationsService {
    * Duplicates/forks all selected stopwatches
    */
   async forkAll(stopwatches: ContextualStopwatchEntity[]): Promise<BulkOperationResult> {
+
     return this.performBulkOperation(
       stopwatches,
       async (stopwatch) => {
@@ -278,6 +281,9 @@ export class StopwatchBulkOperationsService {
         if (!created) {
           throw new Error('Failed to create duplicate');
         }
+        await Promise.all(
+          stopwatch.groups.map(g => this.groupService.addMember(g.id, newInstance.id))
+        );
         
         return created;
       }
