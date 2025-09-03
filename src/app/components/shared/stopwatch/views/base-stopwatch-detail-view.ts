@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect } from '@angular/core';
+import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue } from '../../../../models/sequence/interfaces';
@@ -45,7 +45,7 @@ interface TimerSubscription {
   imports: [FormsModule],
   template: ''
 })
-export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestroy {
+export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly service = inject(StopwatchService);
   protected readonly groupService = inject(GroupService);
   protected readonly timeService = inject(TimeService);
@@ -100,7 +100,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   private activeTimers: Map<string, TimerSubscription> = new Map();
   private stopTimers$ = new Subject<void>();
 
-  // FIXED: Controller with proper cache invalidation based on instance changes
   private _controllerCache?: IStopwatchStateController;
   private _lastInstanceVersion?: string;
   
@@ -128,21 +127,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   });
 
   constructor() {
-    // Auto-save form changes with debouncing
-    effect(() => {
-      if (this.displaySettings()) {
-        this.settingsForm.valueChanges.pipe(
-          debounceTime(300),
-          distinctUntilChanged(),
-          takeUntilDestroyed(this.destroyRef)
-        ).subscribe(() => {
-          if (this.settingsForm.valid) {
-            this.handleSettingsChange();
-          }
-        });
-      }
-    });
-
     // Auto-populate form when instance changes
     effect(() => {
       const instance = this.instance();
@@ -151,7 +135,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       }
     });
 
-    // FIXED: Effect to handle external updates (like bulk operations)
     effect(() => {
       const instance = this.instance();
       if (!instance) return;
@@ -165,7 +148,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     });
   }
 
-  // FIXED: Method to refresh component state when instance changes
   private refreshComponentState(): void {
     const controller = this.controller();
     
@@ -189,7 +171,6 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     }
   }
 
-  // FIXED: Update static durations without starting timers
   private updateStaticDurations(): void {
     const controller = this.controller();
     
@@ -205,6 +186,10 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
       const rawLapElapsedTime = lastLapEvent ? controller.getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
       this.lapDuration.set(rawLapElapsedTime > 0 ? this.timeService.toDurationObject(rawLapElapsedTime) : undefined);
     }
+  }
+
+  ngOnInit(): void {
+    this.initializeForm();
   }
 
   ngAfterViewInit(): void {
@@ -223,6 +208,18 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     this.cancelInstanceTimers();
   }
 
+  private initializeForm(): void {
+    const instance = this.getInstance();
+
+    this.settingsForm.patchValue({
+      title: instance.annotation.title,
+      description: instance.annotation.description,
+      lapValue: instance.state.lap?.value || 400,
+      lapUnit: instance.state.lap?.unit || 'm',
+      groups: instance.groups.map(g => g.id)
+    });
+  }
+
   // Simplified form population
   private populateForm(instance: ContextualStopwatchEntity): void {
     const state = this.controller().getState();
@@ -237,8 +234,7 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
   }
 
   showSettings(): void {
-    const instance = this.getInstance();
-    this.populateForm(instance);
+    this.initializeForm();
     this.displaySettings.set(true);
   }
 
@@ -280,28 +276,11 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
 
   // Extracted group assignment logic for better reusability
   private async updateGroupAssignments(instance: ContextualStopwatchEntity, newGroupIds: UniqueIdentifier[]): Promise<void> {
-    const existingGroupIds = instance.groups.map(group => group.id);
-    const groupsChanged = JSON.stringify(newGroupIds.sort()) !== JSON.stringify(existingGroupIds.sort());
+    const success = await this.service.setGroupMemberships(instance.id, newGroupIds);
     
-    if (!groupsChanged) {
-      return;
+    if (!success) {
+      throw new Error('Failed to update group memberships');
     }
-
-    const allGroups = this.groups();
-    
-    // Remove from all existing groups
-    await Promise.all(
-      allGroups.map(group => 
-        this.groupService.removeMember(group.id, instance.id)
-      )
-    );
-
-    // Add to new groups
-    await Promise.all(
-      newGroupIds.map(groupId => 
-        this.groupService.addMember(groupId, instance.id)
-      )
-    );
   }
 
   // Form validation helpers
@@ -327,16 +306,62 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
 
   // Discard changes and close settings
   discardChanges(): void {
-    this.resetForm();
+    this.initializeForm();
     this.displaySettings.set(false);
   }
 
   // Save and close settings
   async saveAndClose(): Promise<void> {
-    if (this.settingsForm.valid) {
-      await this.handleSettingsChange();
-      this.settingsForm.markAsPristine();
-      this.displaySettings.set(false);
+    if (!this.settingsForm.valid) {
+      return;
+    }
+
+    const formValue = this.settingsForm.value;
+    
+    try {
+      // Update stopwatch metadata
+      const updatedStopwatch = {
+        ...this.getInstance(),
+        annotation: {
+          title: formValue.title || '',
+          description: formValue.description || ''
+        },
+      };
+
+      if (formValue.lapValue && formValue.lapUnit) {
+        const lap = { value: formValue.lapValue, unit: formValue.lapUnit };
+        updatedStopwatch.state.lap = lap;
+      } else {
+        updatedStopwatch.state.lap = null;
+      }
+
+      updatedStopwatch.metadata.lastModification = {
+        timestamp: TZDate.now()
+      };
+
+      // Save stopwatch changes
+      const success = await this.service.update(updatedStopwatch);
+      
+      if (success) {
+        const groupIds = formValue.groups || [];
+        const membershipSuccess = await this.service.setGroupMemberships(
+          this.getInstance().id, 
+          groupIds
+        );
+        
+        if (membershipSuccess) {
+          this.displaySettings.set(false);
+        } else {
+          console.error('Failed to update group memberships');
+          // Handle error appropriately
+        }
+      } else {
+        console.error('Failed to update stopwatch');
+        // Handle error appropriately
+      }
+    } catch (error) {
+      console.error('Error saving stopwatch:', error);
+      // Handle error appropriately
     }
   }
 
@@ -400,12 +425,13 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     const eventType = 'split';
     const eventName = this.findAvailableEventName(eventType);
     this.controller().addEvent(eventType, eventName, now);
-    const metadata = {...this.getInstance().metadata};
+    const instance = this.getInstance();
+    const metadata = {...instance.metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
     this.buildSplits();
-    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
+    await this.service.update({...instance, metadata, state: this.controller().getState()});
   }
 
   async reset() {
@@ -418,26 +444,28 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     this.visibleSplits.set([]);
     this.cancelInstanceTimers();
 
-    const metadata = {...this.getInstance().metadata};
+    const instance = this.getInstance();
+    const metadata = {...instance.metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
-    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
+    await this.service.update({...instance, metadata, state: this.controller().getState()});
   }
 
   async fork() {
+    const instance = this.getInstance();
     const newInstance = {
-      ...this.getInstance(),
+      ...instance,
       id: crypto.randomUUID(),
       state: this.controller().getState(),
       metadata: {
-        ...this.getInstance().metadata,
-        clone: { source: this.getInstance().id}
+        ...instance.metadata,
+        clone: { source: instance.id}
       }
     };
     await this.service.create(newInstance);
     await Promise.all(
-      this.getInstance().groups.map(g => this.groupService.addMember(g.id, newInstance.id))
+      instance.groups.map(g => this.groupService.addMember(g.id, newInstance.id))
     );
   }
 
@@ -764,5 +792,28 @@ export class BaseStopwatchDetailViewComponent implements AfterViewInit, OnDestro
     }
     
     this.toggleSelection();
+  }
+
+  async onGroupSelectionChange(selectedGroupIds: UniqueIdentifier[]): Promise<void> {
+    try {
+      const success = await this.service.setGroupMemberships(
+        this.getInstance().id,
+        selectedGroupIds
+      );
+      
+      if (!success) {
+        console.error('Failed to update group memberships');
+        // Revert the form control to previous state
+        this.settingsForm.patchValue({
+          groups: this.getInstance().groups.map(g => g.id)
+        });
+      }
+    } catch (error) {
+      console.error('Error updating group memberships:', error);
+      // Revert the form control to previous state
+      this.settingsForm.patchValue({
+        groups: this.getInstance().groups.map(g => g.id)
+      });
+    }
   }
 }

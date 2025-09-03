@@ -61,8 +61,45 @@ export class TimeService {
     if (Object.keys(duration).length === 0) {
         duration.seconds = 0;
     }
-    console.log(duration);
     return duration;
+  }
+
+  /**
+   * Converts a DurationFormatOptions object back to total milliseconds
+   * This is the inverse operation of toDurationObject()
+   * 
+   * @param duration - The duration object with time components
+   * @returns Total duration in milliseconds
+   */
+  fromDurationObject(duration: DurationFormatOptions): number {
+    if (!duration) {
+      return 0;
+    }
+
+    let totalMs = 0;
+
+    // Convert each time unit to milliseconds and add to total
+    if (duration.milliseconds) {
+      totalMs += Number(duration.milliseconds);
+    }
+
+    if (duration.seconds) {
+      totalMs += Number(duration.seconds) * 1000;
+    }
+
+    if (duration.minutes) {
+      totalMs += Number(duration.minutes) * 60 * 1000;
+    }
+
+    if (duration.hours) {
+      totalMs += Number(duration.hours) * 60 * 60 * 1000;
+    }
+
+    if (duration.days) {
+      totalMs += Number(duration.days) * 24 * 60 * 60 * 1000;
+    }
+
+    return Math.floor(totalMs);
   }
 
   /**

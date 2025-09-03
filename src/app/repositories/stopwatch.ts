@@ -65,14 +65,9 @@ export class StopwatchRepository extends BaseRepository {
     return persistentInstances.map(instance => StopwatchRepository.fromPersistentInstance(instance));
   }
 
-  /**
-   * Fetches stopwatches by group ID
-   * @param groupId - The ID of the group
-   * @returns A promise that resolves to an array of stopwatch instances
-   */
-  async byGroup(groupId: UniqueIdentifier): Promise<StopwatchEntity[]> {
+
+  async idsByGroup(groupId: UniqueIdentifier): Promise<UniqueIdentifier[]> {
     const membershipRepo = this.membershipAdapter.getIndexRepository();
-    const stopwatchRepo = this.adapter.getRepository();
     
     // Get all memberships for this group
     const memberships = await membershipRepo.getAllByIndex(
@@ -80,13 +75,19 @@ export class StopwatchRepository extends BaseRepository {
       "groupId",
       IDBKeyRange.only(groupId)
     );
-    
-    if (memberships.length === 0) {
-      return [];
-    }
+    return memberships.map(m => m.stopwatchId); 
+  }
+
+  /**
+   * Fetches stopwatches by group ID
+   * @param groupId - The ID of the group
+   * @returns A promise that resolves to an array of stopwatch instances
+   */
+  async byGroup(groupId: UniqueIdentifier): Promise<StopwatchEntity[]> {
+    const stopwatchRepo = this.adapter.getRepository();
     
     // Get all stopwatches for the membership records
-    const stopwatchIds = memberships.map(m => m.stopwatchId);
+    const stopwatchIds = await this.idsByGroup(groupId);
     const persistentInstances = await stopwatchRepo.getByIds(
       StopwatchRepository.STOPWATCH_STORE,
       stopwatchIds

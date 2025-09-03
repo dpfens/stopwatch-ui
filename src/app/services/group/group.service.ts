@@ -15,6 +15,7 @@ import { AnalysisRegistry } from '../../models/sequence/analysis/registry';
 import { isPlatformBrowser } from '@angular/common';
 import { SynchronizationService } from '../synchronization/synchronization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MembershipService } from '../membership/membership.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class GroupService {
 
   private destroyRef = inject(DestroyRef);
   private syncService = inject(SynchronizationService);
+  private membershipService = inject(MembershipService); // NEW
 
   private repository = new GroupRepository();
   private stopwatchRepository = new StopwatchRepository();
@@ -45,15 +47,24 @@ export class GroupService {
     if (isPlatformBrowser(this.platformId)) {
       this.loadInstances();
 
-      // Listen for stopwatch changes and refresh OUR OWN groups
+      // SIMPLIFIED: Only listen for stopwatch metadata changes
       this.syncService.stopwatchEvents$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (event.action === 'updated') {
+          // Pass the specific stopwatch ID for surgical update
+          this.refreshStopwatchMetadataInGroups(event.stopwatchId);
+        } else if (event.action === 'deleted') {
+          this.handleStopwatchDeletion(event.stopwatchId);
+        }
+      });
+
+      // SIMPLIFIED: Only listen for membership changes, don't manage them
+      this.syncService.membershipEvents$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(event => {
-          if (['updated', 'deleted'].includes(event.action)) {
-            if (event.stopwatchId) {
-              this.refreshGroupsContainingStopwatch(event.stopwatchId);
-            }
-          }
+          // Simply refresh the affected group's member list
+          this.refreshGroupMembers(event.groupId);
         });
     }
   }
@@ -110,16 +121,20 @@ export class GroupService {
 
   /**
    * Creates a contextual group entity from a base entity
+   * SIMPLIFIED: Now delegates member loading to MembershipService
    */
   private async createContextualGroup(baseGroup: BaseStopwatchGroup): Promise<StopwatchGroup> {
-    // Get stopwatch members for this group
-    const stopwatchEntities = await this.stopwatchRepository.byGroup(baseGroup.id);
+    // DELEGATED: Get stopwatch IDs from MembershipService
+    const stopwatchIds = await this.membershipService.getStopwatchIdsForGroup(baseGroup.id);
+    
+    // Get full stopwatch entities
+    const stopwatchEntities = await this.stopwatchRepository.getByIds(stopwatchIds);
     
     // Convert to contextual entities
     const members = await Promise.all(
       stopwatchEntities.map(async (entity) => {
-        const groupIds = await this.repository.byStopwatch(entity.id);
-        const groups = await this.repository.getByIds(groupIds);
+        // DELEGATED: Get groups from MembershipService
+        const groups = await this.membershipService.getGroupsForStopwatch(entity.id);
         
         return {
           ...entity,
@@ -246,14 +261,20 @@ export class GroupService {
 
   /**
    * Deletes a group
+   * IMPROVED: Now properly coordinates with MembershipService
    */
   async delete(id: UniqueIdentifier): Promise<boolean> {
     try {
       this._error.set(null);
       
-      // Delete from repository (this will also clear memberships)
-      await this.repository.delete(id);
+      // CRITICAL: Notify BEFORE deletion
       this.syncService.notifyGroupDeleted(id);
+      
+      // DELEGATED: Let MembershipService handle membership cleanup
+      await this.membershipService.removeAllMembershipsForGroup(id);
+      
+      // Delete from repository
+      await this.repository.delete(id);
       
       // Update in-memory state
       const instances = this.instances().filter(inst => inst.id !== id);
@@ -268,64 +289,32 @@ export class GroupService {
   }
 
   /**
-   * Adds a stopwatch to a group
+   * DELEGATED: Add a stopwatch to this group
+   * This method now simply delegates to MembershipService
    */
   async addMember(groupId: UniqueIdentifier, stopwatchId: UniqueIdentifier): Promise<boolean> {
-    try {
-      this._error.set(null);
-      
-      // Add membership in repository
-      await this.repository.addMember(groupId, stopwatchId);
-      
-      // Refresh the affected group in memory
-      await this.refreshGroup(groupId);
-      this.syncService.notifyGroupMembershipChanged(groupId, stopwatchId);
-      
-      return true;
-    } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Failed to add group member');
-      console.error('Error adding group member:', error);
-      return false;
-    }
+    return await this.membershipService.addMember(groupId, stopwatchId);
   }
 
   /**
-   * Removes a stopwatch from a group
+   * DELEGATED: Remove a stopwatch from this group
+   * This method now simply delegates to MembershipService
    */
   async removeMember(groupId: UniqueIdentifier, stopwatchId: UniqueIdentifier): Promise<boolean> {
-    try {
-      this._error.set(null);
-      
-      // Remove membership in repository
-      await this.repository.removeMember(groupId, stopwatchId);
-      this.syncService.notifyGroupMembershipChanged(groupId, stopwatchId);
-      
-      // Refresh the affected group in memory
-      await this.refreshGroup(groupId);
-      
-      return true;
-    } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Failed to remove group member');
-      console.error('Error removing group member:', error);
-      return false;
-    }
+    return await this.membershipService.removeMember(groupId, stopwatchId);
   }
 
   /**
-   * Gets groups that a stopwatch belongs to
+   * DELEGATED: Gets groups that a stopwatch belongs to
+   * This method now simply delegates to MembershipService
    */
   async getGroupsForStopwatch(stopwatchId: UniqueIdentifier): Promise<BaseStopwatchGroup[]> {
-    try {
-      const groupIds = await this.repository.byStopwatch(stopwatchId);
-      return await this.repository.getByIds(groupIds);
-    } catch (error) {
-      console.error('Error getting groups for stopwatch:', error);
-      return [];
-    }
+    return await this.membershipService.getGroupsForStopwatch(stopwatchId);
   }
 
   /**
-   * Refreshes a specific group from the repository
+   * SIMPLIFIED: Refreshes a specific group from the repository
+   * Now only refreshes the group data, membership is handled by events
    */
   async refreshGroup(groupId: UniqueIdentifier): Promise<void> {
     try {
@@ -419,20 +408,126 @@ export class GroupService {
   }
 
   /**
-   * Refreshes all groups that contain a specific stopwatch
-   * Called when we receive events about stopwatch changes
+   * SIMPLIFIED: Refreshes member list for a specific group
+   * Called when membership changes
    */
-  private async refreshGroupsContainingStopwatch(stopwatchId: UniqueIdentifier): Promise<void> {
+  private async refreshGroupMembers(groupId: UniqueIdentifier): Promise<void> {
+    const group = this.instances().find(inst => inst.id === groupId);
+    if (!group) return;
+
     try {
-      // Get all groups that contain this stopwatch
-      const groupIds = await this.repository.byStopwatch(stopwatchId);
+      // Get updated member list from MembershipService
+      const stopwatchIds = await this.membershipService.getStopwatchIdsForGroup(groupId);
+      const stopwatchEntities = await this.stopwatchRepository.getByIds(stopwatchIds);
       
-      // Refresh each affected group
-      await Promise.all(
-        groupIds.map(groupId => this.refreshGroup(groupId))
+      // Convert to contextual entities
+      const members = await Promise.all(
+        stopwatchEntities.map(async (entity) => {
+          const groups = await this.membershipService.getGroupsForStopwatch(entity.id);
+          return {
+            ...entity,
+            groups,
+            analysis: new AnalysisRegistry()
+          };
+        })
       );
+      
+      // Update the group with new members
+      const updatedGroup = { ...group, members };
+      
+      const index = this.instances().findIndex(inst => inst.id === groupId);
+      if (index !== -1) {
+        const instances = [...this.instances()];
+        instances[index] = updatedGroup;
+        this._instances.set(instances);
+      }
     } catch (error) {
-      console.error('Error refreshing groups containing stopwatch:', error);
+      console.error('Error refreshing group members:', error);
+    }
+  }
+
+  /**
+   * NEW: Handles stopwatch deletion by removing deleted stopwatch from group members
+   */
+  private handleStopwatchDeletion(stopwatchId: UniqueIdentifier): void {
+    const currentInstances = this.instances();
+    let hasChanges = false;
+    
+    const updatedInstances = currentInstances.map(group => {
+      const memberIndex = group.members.findIndex(member => member.id === stopwatchId);
+      
+      if (memberIndex !== -1) {
+        hasChanges = true;
+        
+        // Remove the deleted stopwatch from this group's members
+        const updatedMembers = group.members.filter(member => member.id !== stopwatchId);
+        
+        return {
+          ...group,
+          members: updatedMembers
+        };
+      }
+      
+      return group;
+    });
+    
+    // Only update if there were actual changes
+    if (hasChanges) {
+      this._instances.set(updatedInstances);
+    }
+  }
+
+  /**
+   * NEW: Refreshes stopwatch metadata (title, description) without touching memberships
+   */
+  private async refreshStopwatchMetadataInGroups(stopwatchId?: UniqueIdentifier): Promise<void> {
+    if (!stopwatchId) {
+      // Fallback to full refresh if no specific stopwatch ID
+      await this.loadInstances();
+      return;
+    }
+
+    try {
+      // Get the updated stopwatch entity
+      const updatedStopwatch = await this.stopwatchRepository.get(stopwatchId);
+      if (!updatedStopwatch) return;
+
+      const currentInstances = this.instances();
+      let hasChanges = false;
+      
+      const updatedInstances = currentInstances.map(group => {
+        // Find if this group contains the updated stopwatch
+        const memberIndex = group.members.findIndex(member => member.id === stopwatchId);
+        
+        if (memberIndex !== -1) {
+          hasChanges = true;
+          
+          // Update just the metadata of this stopwatch
+          const updatedMembers = [...group.members];
+          updatedMembers[memberIndex] = {
+            ...updatedMembers[memberIndex],
+            annotation: updatedStopwatch.annotation,
+            metadata: updatedStopwatch.metadata,
+            state: updatedStopwatch.state // In case state changed too
+          };
+          
+          return {
+            ...group, // Keep same group reference
+            members: updatedMembers
+          };
+        }
+        
+        return group; // No changes, return same reference
+      });
+      
+      // Only update signal if there were actual changes
+      if (hasChanges) {
+        this._instances.set(updatedInstances);
+      }
+    } catch (error) {
+      console.error('Error refreshing stopwatch metadata:', error);
+      // Fallback to full refresh on error
+      await this.loadInstances();
     }
   }
 }

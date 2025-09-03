@@ -6,11 +6,11 @@ import {
 } from '../../models/sequence/interfaces';
 import { TZDate } from '../../models/date';
 import { StopwatchRepository } from '../../repositories/stopwatch';
-import { GroupRepository } from '../../repositories/group';
 import { AnalysisRegistry } from '../../models/sequence/analysis/registry';
 import { isPlatformBrowser } from '@angular/common';
 import { SynchronizationService } from '../synchronization/synchronization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MembershipService } from '../membership/membership.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class StopwatchService {
   platformId = inject(PLATFORM_ID);
   private repository = new StopwatchRepository();
-  private groupRepository = new GroupRepository();
+  private membershipService = inject(MembershipService); // NEW
 
   private destroyRef = inject(DestroyRef);
   private syncService = inject(SynchronizationService);
@@ -40,20 +40,25 @@ export class StopwatchService {
     if (isPlatformBrowser(this.platformId)) {
       this.loadInstances();
 
-      // Listen for group membership changes and refresh OUR OWN stopwatch data
+      // SIMPLIFIED: Only listen for group structure changes that affect our data
       this.syncService.groupEvents$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(event => {
-          if (['updated', 'deleted'].includes(event.action)) {
-            this.refreshStopwatchesByGroup(event.groupId);
+          if (event.action === 'updated') {
+            // Only refresh if group metadata changed (title, description, etc.)
+            this.refreshGroupMetadataForStopwatches();
+          } else if (event.action === 'deleted') {
+            // Remove deleted group from all stopwatches immediately
+            this.handleGroupDeletion(event.groupId);
           }
         });
       
-      // Listen for group membership changes and refresh OUR OWN stopwatch data
+      // SIMPLIFIED: Only listen for membership changes, don't manage them
       this.syncService.membershipEvents$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(event => {
-          this.refreshGroups(event.stopwatchId);
+          // Simply refresh the affected stopwatch's group list
+          this.refreshStopwatchGroups(event.stopwatchId);
         });
     }
   }
@@ -84,14 +89,13 @@ export class StopwatchService {
    * Creates a contextual stopwatch entity from a base entity
    */
   private async createContextualEntity(entity: StopwatchEntity): Promise<ContextualStopwatchEntity> {
-    // Get groups this stopwatch belongs to
-    const groupIds = await this.groupRepository.byStopwatch(entity.id);
-    const groups = await this.groupRepository.getByIds(groupIds);
+    // DELEGATED: Get groups from MembershipService
+    const groups = await this.membershipService.getGroupsForStopwatch(entity.id);
     
     return {
       ...entity,
       groups,
-      analysis: new AnalysisRegistry() // Initialize with empty analysis registry
+      analysis: new AnalysisRegistry()
     };
   }
 
@@ -209,10 +213,17 @@ export class StopwatchService {
 
   /**
    * Deletes a stopwatch instance
+   * IMPROVED: Now properly coordinates with MembershipService
    */
   async delete(id: UniqueIdentifier): Promise<boolean> {
     try {
       this._error.set(null);
+      
+      // CRITICAL: Notify BEFORE deletion
+      this.syncService.notifyStopwatchDeleted(id);
+      
+      // DELEGATED: Let MembershipService handle membership cleanup
+      await this.membershipService.removeAllMembershipsForStopwatch(id);
       
       // Delete from repository
       await this.repository.delete(id);
@@ -230,11 +241,40 @@ export class StopwatchService {
   }
 
   /**
+   * DELEGATED: Add a stopwatch to a group
+   * This method now simply delegates to MembershipService
+   */
+  async addToGroup(stopwatchId: UniqueIdentifier, groupId: UniqueIdentifier): Promise<boolean> {
+    return await this.membershipService.addMember(groupId, stopwatchId);
+  }
+
+  /**
+   * DELEGATED: Remove a stopwatch from a group
+   * This method now simply delegates to MembershipService
+   */
+  async removeFromGroup(stopwatchId: UniqueIdentifier, groupId: UniqueIdentifier): Promise<boolean> {
+    return await this.membershipService.removeMember(groupId, stopwatchId);
+  }
+
+  /**
+   * DELEGATED: Set all group memberships for a stopwatch
+   * This is the method the UI should use for batch updates
+   */
+  async setGroupMemberships(stopwatchId: UniqueIdentifier, groupIds: UniqueIdentifier[]): Promise<boolean> {
+    return await this.membershipService.setMemberships(stopwatchId, groupIds);
+  }
+
+  /**
    * Gets stopwatches by group ID
+   * SIMPLIFIED: This is mainly for backwards compatibility
    */
   async getByGroupId(groupId: UniqueIdentifier): Promise<ContextualStopwatchEntity[]> {
     try {
-      const entities = await this.repository.byGroup(groupId);
+      // Get stopwatch IDs from MembershipService
+      const stopwatchIds = await this.membershipService.getStopwatchIdsForGroup(groupId);
+      
+      // Get full stopwatch entities
+      const entities = await this.repository.getByIds(stopwatchIds);
       return await Promise.all(
         entities.map(entity => this.createContextualEntity(entity))
       );
@@ -246,15 +286,16 @@ export class StopwatchService {
   }
 
   /**
-   * Refreshes the groups for a specific stopwatch
+   * SIMPLIFIED: Refreshes group data for a specific stopwatch
+   * Called when membership changes
    */
-  async refreshGroups(stopwatchId: UniqueIdentifier): Promise<void> {
+  private async refreshStopwatchGroups(stopwatchId: UniqueIdentifier): Promise<void> {
     const instance = this.instances().find(inst => inst.id === stopwatchId);
     if (!instance) return;
 
     try {
-      const groupIds = await this.groupRepository.byStopwatch(stopwatchId);
-      const groups = await this.groupRepository.getByIds(groupIds);
+      // Get updated groups from MembershipService
+      const groups = await this.membershipService.getGroupsForStopwatch(stopwatchId);
       
       // Update the instance with new groups
       const updatedInstance = { ...instance, groups };
@@ -270,16 +311,44 @@ export class StopwatchService {
     }
   }
 
-  private async refreshStopwatchesByGroup(groupId: UniqueIdentifier): Promise<void> {
-    const entities = await this.getByGroupId(groupId);
-    const instances = this.instances();
-    entities.forEach(entity => {
-      const index = instances.findIndex(instance => instance.id === entity.id);
-      if (index > -1) {
-        instances[index] = entity;
+  /**
+   * NEW: Handles group deletion by removing deleted groups from stopwatch data
+   */
+  private handleGroupDeletion(groupId: UniqueIdentifier): void {
+    const currentInstances = this.instances();
+    let hasChanges = false;
+    
+    const updatedInstances = currentInstances.map(stopwatch => {
+      const groupIndex = stopwatch.groups.findIndex(group => group.id === groupId);
+      
+      if (groupIndex !== -1) {
+        hasChanges = true;
+        
+        // Remove the deleted group from this stopwatch's groups
+        const updatedGroups = stopwatch.groups.filter(group => group.id !== groupId);
+        
+        return {
+          ...stopwatch,
+          groups: updatedGroups
+        };
       }
+      
+      return stopwatch;
     });
-    this._instances.set([...instances]);
+    
+    // Only update if there were actual changes
+    if (hasChanges) {
+      this._instances.set(updatedInstances);
+    }
+  }
+
+  /**
+   * NEW: Refreshes group metadata (title, description) without touching memberships
+   */
+  private async refreshGroupMetadataForStopwatches(): Promise<void> {
+    // This could be optimized to only refresh specific groups, but for now
+    // we'll do a full refresh since group updates should be less frequent
+    await this.loadInstances();
   }
 
   /**
