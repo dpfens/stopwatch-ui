@@ -111,7 +111,6 @@
     position: absolute;
     top: -1em;
     left: -1em;
-    z-index: 10;
     opacity: 0;
     transform: scale(0.8);
     transition: all 0.2s ease-in-out;
@@ -206,17 +205,6 @@
       opacity: 1;
     }
   }
-}
-
-/* Ensure proper z-index stacking */
-.stopwatch-card mat-card-header {
-  position: relative;
-  z-index: 2;
-}
-
-.stopwatch-card mat-card-content {
-  position: relative;
-  z-index: 2;
 }
 
 /* Selection icon specific styling */

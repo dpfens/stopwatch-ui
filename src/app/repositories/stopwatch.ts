@@ -2,9 +2,7 @@ import { StopwatchEntity, SerializedStopwatchEntity, Objective, StopwatchGroupMe
 import { TZDate } from "../models/date";
 import { SerializableRegistry, SerializableType } from "../utilities/serialization";
 import { registry } from "../models/sequence/objective";
-import { 
-  IndexedDBStorageAdapter, 
-} from "../utilities/storage";
+import { IndexedDBStorageAdapter } from "../utilities/storage";
 import { StopwatchEvent } from "../models/sequence/interfaces";
 import { BaseRepository, StopwatchDatabase } from "./application";
 
