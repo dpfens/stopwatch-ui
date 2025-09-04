@@ -16,6 +16,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { SynchronizationService } from '../synchronization/synchronization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembershipService } from '../membership/membership.service';
+import { GroupPresets } from '../../utilities/constants';
 
 @Injectable({
   providedIn: 'root'
@@ -92,31 +93,8 @@ export class GroupService {
   /**
    * Gets default traits based on preset
    */
-  private getTraitsFromPreset(preset: GroupTraitPreset): GroupTraits {
-    const presetConfigs: Record<GroupTraitPreset, GroupTraits> = {
-      'normal': {
-        timing: 'independent',
-        evaluation: ['independent'],
-        analytics: []
-      },
-      'competition': {
-        timing: 'synchronized',
-        evaluation: ['comparative', 'trending'],
-        analytics: []
-      },
-      'workflow': {
-        timing: 'sequential',
-        evaluation: ['cumulative', 'threshold'],
-        analytics: []
-      },
-      'billing': {
-        timing: 'independent',
-        evaluation: ['cumulative', 'proportional'],
-        analytics: []
-      }
-    };
-    
-    return presetConfigs[preset];
+  private getTraitsFromPreset(preset: GroupTraitPreset): GroupTraits {    
+    return GroupPresets[preset];
   }
 
   /**

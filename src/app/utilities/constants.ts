@@ -171,10 +171,7 @@ export const LapUnits: SelectOptGroup<string>[] = [
 // Updated interfaces to include descriptions
 
 
-export interface PresetConfig {
-  timing: GroupTimingBehavior;
-  evaluation: GroupEvaluationBehavior[];
-  analytics: unknown[];
+export interface PresetConfig extends GroupTraits {
   description: string;
   useCases: string[];
 }
@@ -185,7 +182,7 @@ export interface PresetConfig {
 export const GroupPresets: Record<GroupTraitPreset, PresetConfig> = {
   normal: {
     timing: 'independent',
-    evaluation: [],
+    evaluation: ['independent'],
     analytics: [],
     description: 'Standard configuration for general-purpose timing. Each stopwatch operates independently without any special evaluation criteria.',
     useCases: ['General time tracking', 'Personal productivity', 'Simple task timing', 'Basic time logging']

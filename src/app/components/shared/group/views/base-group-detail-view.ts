@@ -36,12 +36,11 @@ export class BaseGroupDetailViewComponent {
   error = this.service.error;
 
   preset = computed(() => {
-    if (!this.getInstance().traits) {
-      return 'Custom';
-    }
     const presets: GroupTraitPreset[] = Object.keys(GroupPresets) as GroupTraitPreset[];
     const matchingPreset = presets.find(preset => {
       const traits: PresetConfig = GroupPresets[preset];
+      console.log(preset, this.getInstance().traits.timing, traits.timing, this.getInstance().traits.timing == traits.timing );
+      console.log(preset, this.getInstance().traits.evaluation.sort().join(','), traits.evaluation.sort().join(','), this.getInstance().traits.evaluation.sort().join(',') === traits.evaluation.sort().join(','));
       return this.getInstance().traits.timing == traits.timing 
         && this.getInstance().traits.evaluation.sort().join(',') === traits.evaluation.sort().join(',')
     });
