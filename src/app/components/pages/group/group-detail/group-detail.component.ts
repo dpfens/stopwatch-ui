@@ -30,8 +30,8 @@ export class GroupDetailComponent implements OnInit {
   error = this.service.error;
 
   ngOnInit(): void {
-      this.headerActionService.set(GLOBAL.CREATE, this.createNew.bind(this));
-    }
+    this.headerActionService.set(GLOBAL.CREATE, this.createNew.bind(this));
+  }
   
   async createNew(): Promise<void> {
     const instance = this.stopwatchService.blank('', '');
@@ -39,6 +39,12 @@ export class GroupDetailComponent implements OnInit {
     const groupId = this.id();
     if (groupId) {
       await this.service.addMember(groupId, instance.id);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.headerActionService.has(GLOBAL.CREATE)) {
+      this.headerActionService.delete(GLOBAL.CREATE);
     }
   }
 }
