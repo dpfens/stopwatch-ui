@@ -1,1 +1,361 @@
-<p>stopwatch-detail works!</p>
+<div 
+    id="{{ getInstance().id }}"
+    class="stopwatch-list-item"
+    [class.selected]="isSelected()"
+    [class.selection-mode]="selectionMode() || hasAnySelection()"
+    [class.running]="controller().isRunning()"
+    [class.paused]="controller().isActive() && !controller().isRunning()"
+    [class.inactive]="!controller().isActive()"
+    (click)="onCardClick($event)">
+
+    <!-- Selection Checkbox -->
+    <div class="selection-checkbox-container"
+         [class.visible]="selectionMode() || hasAnySelection()">
+        <mat-icon
+            (click)="onSelectionChange($event)"
+            role="checkbox"
+            [attr.aria-checked]="isSelected()"
+            aria-label="Select stopwatch"
+            tabindex="0"
+            (keydown.enter)="onSelectionChange($event)"
+            (keydown.space)="onSelectionChange($event)"
+            class="selection-icon">
+            @if(isSelected()) {
+                check_circle
+            } @else {
+                radio_button_unchecked
+            }
+        </mat-icon>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="list-item-content">
+        @if(!displaySettings()) {
+            <!-- Compact Header Row -->
+            <div class="header-row d-flex align-items-center justify-content-between gap-3 py-2">
+                
+                <!-- Title and Status Section -->
+                <div class="title-section flex-grow-1 min-w-0">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h5 class="stopwatch-title fw-semibold text-truncate mb-0">
+                            {{ getInstance().annotation.title || 'Untitled Stopwatch' }}
+                        </h5>
+                        <div class="status-indicators d-flex align-items-center gap-1">
+                            @if(controller().isRunning()) {
+                                <mat-icon class="status-icon running text-success" matTooltip="Running" style="font-size: 18px;">play_circle</mat-icon>
+                            } @else if(controller().isActive()) {
+                                <mat-icon class="status-icon paused text-warning" matTooltip="Paused" style="font-size: 18px;">pause_circle</mat-icon>
+                            } @else {
+                                <mat-icon class="status-icon inactive text-muted" matTooltip="Stopped" style="font-size: 18px;">stop_circle</mat-icon>
+                            }
+                            @if(getInstance().state.lap) {
+                                <mat-icon class="feature-icon text-info" matTooltip="Lap tracking enabled" style="font-size: 16px;">track_changes</mat-icon>
+                            }
+                        </div>
+                    </div>
+                    @if(getInstance().annotation.description) {
+                        <p class="description text-muted small mb-0 text-truncate">{{ getInstance().annotation.description }}</p>
+                    }
+                </div>
+
+                <!-- Compact Duration Display Section -->
+                <div class="duration-section text-end">
+                    <div class="duration-display primary mb-1">
+                        <div class="d-flex flex-column align-items-end">
+                            <span class="duration-label text-muted fw-medium" style="font-size: 10px; line-height: 1;">TOTAL</span>
+                            <time class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;">
+                                {{ timeService.durationFormatter().format(totalDuration()) }}
+                            </time>
+                        </div>
+                    </div>
+                    
+                    @if(!!splitDuration() || !!lapDuration()) {
+                        <div class="secondary-durations d-flex gap-3">
+                            @if(!!lapDuration()) {
+                                <div class="duration-display secondary text-end">
+                                    <div class="d-flex flex-column align-items-end">
+                                        <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">LAP</span>
+                                        <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
+                                            {{ timeService.durationFormatter().format(lapDuration()!) }}
+                                        </time>
+                                    </div>
+                                </div>
+                            }
+                            @if(!!splitDuration()) {
+                                <div class="duration-display secondary text-end">
+                                    <div class="d-flex flex-column align-items-end">
+                                        <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">SPLIT</span>
+                                        <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
+                                            {{ timeService.durationFormatter().format(splitDuration()!) }}
+                                        </time>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Compact Controls Section -->
+                <div class="controls-section d-flex align-items-center gap-2">
+                    <!-- Primary Controls -->
+                    <div class="primary-controls d-flex gap-1"
+                         [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
+                        @if(!controller().isActive()) {
+                            <button mat-raised-button 
+                                    color="primary"
+                                    (click)="start()"
+                                    class="control-btn primary-btn btn-sm">
+                                <mat-icon>play_arrow</mat-icon>
+                                Start
+                            </button>
+                        }
+                        @if(controller().isActive() && !controller().isRunning()) {
+                            <button mat-raised-button 
+                                    color="primary"
+                                    (click)="resume()"
+                                    class="control-btn primary-btn btn-sm">
+                                <mat-icon>play_circle_outline</mat-icon>
+                                Resume
+                            </button>
+                            <button mat-stroked-button 
+                                    (click)="reset()"
+                                    class="control-btn secondary-btn btn-sm">
+                                <mat-icon>restart_alt</mat-icon>
+                                Reset
+                            </button>
+                        }
+                        @if(controller().isRunning()) {
+                            <button mat-raised-button 
+                                    color="warn"
+                                    (click)="stop()"
+                                    class="control-btn primary-btn btn-sm">
+                                <mat-icon>stop</mat-icon>
+                                Stop
+                            </button>
+                        }
+                    </div>
+
+                    <!-- Secondary Controls - Inline when running -->
+                    @if(controller().isRunning()) {
+                        <div class="secondary-controls d-flex gap-1"
+                             [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
+                            @if (!!getInstance().state.lap) {
+                                <button mat-icon-button 
+                                        (click)="lap()"
+                                        matTooltip="Lap"
+                                        class="control-btn icon-btn btn-sm p-1">
+                                    <mat-icon>track_changes</mat-icon>
+                                </button>
+                            }
+                            <button mat-icon-button 
+                                    (click)="split()"
+                                    matTooltip="Split"
+                                    class="control-btn icon-btn btn-sm p-1">
+                                <mat-icon>call_split</mat-icon>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Compact Menu -->
+                    <div class="menu-section">
+                        <button mat-icon-button 
+                                [matMenuTriggerFor]="menu" 
+                                aria-label="Stopwatch options"
+                                class="menu-button btn-sm p-1"
+                                [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" xPosition="before">   
+                            <button mat-menu-item (click)="fork()">
+                                <mat-icon>fork_right</mat-icon>
+                                <span>Fork</span>
+                            </button>
+                            <button mat-menu-item (click)="showSettings()">
+                                <mat-icon>settings</mat-icon>
+                                <span>Settings</span>
+                            </button>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item (click)="delete()" class="delete-item">
+                                <mat-icon>delete</mat-icon>
+                                <span>Delete</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compact Expandable Content -->
+            <div class="expandable-content">
+                <!-- Groups - More compact -->
+                @if(getInstance().groups.length) {
+                    <div class="groups-section py-1 border-top">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="section-label text-muted fw-medium small">Groups:</span>
+                            <mat-chip-set aria-label="Groups" class="inline-chips">
+                                @for(group of getInstance().groups; track group.id) {
+                                    <mat-chip class="small">{{ group.annotation.title }}</mat-chip>
+                                }
+                            </mat-chip-set>
+                        </div>
+                    </div>
+                }
+
+                <!-- Splits - More compact -->
+                @if(visibleSplits().length) {
+                    <div class="splits-section py-2 border-top">
+                        <div class="splits-header d-flex align-items-center justify-content-between">
+                            <button mat-button 
+                                    class="toggle-splits-btn p-1 fw-medium small"
+                                    (click)="toggleSplitsVisible()">
+                                <mat-icon>{{ splitsVisible() ? 'expand_less' : 'expand_more' }}</mat-icon>
+                                {{ visibleSplits().length }} Split{{ visibleSplits().length !== 1 ? 's' : '' }}
+                            </button>
+                            @if(!splitsVisible() && visibleSplits().length > 0) {
+                                <span class="splits-preview text-muted small">
+                                    Last: <span class="fw-medium">{{ timeService.durationFormatter().format(visibleSplits()[visibleSplits().length - 1].duration) }}</span>
+                                </span>
+                            }
+                        </div>
+                        
+                        @if(splitsVisible()) {
+                            <div class="splits-container mt-2">
+                                @for(split of visibleSplits(); track $index) {
+                                    <split-expansion-panel
+                                        [instance]="split"
+                                        (updateEmitter)="handleSplitUpdate($event)"
+                                        (deleteEmitter)="handleSplitDelete($event)"
+                                        [class.disabled-in-selection]="selectionMode() || hasAnySelection()"
+                                        class="list-split mb-1">    
+                                    </split-expansion-panel>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+        } @else {
+            <!-- Settings View - Keep original but add some Bootstrap classes for consistency -->
+            <div class="settings-view">
+                <div class="settings-header d-flex align-items-center justify-content-between py-2 border-bottom">
+                    <h4 class="fw-semibold mb-0">Stopwatch Settings</h4>
+                    <div class="settings-actions d-flex gap-2">
+                        <button mat-button 
+                                color="primary"
+                                (click)="saveAndClose()"
+                                class="btn-sm">
+                            <mat-icon>save</mat-icon>
+                            Save & Close
+                        </button>
+                        <button mat-button 
+                                (click)="discardChanges()"
+                                class="btn-sm">
+                            <mat-icon>close</mat-icon>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <form [formGroup]="settingsForm" class="settings-form py-3">
+                    <!-- Basic Info -->
+                    <div class="form-section mb-4">
+                        <h5 class="fw-medium mb-3">Basic Information</h5>
+                        <div class="form-grid row g-3">
+                            <div class="col-md-6">
+                                <mat-form-field class="field-title w-100">
+                                    <mat-label>Title</mat-label>
+                                    <input matInput placeholder="Ex. Pizza Timer" formControlName="title">
+                                    @if(getFieldError('title')) {
+                                        <mat-error>{{ getFieldError('title') }}</mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-6">
+                                <mat-form-field class="field-description w-100">
+                                    <mat-label>Description</mat-label>
+                                    <input matInput placeholder="Optional description" formControlName="description">
+                                    @if(getFieldError('description')) {
+                                        <mat-error>{{ getFieldError('description') }}</mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lap Settings -->
+                    <div class="form-section mb-4">
+                        <h5 class="fw-medium mb-3">Lap Configuration</h5>
+                        <div class="form-grid row g-3">
+                            <div class="col-md-4">
+                                <mat-form-field class="field-lap-value w-100">
+                                    <mat-label>Lap Distance</mat-label>
+                                    <input type="number" 
+                                           matInput 
+                                           placeholder="400" 
+                                           formControlName="lapValue"
+                                           min="0.01"
+                                           step="0.01">
+                                    @if(getFieldError('lapValue')) {
+                                        <mat-error>{{ getFieldError('lapValue') }}</mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <mat-form-field class="field-lap-unit w-100">
+                                    <mat-label>Lap Units</mat-label>
+                                    <mat-select formControlName="lapUnit">
+                                        @for (group of lapUnits; track group) {
+                                            <mat-optgroup [label]="group.display">
+                                                @for(option of group.options; track option.value) {
+                                                    <mat-option [value]="option.value">{{option.display}}</mat-option>
+                                                }
+                                            </mat-optgroup>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-4">
+                                <mat-form-field class="field-groups w-100">
+                                    <mat-label>Groups</mat-label>
+                                    <mat-select formControlName="groups" multiple>
+                                        @for (group of groups(); track group.id) {
+                                            <mat-option [value]="group.id">{{ group.annotation.title || group.id }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="form-section">
+                        <h5 class="fw-medium mb-3">Information</h5>
+                        <div class="metadata-grid row g-3">
+                            <div class="col-md-6">
+                                <div class="metadata-item">
+                                    <span class="metadata-label text-muted fw-medium small">Created:</span>
+                                    <time [dateTime]="getInstance().metadata.creation.timestamp.toISOString()" 
+                                          class="d-block fw-normal">
+                                        {{ getInstance().metadata.creation.timestamp.format() }}
+                                    </time>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metadata-item">
+                                    <span class="metadata-label text-muted fw-medium small">Last Modified:</span>
+                                    <time [dateTime]="getInstance().metadata.lastModification.timestamp.toISOString()"
+                                          class="d-block fw-normal">
+                                        {{ getInstance().metadata.lastModification.timestamp.format() }}
+                                    </time>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>

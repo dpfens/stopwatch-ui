@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StopwatchDetailComponent } from './stopwatch-detail.component';
+import { StopwatchListDetailViewComponent } from './stopwatch-detail.component';
 
-describe('StopwatchDetailComponent', () => {
-  let component: StopwatchDetailComponent;
-  let fixture: ComponentFixture<StopwatchDetailComponent>;
+describe('StopwatchListDetailViewComponent', () => {
+  let component: StopwatchListDetailViewComponent;
+  let fixture: ComponentFixture<StopwatchListDetailViewComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StopwatchDetailComponent]
+      imports: [StopwatchListDetailViewComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(StopwatchDetailComponent);
+    fixture = TestBed.createComponent(StopwatchListDetailViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
