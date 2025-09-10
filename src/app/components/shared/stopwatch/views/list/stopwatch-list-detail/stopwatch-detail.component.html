@@ -104,6 +104,7 @@
                             <button mat-raised-button 
                                     color="primary"
                                     (click)="start()"
+                                    aria-label="Start stopwatch"
                                     class="control-btn primary-btn btn-sm">
                                 <mat-icon>play_arrow</mat-icon>
                                 Start
@@ -113,12 +114,14 @@
                             <button mat-raised-button 
                                     color="primary"
                                     (click)="resume()"
+                                    aria-label="Resume stopwatch"
                                     class="control-btn primary-btn btn-sm">
                                 <mat-icon>play_circle_outline</mat-icon>
                                 Resume
                             </button>
                             <button mat-stroked-button 
                                     (click)="reset()"
+                                    aria-label="Reset stopwatch"
                                     class="control-btn secondary-btn btn-sm">
                                 <mat-icon>restart_alt</mat-icon>
                                 Reset
@@ -128,6 +131,7 @@
                             <button mat-raised-button 
                                     color="warn"
                                     (click)="stop()"
+                                    aria-label="Stop stopwatch"
                                     class="control-btn primary-btn btn-sm">
                                 <mat-icon>stop</mat-icon>
                                 Stop
@@ -135,7 +139,7 @@
                         }
                     </div>
 
-                    <!-- Secondary Controls - Inline when running -->
+                    <!-- Secondary Controls -->
                     @if(controller().isRunning()) {
                         <div class="secondary-controls d-flex gap-1"
                              [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
@@ -143,6 +147,7 @@
                                 <button mat-icon-button 
                                         (click)="lap()"
                                         matTooltip="Lap"
+                                        aria-label="Record lap time"
                                         class="control-btn icon-btn btn-sm p-1">
                                     <mat-icon>track_changes</mat-icon>
                                 </button>
@@ -150,6 +155,7 @@
                             <button mat-icon-button 
                                     (click)="split()"
                                     matTooltip="Split"
+                                    aria-label="Record split time"
                                     class="control-btn icon-btn btn-sm p-1">
                                 <mat-icon>call_split</mat-icon>
                             </button>
@@ -206,7 +212,8 @@
                         <div class="splits-header d-flex align-items-center justify-content-between">
                             <button mat-button 
                                     class="toggle-splits-btn p-1 fw-medium small"
-                                    (click)="toggleSplitsVisible()">
+                                    (click)="toggleSplitsVisible()"
+                                    [attr.aria-label]="splitsVisible() ? 'Hide splits' : 'Show splits'">
                                 <mat-icon>{{ splitsVisible() ? 'expand_less' : 'expand_more' }}</mat-icon>
                                 {{ visibleSplits().length }} Split{{ visibleSplits().length !== 1 ? 's' : '' }}
                             </button>
@@ -235,7 +242,7 @@
             </div>
 
         } @else {
-            <!-- Settings View - Keep original but add some Bootstrap classes for consistency -->
+            <!-- Settings View -->
             <div class="settings-view">
                 <div class="settings-header d-flex align-items-center justify-content-between py-2 border-bottom">
                     <h4 class="fw-semibold mb-0">Stopwatch Settings</h4>
@@ -316,17 +323,18 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
-
-                            <div class="col-md-4">
-                                <mat-form-field class="field-groups w-100">
-                                    <mat-label>Groups</mat-label>
-                                    <mat-select formControlName="groups" multiple>
-                                        @for (group of groups(); track group.id) {
-                                            <mat-option [value]="group.id">{{ group.annotation.title || group.id }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
+                            @if(groups().length > 0) {
+                                <div class="col-md-4">
+                                    <mat-form-field class="field-groups w-100">
+                                        <mat-label>Groups</mat-label>
+                                        <mat-select formControlName="groups" multiple>
+                                            @for (group of groups(); track group.id) {
+                                                <mat-option [value]="group.id">{{ group.annotation.title || group.id }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                            }
                         </div>
                     </div>
 
