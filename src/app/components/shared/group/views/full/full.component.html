@@ -213,6 +213,42 @@
   } @else {
     @if (getInstance().members.length) {
         <mat-card-content class="mt-5 mb-3">
+            @if(isTimingBehavior(['parallel', 'synchronized'])) {
+                <div class="text-center">
+                    <mat-button-toggle-group
+                        class="mb-3 control-buttons"
+                        name="bulk-action"
+                        aria-label="Group Action"
+                        [hideSingleSelectionIndicator]="true"
+                        >
+                        @if(canStartAll()) {
+                            <mat-button-toggle (click)="startAll()" aria-label="Start All">
+                                <mat-icon>play_arrow</mat-icon>
+                                Start
+                            </mat-button-toggle>
+                        }
+                        @if(canResumeAll()) {
+                            <mat-button-toggle (click)="resumeAll()" aria-label="Resume All">
+                                <mat-icon>play_circle_outline</mat-icon>
+                                Resume
+                            </mat-button-toggle>
+                        }
+                        @if(canStopAll()) {
+                            <mat-button-toggle (click)="stopAll()" aria-label="Stop All">
+                                <mat-icon>stop</mat-icon>
+                                Stop
+                            </mat-button-toggle>
+                        }
+                        @if(canResetAll()) {
+                            <mat-button-toggle (click)="resetAll()" aria-label="Reset All">
+                                <mat-icon>restart_alt</mat-icon>
+                                Reset
+                            </mat-button-toggle>
+                        }
+                    </mat-button-toggle-group>
+                </div>
+            }
+
             <stopwatch-list-grid-view [instances]="getInstance().members" columns="col-12 col-lg-6 col-xl-4"></stopwatch-list-grid-view>
         </mat-card-content>
     }

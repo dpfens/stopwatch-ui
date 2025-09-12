@@ -13,6 +13,7 @@ import { GroupEvaluationBehaviorOptions, GroupPresetOptions, GroupTimingOptions,
 import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset } from '../../../../../models/sequence/interfaces';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 // Define the form structure interface
 interface GroupForm {
@@ -27,16 +28,17 @@ interface GroupForm {
   selector: 'full-group-detail',
   imports: [
     MatCardModule,
-    FormsModule, 
-    ReactiveFormsModule, 
-    MatFormFieldModule, 
-    MatInputModule, 
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
-    MatButtonModule, 
+    MatButtonModule,
+    MatButtonToggleModule,
     MatIconModule,
     MatTooltipModule,
-    StopwatchListGridViewComponent
-  ],
+    StopwatchListGridViewComponent,
+],
   templateUrl: './full.component.html',
   styleUrl: './full.component.scss'
 })

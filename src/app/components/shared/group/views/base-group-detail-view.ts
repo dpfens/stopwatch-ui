@@ -1,11 +1,13 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, Signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GroupTraitPreset, GroupTraits, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { ContextualStopwatchEntity, GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, GroupTraits, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupPresets, PresetConfig, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
 import { GroupService } from '../../../../services/group/group.service';
 import { Router } from '@angular/router';
+import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
+import { StopwatchBulkOperationsService } from '../../../../services/stopwatch/bulk-operation/stopwatch-bulk-operation-service.service';
 
 
 @Component({
@@ -14,6 +16,7 @@ import { Router } from '@angular/router';
 })
 export class BaseGroupDetailViewComponent {
   protected readonly service = inject(GroupService);
+  private readonly bulkOpsService = inject(StopwatchBulkOperationsService);
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly time = inject(TimeService);
   protected readonly router = inject(Router);
@@ -39,13 +42,35 @@ export class BaseGroupDetailViewComponent {
     const presets: GroupTraitPreset[] = Object.keys(GroupPresets) as GroupTraitPreset[];
     const matchingPreset = presets.find(preset => {
       const traits: PresetConfig = GroupPresets[preset];
-      console.log(preset, this.getInstance().traits.timing, traits.timing, this.getInstance().traits.timing == traits.timing );
-      console.log(preset, this.getInstance().traits.evaluation.sort().join(','), traits.evaluation.sort().join(','), this.getInstance().traits.evaluation.sort().join(',') === traits.evaluation.sort().join(','));
       return this.getInstance().traits.timing == traits.timing 
         && this.getInstance().traits.evaluation.sort().join(',') === traits.evaluation.sort().join(',')
     });
     return matchingPreset ?? 'Custom';
   });
+
+  timingBehavior: Signal<GroupTimingBehavior> = computed(() => {
+    return this.getInstance().traits.timing;
+  });
+
+  evaluationBehaviors: Signal<GroupEvaluationBehavior[]> = computed(() => {
+    return this.getInstance().traits.evaluation;
+  });
+
+  isTimingBehavior(timingBehavior: GroupTimingBehavior| GroupTimingBehavior[]): boolean {
+    const selectedBehavior = this.getInstance().traits.timing;
+    if (Array.isArray(timingBehavior)) {
+      return timingBehavior.some(behavior => behavior === selectedBehavior);
+    }
+    return selectedBehavior === timingBehavior;
+  }
+
+  hasEvaluationBehavior(evaluationBehavior: GroupEvaluationBehavior | GroupEvaluationBehavior[]): boolean {
+    const evaluations = this.getInstance().traits.evaluation;
+    if (Array.isArray(evaluationBehavior)) {
+      return evaluationBehavior.every(behavior => evaluations.includes(behavior));
+    }
+    return evaluations.includes(evaluationBehavior);
+  }
 
   async delete(event: Event) {
     event.preventDefault();
@@ -62,5 +87,70 @@ export class BaseGroupDetailViewComponent {
     const durationMs = date.durationFrom(TZDate.now());
     const relativeTimeInfo = this.time.getRelativeTimeInfo(durationMs);
     return this.time.relativeTimeFormatter().format(relativeTimeInfo.value, relativeTimeInfo.unit);
+  }
+
+
+  // Computed command availability based on selected stopwatches
+  readonly canStartAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.some(sw => !this.isStopwatchActive(sw));
+  });
+  
+  readonly canStopAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.some(sw => this.isStopwatchRunning(sw));
+  });
+  
+  readonly canResumeAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.some(sw => this.isStopwatchStopped(sw));
+  });
+  
+  readonly canResetAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.some(sw => this.isStopwatchActive(sw) && this.isStopwatchActive(sw));
+  });
+  
+  readonly canSplitAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.every(sw => this.isStopwatchRunning(sw));
+  });
+  
+  readonly canLapAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && 
+           instances.every(sw => this.isStopwatchRunning(sw) && !!sw.state.lap);
+  });
+
+  // Helper methods for checking stopwatch states
+  private isStopwatchRunning(sw: ContextualStopwatchEntity): boolean {
+    const controller = new StopwatchStateController(sw.state);
+    return controller.isActive() && controller.isRunning();
+  }
+  
+  private isStopwatchStopped(sw: ContextualStopwatchEntity): boolean {
+    const controller = new StopwatchStateController(sw.state);
+    return controller.isActive() && !controller.isRunning();
+  }
+  
+  private isStopwatchActive(sw: ContextualStopwatchEntity): boolean {
+    const controller = new StopwatchStateController(sw.state);
+    return controller.isActive();
+  }
+
+  async startAll() {
+    await this.bulkOpsService.startAll(this.getInstance().members);
+  }
+
+  async resumeAll() {
+    await this.bulkOpsService.resumeAll(this.getInstance().members);
+  }
+
+  async stopAll() {
+    await this.bulkOpsService.stopAll(this.getInstance().members);
+  }
+
+  async resetAll() {
+    await this.bulkOpsService.resetAll(this.getInstance().members);
   }
 }
