@@ -9,7 +9,7 @@ export interface SerializedActionTracking {
     readonly timestamp: TimeZonedDate;
 }
 
-interface BaseCreationModificationDates {
+export interface BaseCreationModificationDates {
     readonly creation: ActionTracking;
     lastModification: ActionTracking;
 }
