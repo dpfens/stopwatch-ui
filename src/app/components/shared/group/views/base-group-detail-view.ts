@@ -8,6 +8,7 @@ import { GroupService } from '../../../../services/group/group.service';
 import { Router } from '@angular/router';
 import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 import { StopwatchBulkOperationsService } from '../../../../services/stopwatch/bulk-operation/stopwatch-bulk-operation-service.service';
+import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 
 
 @Component({
@@ -16,6 +17,7 @@ import { StopwatchBulkOperationsService } from '../../../../services/stopwatch/b
 })
 export class BaseGroupDetailViewComponent {
   protected readonly service = inject(GroupService);
+  protected readonly stopwatchService = inject(StopwatchService);
   private readonly bulkOpsService = inject(StopwatchBulkOperationsService);
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly time = inject(TimeService);
@@ -93,50 +95,34 @@ export class BaseGroupDetailViewComponent {
   // Computed command availability based on selected stopwatches
   readonly canStartAll = computed(() => {
     const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => !this.isStopwatchActive(sw));
+    return instances.length > 0 && instances.some(sw => !this.stopwatchService.isStopwatchActive(sw));
   });
   
   readonly canStopAll = computed(() => {
     const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.isStopwatchRunning(sw));
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
   });
   
   readonly canResumeAll = computed(() => {
     const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.isStopwatchStopped(sw));
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchStopped(sw));
   });
   
   readonly canResetAll = computed(() => {
     const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.isStopwatchActive(sw) && this.isStopwatchActive(sw));
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchActive(sw) && this.stopwatchService.isStopwatchActive(sw));
   });
   
   readonly canSplitAll = computed(() => {
     const instances = this.getInstance().members;
-    return instances.length > 0 && instances.every(sw => this.isStopwatchRunning(sw));
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
   });
   
   readonly canLapAll = computed(() => {
     const instances = this.getInstance().members;
     return instances.length > 0 && 
-           instances.every(sw => this.isStopwatchRunning(sw) && !!sw.state.lap);
+           instances.every(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
   });
-
-  // Helper methods for checking stopwatch states
-  private isStopwatchRunning(sw: ContextualStopwatchEntity): boolean {
-    const controller = new StopwatchStateController(sw.state);
-    return controller.isActive() && controller.isRunning();
-  }
-  
-  private isStopwatchStopped(sw: ContextualStopwatchEntity): boolean {
-    const controller = new StopwatchStateController(sw.state);
-    return controller.isActive() && !controller.isRunning();
-  }
-  
-  private isStopwatchActive(sw: ContextualStopwatchEntity): boolean {
-    const controller = new StopwatchStateController(sw.state);
-    return controller.isActive();
-  }
 
   async startAll() {
     await this.bulkOpsService.startAll(this.getInstance().members);

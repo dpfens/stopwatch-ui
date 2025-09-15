@@ -11,6 +11,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { SynchronizationService } from '../synchronization/synchronization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembershipService } from '../membership/membership.service';
+import { StopwatchStateController } from '../../controllers/stopwatch/stopwatch-state-controller';
 
 @Injectable({
   providedIn: 'root'
@@ -356,5 +357,20 @@ export class StopwatchService {
    */
   clearError(): void {
     this._error.set(null);
+  }
+
+  isStopwatchRunning(sw: ContextualStopwatchEntity): boolean {
+    const controller = new StopwatchStateController(sw.state);
+    return controller.isActive() && controller.isRunning();
+  }
+    
+  isStopwatchStopped(sw: ContextualStopwatchEntity): boolean {
+    const controller = new StopwatchStateController(sw.state);
+    return controller.isActive() && !controller.isRunning();
+  }
+    
+  isStopwatchActive(sw: ContextualStopwatchEntity): boolean {
+    const controller = new StopwatchStateController(sw.state);
+    return controller.isActive();
   }
 }

@@ -346,27 +346,10 @@ export class StopwatchBulkOperationsService {
   } {
     return {
       total: stopwatches.length,
-      running: stopwatches.filter(sw => this.isStopwatchRunning(sw)).length,
-      stopped: stopwatches.filter(sw => this.isStopwatchStopped(sw)).length,
-      inactive: stopwatches.filter(sw => !this.isStopwatchActive(sw)).length,
+      running: stopwatches.filter(sw => this.stopwatchService.isStopwatchRunning(sw)).length,
+      stopped: stopwatches.filter(sw => this.stopwatchService.isStopwatchStopped(sw)).length,
+      inactive: stopwatches.filter(sw => !this.stopwatchService.isStopwatchActive(sw)).length,
       hasLapConfig: stopwatches.filter(sw => !!sw.state.lap).length
     };
-  }
-
-  // Helper methods (duplicated from selection service for consistency)
-  private isStopwatchRunning(sw: ContextualStopwatchEntity): boolean {
-    if (sw.state.sequence.length === 0) return false;
-    const lastEvent = sw.state.sequence[sw.state.sequence.length - 1];
-    return lastEvent.type !== 'stop';
-  }
-
-  private isStopwatchStopped(sw: ContextualStopwatchEntity): boolean {
-    if (sw.state.sequence.length === 0) return false;
-    const lastEvent = sw.state.sequence[sw.state.sequence.length - 1];
-    return lastEvent.type === 'stop';
-  }
-
-  private isStopwatchActive(sw: ContextualStopwatchEntity): boolean {
-    return sw.state.sequence.some(event => event.type === 'start');
   }
 }
