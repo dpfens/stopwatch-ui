@@ -1,7 +1,8 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { ContextualStopwatchEntity } from '../../../../models/sequence/interfaces';
 import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwatch-selection/stopwatch-selection.service';
+import { StopwatchSearchService } from '../../../../services/stopwatch/search/search.service';
 
 
 @Component({

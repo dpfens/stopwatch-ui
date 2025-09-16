@@ -4,7 +4,6 @@ import { MatCardModule } from '@angular/material/card';
 import { BaseGroupDetailViewComponent } from '../base-group-detail-view';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { StopwatchListGridViewComponent } from "../../../stopwatch/views/grid/stopwatch-grid/stopwatch-list.component";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
@@ -14,6 +13,7 @@ import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset } from '
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { StopwatchCollectionViewComponent } from '../../../stopwatch/collection/stopwatch-collection.component';
 
 // Define the form structure interface
 interface GroupForm {
@@ -37,7 +37,7 @@ interface GroupForm {
     MatButtonToggleModule,
     MatIconModule,
     MatTooltipModule,
-    StopwatchListGridViewComponent,
+    StopwatchCollectionViewComponent
 ],
   templateUrl: './full.component.html',
   styleUrl: './full.component.scss'

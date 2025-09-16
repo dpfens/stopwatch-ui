@@ -2,11 +2,11 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { HeaderActionService } from '../../../../services/action/header-action.service';
 import { GLOBAL } from '../../../../utilities/constants';
-import { StopwatchListGridViewComponent } from '../../../shared/stopwatch/views/grid/stopwatch-grid/stopwatch-list.component';
+import { StopwatchCollectionViewComponent } from "../../../shared/stopwatch/collection/stopwatch-collection.component";
 
 @Component({
   selector: 'stopwatch-list',
-  imports: [StopwatchListGridViewComponent],
+  imports: [ StopwatchCollectionViewComponent],
   templateUrl: './stopwatch-list.component.html',
   styleUrl: './stopwatch-list.component.scss'
 })

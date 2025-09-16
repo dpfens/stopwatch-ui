@@ -248,8 +248,9 @@
                     </mat-button-toggle-group>
                 </div>
             }
+            <stopwatch-collection-view [instances]="getInstance().members" [showControls]="false" gridClasses="col-12 col-lg-6 col-xl-4">
 
-            <stopwatch-list-grid-view [instances]="getInstance().members" columns="col-12 col-lg-6 col-xl-4"></stopwatch-list-grid-view>
+            </stopwatch-collection-view>
         </mat-card-content>
     }
   }

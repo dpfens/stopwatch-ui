@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -124,6 +124,16 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     }
     
     return this._controllerCache;
+  });
+
+  readonly timingBehaviors = computed(() => {
+    const instance = this.getInstance();
+    return instance.groups.flatMap(group => group.traits.timing);
+  });
+
+  readonly evaluationBehaviors = computed(() => {
+    const instance = this.getInstance();
+    return instance.groups.flatMap(group => group.traits.evaluation);
   });
 
   constructor() {

@@ -3,7 +3,7 @@
 }
 @else {
     @if (instances().length) {
-        <stopwatch-list-grid-view [instances]="instances()"></stopwatch-list-grid-view>
+        <stopwatch-collection-view [instances]="instances()" [showControls]="instances().length > 10"></stopwatch-collection-view>
     } @else {
         <span>No stopwatches found.</span>
     }
