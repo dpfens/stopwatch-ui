@@ -1,6 +1,7 @@
-import { ComputedEvent, StopwatchState, ContextualStopwatchEntity } from "../interfaces";
+import { StopwatchState, ContextualStopwatchEntity, StopwatchAnalyticsTrait } from "../interfaces";
+import { AnalysisInsight } from "./interface";
 
-export interface AnalysisComponent {
-    analyze(stopwatch: StopwatchState): ComputedEvent[];
+export interface AnalysisComponent<T extends StopwatchAnalyticsTrait> {
+    analyze(stopwatch: StopwatchState): AnalysisInsight<T>[];
     isApplicable(stopwatch: ContextualStopwatchEntity): boolean;
 }

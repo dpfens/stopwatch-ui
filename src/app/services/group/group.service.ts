@@ -11,7 +11,6 @@ import {
 import { TZDate } from '../../models/date';
 import { GroupRepository } from '../../repositories/group';
 import { StopwatchRepository } from '../../repositories/stopwatch';
-import { AnalysisRegistry } from '../../models/sequence/analysis/registry';
 import { isPlatformBrowser } from '@angular/common';
 import { SynchronizationService } from '../synchronization/synchronization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -117,7 +116,6 @@ export class GroupService {
         return {
           ...entity,
           groups,
-          analysis: new AnalysisRegistry()
         };
       })
     );
@@ -404,8 +402,7 @@ export class GroupService {
           const groups = await this.membershipService.getGroupsForStopwatch(entity.id);
           return {
             ...entity,
-            groups,
-            analysis: new AnalysisRegistry()
+            groups
           };
         })
       );

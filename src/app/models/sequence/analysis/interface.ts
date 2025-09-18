@@ -1,16 +1,59 @@
+/**
+ * ANALYSIS ARCHITECTURE MENTAL MODEL:
+ * 
+ * 🔍 EVIDENCE = "WHERE?" 
+ *     Points to stopwatch events/ranges that were analyzed
+ *     Reusable across different analysis types
+ *     Examples: "events 5,7,9", "10:30-11:45 timespan", "sequence A→B→C"
+ * 
+ * 📊 DATA = "WHAT?" 
+ *     The analytical findings from examining that evidence
+ *     Statistical results + render-ready summaries
+ *     Examples: "2.3σ anomaly, severe", "declining -5%/session", "threshold breached 3x"
+ * 
+ * 💡 INSIGHT = "SO WHAT?" 
+ *     User-facing interpretation of the analytical data
+ *     Contextual, actionable, audience-specific
+ *     Examples: "You're slowing down - try pacing", "Great improvement!", "Alert: SLA breach"
+ * 
+ * FLOW: Evidence + Analysis Algorithm → Data → Interpretation Strategy → Insight
+ */
 import { Annotatable, BaseCreationModificationDates, StopwatchAnalyticsTrait, TimeStampRange, UniqueIdentifier, UniquelyIdentifiable } from "../interfaces";
 
 export interface AnalysisResult<T extends StopwatchAnalyticsTrait> {
     trait: T;
+    /**
+     * EVIDENCE: "WHERE did we find this insight?"
+     * Points to the specific stopwatch elements (events, time ranges, sequences) 
+     * that support this analysis. This is about LOCATION and SCOPE within 
+     * the stopwatch data - think of it as a "pointer" or "citation" that 
+     * tells you exactly which parts of the timing data this result refers to.
+     * 
+     * Examples:
+     * - EventEvidence: "This anomaly was found in events #5, #12, and #23"
+     * - IntervalEvidence: "This trend occurred between 10:30 AM and 11:15 AM"
+     * - SequenceEvidence: "This pattern emerged across this series of laps"
+     */
     evidence: AnalysisEvidence;
     confidence: number;
+    /**
+     * DATA: "WHAT did we discover"
+     * Contains the actual analytical findings (numbers, classifications, 
+     * measurements) plus render-ready information for displaying to users.
+     * This is the "meat" of the analysis - the computed results, statistical
+     * values.
+     * 
+     * Examples:
+     * - AnomalyData: anomalyScore=2.3, severity="high""
+     * - TrendData: direction="improving", changeRate=5%, displaySummary="Getting 5% faster"
+     * - ThresholdData: breachSeverity=0.8, breachCount=3, threshold exceeded by 15%
+     */
     data: TraitDataMapping[T];
     metadata: BaseCreationModificationDates;
     analysis: {
         metadata: AnalysisMetadata;
     };
 }
-
 
 export interface AnomalyData {
     anomalyScore: number;
@@ -124,6 +167,9 @@ export type InterpolationResult = AnalysisResult<'interpolation'>;
 export type SeasonalityDetectionResult = AnalysisResult<'seasonality-detection'>;
 
 
+/**
+ * 
+ */
 export interface AnalysisInsight<T extends StopwatchAnalyticsTrait> extends UniquelyIdentifiable {
     annotation: Annotatable;
     result: AnalysisResult<T>
@@ -182,6 +228,21 @@ export interface AggregateEvidence {
     timeRange?: TimeStampRange;
     eventCount?: number;
 }
+
+
+export interface TraitEvidenceMapping {
+    'anomaly-detection': EventEvidence;
+    'trend-analysis': EventEvidence;
+    'threshold-alerting': EventEvidence | IntervalEvidence;
+    'performance-scoring': AggregateEvidence | IntervalEvidence;
+    'statistical-summary': AggregateEvidence;
+    'forecasting': IntervalEvidence; // The period being forecasted from
+    'smoothing': IntervalEvidence | AggregateEvidence;
+    'benchmark-comparison': AggregateEvidence | IntervalEvidence;
+    'interpolation': SequenceEvidence; // The gaps being filled
+    'seasonality-detection': AggregateEvidence;
+}
+
 
 // Metadata about the analysis
 export interface AnalysisMetadata {

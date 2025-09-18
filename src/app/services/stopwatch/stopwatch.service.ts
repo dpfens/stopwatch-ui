@@ -6,7 +6,6 @@ import {
 } from '../../models/sequence/interfaces';
 import { TZDate } from '../../models/date';
 import { StopwatchRepository } from '../../repositories/stopwatch';
-import { AnalysisRegistry } from '../../models/sequence/analysis/registry';
 import { isPlatformBrowser } from '@angular/common';
 import { SynchronizationService } from '../synchronization/synchronization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -96,7 +95,6 @@ export class StopwatchService {
     return {
       ...entity,
       groups,
-      analysis: new AnalysisRegistry()
     };
   }
 
