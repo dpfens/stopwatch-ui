@@ -11,6 +11,7 @@ import { TimeService } from '../../../services/time/time.service';
 export class BaseSplitComponent {
   timeService = inject(TimeService);
   selectableSplitTypes = SelectableSplitTypes;
+  abs = Math.abs;
 
   protected _instance = signal<VisibleSplit | undefined>(undefined);
     

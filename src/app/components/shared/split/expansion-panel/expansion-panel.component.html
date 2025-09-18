@@ -14,6 +14,21 @@
             <div class="fw-medium">
                 {{ timeService.durationFormatter().format(instance.duration) }}
             </div>
+            
+            <!-- Lap difference display -->
+            @if (instance.event.type === 'lap' && instance.difference !== undefined) {
+                <div class="small mt-1" 
+                     [class.text-success]="instance.difference < 0" 
+                     [class.text-danger]="instance.difference > 0">
+                    @if (instance.difference < 0) {
+                        <mat-icon class="material-icons-outlined" style="font-size: 16px; vertical-align: middle;">trending_down</mat-icon>
+                        {{ timeService.durationFormatter().format(timeService.toDurationObject(abs(instance.difference))) }}
+                    } @else if (instance.difference > 0) {
+                        <mat-icon class="material-icons-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</mat-icon>
+                        +{{ timeService.durationFormatter().format(timeService.toDurationObject(instance.difference)) }}
+                    }
+                </div>
+            }
         </div>
     
         <div class="d-flex align-items-center">

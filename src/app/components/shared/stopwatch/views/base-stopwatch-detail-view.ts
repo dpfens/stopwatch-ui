@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue } from '../../../../models/sequence/interfaces';
+import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue, VisibleSplit } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DurationFormatOptions, TimeService } from '../../../../services/time/time.service';
@@ -25,12 +25,6 @@ interface StopwatchSettingsForm {
 
 type DurationCalculator = () => number;
 type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
-
-interface VisibleSplit {
-  duration: Intl.Duration;
-  event: StopwatchEvent;
-  unit?: UnitValue
-}
 
 interface TimerSubscription {
   id: string;
@@ -711,11 +705,28 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     const state = this.controller().getState();
     const eligibleSplits = state.sequence.filter(event => !['stop', 'resume'].includes(event.type));
     const visibleSplits: VisibleSplit[] = [];
+    let previousLapDuration: number | undefined;
+    
     for(let i = 1; i < eligibleSplits.length; i++) {
       const rawSplitDuration = this.controller().getElapsedTimeBetweenEvents(eligibleSplits[i - 1].id, eligibleSplits[i].id);
       const splitDuration = this.timeService.toDurationObject(rawSplitDuration);
       const event = eligibleSplits[i];
-      visibleSplits.push({duration: splitDuration, event, unit: event.unit});
+      
+      // Calculate difference only for laps (compared to previous lap)
+      let difference: number | undefined;
+      if (event.type === 'lap') {
+        if (previousLapDuration !== undefined) {
+          difference = rawSplitDuration - previousLapDuration;
+        }
+        previousLapDuration = rawSplitDuration;
+      }
+      
+      visibleSplits.push({
+        duration: splitDuration, 
+        event, 
+        unit: event.unit,
+        difference
+      });
     }
     this.visibleSplits.set(visibleSplits);
   }

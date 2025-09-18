@@ -1,5 +1,4 @@
 import { TimeZonedDate, TZDate } from "../date";
-import { AnalysisRegistry } from "./analysis/registry";
 
 export interface ActionTracking {
     readonly timestamp: TZDate;
@@ -161,7 +160,6 @@ export interface StopwatchEntity extends BaseStopwatchEntity {
 
 export interface ContextualStopwatchEntity extends StopwatchEntity {
     groups: BaseStopwatchGroup[];
-    analysis: AnalysisRegistry;
 }
 
 export interface SerializedStopwatchEntity extends Omit<BaseStopwatchEntity, 'metadata' | 'analytics'> {
@@ -286,4 +284,6 @@ export interface SelectOptGroup<T> {
 export interface VisibleSplit {
     duration: Intl.Duration;
     event: StopwatchEvent;
+    unit?: UnitValue;
+    difference?: number; // Difference from previous lap in milliseconds
 }
