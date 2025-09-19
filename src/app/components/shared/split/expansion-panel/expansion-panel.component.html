@@ -17,7 +17,7 @@
             
             <!-- Lap difference display -->
             @if (instance.event.type === 'lap' && instance.difference !== undefined) {
-                <div class="small mt-1" 
+                <div class="small" 
                      [class.text-success]="instance.difference < 0" 
                      [class.text-danger]="instance.difference > 0">
                     @if (instance.difference < 0) {
