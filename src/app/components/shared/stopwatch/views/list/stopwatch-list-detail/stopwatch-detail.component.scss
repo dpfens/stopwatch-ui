@@ -389,7 +389,7 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 576px) {
   .stopwatch-list-item {
     .header-row {
       flex-direction: column;
@@ -410,8 +410,7 @@
     .controls-section {
       order: 3;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.5rem !important;
+      gap: 0 !important;
     }
 
     .duration-display.primary .duration-time {
@@ -437,14 +436,11 @@
 @media (max-width: 576px) {
   .stopwatch-list-item {
     .controls-section {
-      .primary-controls,
       .secondary-controls {
-        flex-direction: column;
         width: 100%;
       }
 
       .control-btn {
-        width: 100%;
         justify-content: center;
       }
     }

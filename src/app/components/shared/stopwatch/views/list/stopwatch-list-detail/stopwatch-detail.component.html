@@ -31,69 +31,85 @@
     <!-- Main Content Container -->
     <div class="list-item-content">
         @if(!displaySettings()) {
+
             <!-- Compact Header Row -->
             <div class="header-row d-flex align-items-center justify-content-between gap-3 py-2">
-                
                 <!-- Title and Status Section -->
-                <div class="title-section flex-grow-1 min-w-0">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <h5 class="stopwatch-title fw-semibold text-truncate mb-0">
-                            {{ getInstance().annotation.title || 'Untitled Stopwatch' }}
-                        </h5>
-                        <div class="status-indicators d-flex align-items-center gap-1">
-                            @if(controller().isRunning()) {
-                                <mat-icon class="status-icon running text-success" matTooltip="Running" style="font-size: 18px;">play_circle</mat-icon>
-                            } @else if(controller().isActive()) {
-                                <mat-icon class="status-icon paused text-warning" matTooltip="Paused" style="font-size: 18px;">pause_circle</mat-icon>
-                            } @else {
-                                <mat-icon class="status-icon inactive text-muted" matTooltip="Stopped" style="font-size: 18px;">stop_circle</mat-icon>
-                            }
-                            @if(getInstance().state.lap) {
-                                <mat-icon class="feature-icon text-info" matTooltip="Lap tracking enabled" style="font-size: 16px;">track_changes</mat-icon>
-                            }
+                <div class="d-flex align-items-center justify-content-between flex-grow-1">
+                    <div class="title-section flex-grow-1 min-w-0">
+                        <div class="d-flex gap-2 mb-1">
+                            <h5 class="stopwatch-title fw-semibold text-truncate mb-0">
+                                {{ getInstance().annotation.title || 'Untitled Stopwatch' }}
+                            </h5>
+                            <div class="status-indicators d-flex align-items-center gap-1">
+                                @if(controller().isRunning()) {
+                                    <mat-icon class="status-icon running text-success" matTooltip="Running" style="font-size: 18px;">play_circle</mat-icon>
+                                } @else if(controller().isActive()) {
+                                    <mat-icon class="status-icon paused text-warning" matTooltip="Paused" style="font-size: 18px;">pause_circle</mat-icon>
+                                } @else {
+                                    <mat-icon class="status-icon inactive text-muted" matTooltip="Stopped" style="font-size: 18px;">stop_circle</mat-icon>
+                                }
+                                @if(getInstance().state.lap) {
+                                    <mat-icon class="feature-icon text-info" matTooltip="Lap tracking enabled" style="font-size: 16px;">track_changes</mat-icon>
+                                }
+                            </div>
                         </div>
+                        @if(getInstance().annotation.description) {
+                            <p class="description text-muted small mb-0 text-truncate">{{ getInstance().annotation.description }}</p>
+                        }
+                        <!-- Groups - More compact -->
+                        @if(getInstance().groups.length) {
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="section-label text-muted fw-medium small">Groups:</span>
+                                    <mat-chip-set aria-label="Groups" class="inline-chips">
+                                        @for(group of getInstance().groups; track group.id) {
+                                            <mat-chip class="small">{{ group.annotation.title }}</mat-chip>
+                                        }
+                                    </mat-chip-set>
+                                </div>
+                            </div>
+                        }
                     </div>
-                    @if(getInstance().annotation.description) {
-                        <p class="description text-muted small mb-0 text-truncate">{{ getInstance().annotation.description }}</p>
-                    }
-                </div>
 
-                <!-- Compact Duration Display Section -->
-                <div class="duration-section text-end">
-                    <div class="duration-display primary mb-1">
-                        <div class="d-flex flex-column align-items-end">
-                            <span class="duration-label text-muted fw-medium" style="font-size: 10px; line-height: 1;">TOTAL</span>
-                            <time class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;">
-                                {{ timeService.durationFormatter().format(totalDuration()) }}
-                            </time>
+                    <!-- Compact Duration Display Section -->
+                    <div class="duration-section text-end">
+                        <div class="duration-display primary mb-1">
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="duration-label text-muted fw-medium" style="font-size: 10px; line-height: 1;">TOTAL</span>
+                                <time class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;">
+                                    {{ timeService.durationFormatter().format(totalDuration()) }}
+                                </time>
+                            </div>
                         </div>
+                        
+                        @if(!!splitDuration() || !!lapDuration()) {
+                            <div class="secondary-durations d-flex gap-3">
+                                @if(!!lapDuration()) {
+                                    <div class="duration-display secondary text-end">
+                                        <div class="d-flex flex-column align-items-end">
+                                            <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">LAP</span>
+                                            <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
+                                                {{ timeService.durationFormatter().format(lapDuration()!) }}
+                                            </time>
+                                        </div>
+                                    </div>
+                                }
+                                @if(!!splitDuration()) {
+                                    <div class="duration-display secondary text-end">
+                                        <div class="d-flex flex-column align-items-end">
+                                            <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">SPLIT</span>
+                                            <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
+                                                {{ timeService.durationFormatter().format(splitDuration()!) }}
+                                            </time>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
-                    
-                    @if(!!splitDuration() || !!lapDuration()) {
-                        <div class="secondary-durations d-flex gap-3">
-                            @if(!!lapDuration()) {
-                                <div class="duration-display secondary text-end">
-                                    <div class="d-flex flex-column align-items-end">
-                                        <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">LAP</span>
-                                        <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
-                                            {{ timeService.durationFormatter().format(lapDuration()!) }}
-                                        </time>
-                                    </div>
-                                </div>
-                            }
-                            @if(!!splitDuration()) {
-                                <div class="duration-display secondary text-end">
-                                    <div class="d-flex flex-column align-items-end">
-                                        <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">SPLIT</span>
-                                        <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
-                                            {{ timeService.durationFormatter().format(splitDuration()!) }}
-                                        </time>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
                 </div>
+                
 
                 <!-- Compact Controls Section -->
                 <div class="controls-section d-flex align-items-center gap-2">
@@ -105,7 +121,7 @@
                                     color="primary"
                                     (click)="start()"
                                     aria-label="Start stopwatch"
-                                    class="control-btn primary-btn btn-sm">
+                                    class="primary-btn btn-sm">
                                 <mat-icon>play_arrow</mat-icon>
                                 Start
                             </button>
@@ -115,14 +131,14 @@
                                     color="primary"
                                     (click)="resume()"
                                     aria-label="Resume stopwatch"
-                                    class="control-btn primary-btn btn-sm">
+                                    class="primary-btn btn-sm">
                                 <mat-icon>play_circle_outline</mat-icon>
                                 Resume
                             </button>
                             <button mat-stroked-button 
                                     (click)="reset()"
                                     aria-label="Reset stopwatch"
-                                    class="control-btn secondary-btn btn-sm">
+                                    class="secondary-btn btn-sm">
                                 <mat-icon>restart_alt</mat-icon>
                                 Reset
                             </button>
@@ -132,7 +148,7 @@
                                     color="warn"
                                     (click)="stop()"
                                     aria-label="Stop stopwatch"
-                                    class="control-btn primary-btn btn-sm">
+                                    class="primary-btn btn-sm">
                                 <mat-icon>stop</mat-icon>
                                 Stop
                             </button>
@@ -148,7 +164,7 @@
                                         (click)="lap()"
                                         matTooltip="Lap"
                                         aria-label="Record lap time"
-                                        class="control-btn icon-btn btn-sm p-1">
+                                        class="icon-btn btn-sm p-1 flex-grow-1">
                                     <mat-icon>track_changes</mat-icon>
                                 </button>
                             }
@@ -156,7 +172,7 @@
                                     (click)="split()"
                                     matTooltip="Split"
                                     aria-label="Record split time"
-                                    class="control-btn icon-btn btn-sm p-1">
+                                    class="icon-btn btn-sm p-1 flex-grow-1">
                                 <mat-icon>call_split</mat-icon>
                             </button>
                         </div>
@@ -192,21 +208,6 @@
 
             <!-- Compact Expandable Content -->
             <div class="expandable-content">
-                <!-- Groups - More compact -->
-                @if(getInstance().groups.length) {
-                    <div class="groups-section py-1 border-top">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="section-label text-muted fw-medium small">Groups:</span>
-                            <mat-chip-set aria-label="Groups" class="inline-chips">
-                                @for(group of getInstance().groups; track group.id) {
-                                    <mat-chip class="small">{{ group.annotation.title }}</mat-chip>
-                                }
-                            </mat-chip-set>
-                        </div>
-                    </div>
-                }
-
-                <!-- Splits - More compact -->
                 @if(visibleSplits().length) {
                     <div class="splits-section py-2 border-top">
                         <div class="splits-header d-flex align-items-center justify-content-between">
