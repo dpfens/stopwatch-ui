@@ -177,6 +177,7 @@
             }
         </div>
 
+
         <mat-button-toggle-group
         class="my-3 control-buttons"
         name="favoriteColor"
@@ -184,38 +185,43 @@
         [hideSingleSelectionIndicator]="true"
         [class.disabled-in-selection]="selectionMode() || hasAnySelection()"
         >
-            @if(!controller().isActive()) {
-                <mat-button-toggle (click)="start()">
-                    <mat-icon>play_arrow</mat-icon>
-                    Start
-                </mat-button-toggle>
-            }
-            @if(controller().isActive() && !controller().isRunning()) {
-                <mat-button-toggle (click)="resume()">
-                    <mat-icon>play_circle_outline</mat-icon>
-                    Resume
-                </mat-button-toggle>
-                <mat-button-toggle (click)="reset()">
-                    <mat-icon>restart_alt</mat-icon>
-                    Reset
-                </mat-button-toggle>
+            @if(showBasicControls()) {
+                @if(!controller().isActive()) {
+                    <mat-button-toggle (click)="start()">
+                        <mat-icon>play_arrow</mat-icon>
+                        Start
+                    </mat-button-toggle>
+                }
+                @if(controller().isActive() && !controller().isRunning()) {
+                    <mat-button-toggle (click)="resume()">
+                        <mat-icon>play_circle_outline</mat-icon>
+                        Resume
+                    </mat-button-toggle>
+                    <mat-button-toggle (click)="reset()">
+                        <mat-icon>restart_alt</mat-icon>
+                        Reset
+                    </mat-button-toggle>
+                }
             }
             @if(controller().isRunning()) {
+                @if (showBasicControls()) {
                 <mat-button-toggle (click)="stop()">
                     <mat-icon>stop</mat-icon>
                     Stop
                 </mat-button-toggle>
-                @if (!!getInstance().state.lap) {
-                    <mat-button-toggle (click)="lap()">
-                        <mat-icon>track_changes</mat-icon>
-                        Lap
+                }
+                @if(showCheckpointControls()) {
+                    @if (!!getInstance().state.lap) {
+                        <mat-button-toggle (click)="lap()">
+                            <mat-icon>track_changes</mat-icon>
+                            Lap
+                        </mat-button-toggle>
+                    }
+                    <mat-button-toggle (click)="split()">
+                        <mat-icon>call_split</mat-icon>
+                        Split
                     </mat-button-toggle>
                 }
-                <mat-button-toggle (click)="split()">
-                    <mat-icon>call_split</mat-icon>
-                    Split
-                </mat-button-toggle>
-
             }
         </mat-button-toggle-group>
 

@@ -56,6 +56,10 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
   );
   selectionMode = input(false);
 
+  showControls = input(true);
+  showBasicControls = input(true);
+  showCheckpointControls = input(true);
+
   getInstance(): ContextualStopwatchEntity {
     const inst = this.instance();
     if (!inst) {

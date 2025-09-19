@@ -114,49 +114,51 @@
                 <!-- Compact Controls Section -->
                 <div class="controls-section d-flex align-items-center gap-2">
                     <!-- Primary Controls -->
-                    <div class="primary-controls d-flex gap-1"
-                         [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
-                        @if(!controller().isActive()) {
-                            <button mat-raised-button 
-                                    color="primary"
-                                    (click)="start()"
-                                    aria-label="Start stopwatch"
-                                    class="primary-btn btn-sm">
-                                <mat-icon>play_arrow</mat-icon>
-                                Start
-                            </button>
-                        }
-                        @if(controller().isActive() && !controller().isRunning()) {
-                            <button mat-raised-button 
-                                    color="primary"
-                                    (click)="resume()"
-                                    aria-label="Resume stopwatch"
-                                    class="primary-btn btn-sm">
-                                <mat-icon>play_circle_outline</mat-icon>
-                                Resume
-                            </button>
-                            <button mat-stroked-button 
-                                    (click)="reset()"
-                                    aria-label="Reset stopwatch"
-                                    class="secondary-btn btn-sm">
-                                <mat-icon>restart_alt</mat-icon>
-                                Reset
-                            </button>
-                        }
-                        @if(controller().isRunning()) {
-                            <button mat-raised-button 
-                                    color="warn"
-                                    (click)="stop()"
-                                    aria-label="Stop stopwatch"
-                                    class="primary-btn btn-sm">
-                                <mat-icon>stop</mat-icon>
-                                Stop
-                            </button>
-                        }
-                    </div>
+                     @if(showBasicControls()) {
+                        <div class="primary-controls d-flex gap-1"
+                            [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
+                            @if(!controller().isActive()) {
+                                <button mat-raised-button 
+                                        color="primary"
+                                        (click)="start()"
+                                        aria-label="Start stopwatch"
+                                        class="primary-btn btn-sm">
+                                    <mat-icon>play_arrow</mat-icon>
+                                    Start
+                                </button>
+                            }
+                            @if(controller().isActive() && !controller().isRunning()) {
+                                <button mat-raised-button 
+                                        color="primary"
+                                        (click)="resume()"
+                                        aria-label="Resume stopwatch"
+                                        class="primary-btn btn-sm">
+                                    <mat-icon>play_circle_outline</mat-icon>
+                                    Resume
+                                </button>
+                                <button mat-stroked-button 
+                                        (click)="reset()"
+                                        aria-label="Reset stopwatch"
+                                        class="secondary-btn btn-sm">
+                                    <mat-icon>restart_alt</mat-icon>
+                                    Reset
+                                </button>
+                            }
+                            @if(controller().isRunning()) {
+                                <button mat-raised-button 
+                                        color="warn"
+                                        (click)="stop()"
+                                        aria-label="Stop stopwatch"
+                                        class="primary-btn btn-sm">
+                                    <mat-icon>stop</mat-icon>
+                                    Stop
+                                </button>
+                            }
+                        </div>
+                    }
 
                     <!-- Secondary Controls -->
-                    @if(controller().isRunning()) {
+                    @if(showCheckpointControls() && controller().isRunning()) {
                         <div class="secondary-controls d-flex gap-1"
                              [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
                             @if (!!getInstance().state.lap) {
