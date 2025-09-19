@@ -245,6 +245,20 @@
                                 Reset
                             </mat-button-toggle>
                         }
+                        @if (isTimingBehavior(['synchronized'])) {
+                            @if(canLapAll()) {
+                                <mat-button-toggle (click)="lapAll()" aria-label="Lap All">
+                                    <mat-icon>track_changes</mat-icon>
+                                    Lap
+                                </mat-button-toggle>
+                            }
+                            @if (canSplitAll()) {
+                                <mat-button-toggle (click)="splitAll()" aria-label="Split All">
+                                    <mat-icon>call_split</mat-icon>
+                                    Split
+                                </mat-button-toggle>
+                            }
+                        }
                     </mat-button-toggle-group>
                 </div>
             }

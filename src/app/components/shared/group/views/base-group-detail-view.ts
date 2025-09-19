@@ -139,4 +139,12 @@ export class BaseGroupDetailViewComponent {
   async resetAll() {
     await this.bulkOpsService.resetAll(this.getInstance().members);
   }
+
+  async splitAll() {
+    await this.bulkOpsService.splitAll(this.getInstance().members);
+  }
+
+  async lapAll() {
+    await this.bulkOpsService.lapAll(this.getInstance().members);
+  }
 }
