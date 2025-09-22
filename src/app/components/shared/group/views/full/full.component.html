@@ -10,6 +10,9 @@
             <mat-icon>close</mat-icon>
         </button>
       } @else {
+        <button matIconButton (click)="clone()" aria-label="Clone group">
+            <mat-icon>content_copy</mat-icon>
+        </button>
         <button matIconButton (click)="isEditting.set(true)" aria-label="Edit group">
             <mat-icon>edit</mat-icon>
         </button>

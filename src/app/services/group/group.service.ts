@@ -89,6 +89,25 @@ export class GroupService {
     };
   }
 
+  clone(group: StopwatchGroup): StopwatchGroup {
+    const now = TZDate.now();
+    const metadata = {
+      creation: {timestamp: now},
+      lastModification: { timestamp: now },
+      clone: { source: group.id }
+    };
+    return {
+      ...group,
+      annotation: {
+        ...group.annotation,
+        title: group.annotation.title + ' (copy)' 
+      },
+      id: crypto.randomUUID(),
+      metadata,
+      members: []
+    };
+  }
+
   /**
    * Gets default traits based on preset
    */
@@ -98,7 +117,6 @@ export class GroupService {
 
   /**
    * Creates a contextual group entity from a base entity
-   * SIMPLIFIED: Now delegates member loading to MembershipService
    */
   private async createContextualGroup(baseGroup: BaseStopwatchGroup): Promise<StopwatchGroup> {
     // DELEGATED: Get stopwatch IDs from MembershipService

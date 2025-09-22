@@ -74,6 +74,15 @@ export class BaseGroupDetailViewComponent {
     return evaluations.includes(evaluationBehavior);
   }
 
+  async clone() {
+    const instance = this.getInstance();
+    const clonedInstance = this.service.clone(instance);
+    await this.service.create(clonedInstance);
+    await Promise.all(
+      instance.members.map(stopwatch => this.service.addMember(clonedInstance.id, stopwatch.id))
+    );
+  }
+
   async delete(event: Event) {
     event.preventDefault();
     event.stopPropagation();
