@@ -27,8 +27,7 @@ export type ViewMode = 'list' | 'grid';
     MatButtonToggleModule,
     MatTooltipModule,
     StopwatchListViewComponent,
-    StopwatchListGridViewComponent,
-    GlobalActionBarComponent
+    StopwatchListGridViewComponent
   ],
   templateUrl: './stopwatch-collection.component.html',
   styleUrl: './stopwatch-collection.component.scss'

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { distinctUntilChanged, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { BaseTimerService, TimerEvent, TimerMetadata } from './base-timer.service';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 /**
  * Timer service implementation using setTimeout/setInterval for precise timing.

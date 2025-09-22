@@ -1,12 +1,11 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ContextualStopwatchEntity, GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, GroupTraits, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupPresets, PresetConfig, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
 import { GroupService } from '../../../../services/group/group.service';
 import { Router } from '@angular/router';
-import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 import { StopwatchBulkOperationsService } from '../../../../services/stopwatch/bulk-operation/stopwatch-bulk-operation-service.service';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 

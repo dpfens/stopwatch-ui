@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, StopwatchEvent, UniqueIdentifier, UnitValue, VisibleSplit } from '../../../../models/sequence/interfaces';
+import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, UniqueIdentifier, VisibleSplit } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DurationFormatOptions, TimeService } from '../../../../services/time/time.service';

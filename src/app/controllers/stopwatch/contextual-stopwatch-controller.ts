@@ -13,7 +13,7 @@ import { AnnotationController } from "../annotation-controller";
  * and provides operations for controlling and analyzing stopwatch events.
  */
 export class ContextualStopwatchController extends AnnotationController implements IContextualStopwatchController {
-  private state: StopwatchState = { sequence: [] };
+  private state: StopwatchState = { sequence: [], lap: null };
   private objective?: Objective;
   
   /**
