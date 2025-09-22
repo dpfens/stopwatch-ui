@@ -13,6 +13,11 @@ export interface BaseCreationModificationDates {
     lastModification: ActionTracking;
 }
 
+export interface SerializedBaseCreationModificationDates {
+    readonly creation: SerializedActionTracking;
+    lastModification: SerializedActionTracking;
+}
+
 interface CloneMetadata {
     source: UniqueIdentifier;
 }
@@ -20,12 +25,20 @@ interface CloneMetadata {
 
 export interface CreationModificationDates extends BaseCreationModificationDates {
     clone?: CloneMetadata;
+    finalized?: ActionTracking;
 }
 
-export interface SerializedCreationModificationDates {
-    readonly creation: SerializedActionTracking;
-    lastModification: SerializedActionTracking;
+export interface SerializedCreationModificationDates extends SerializedBaseCreationModificationDates {
     clone?: CloneMetadata;
+    finalized?: SerializedActionTracking;
+}
+
+export interface StopwatchMetadata extends CreationModificationDates {
+    finalized?: ActionTracking;
+}
+
+export interface SerializedStopwatchMetadata extends SerializedCreationModificationDates {
+    finalized?: SerializedActionTracking;
 }
 
 
@@ -111,7 +124,7 @@ export interface TimeStampRange {
 
 export interface BaseEvent<T extends StopWatchEventType | ComputedEventType> extends UniquelyIdentifiable {
     annotation: Annotatable;
-    metadata: CreationModificationDates;
+    metadata: BaseCreationModificationDates;
     type: T;
     unit?: UnitValue;
 }
@@ -125,7 +138,7 @@ export interface StopwatchEvent extends BaseEvent<StopWatchEventType> {
 
 export interface SerializedStopwatchEvent extends Omit<StopwatchEvent, 'timestamp' | 'metadata'> {
     timestamp: TimeZonedDate;
-    metadata: SerializedCreationModificationDates;
+    metadata: SerializedBaseCreationModificationDates;
 }
 
 /**
@@ -150,7 +163,7 @@ export interface BaseStopwatchEntity extends UniquelyIdentifiable {
     id: string;
     annotation: Annotatable;
     state: StopwatchState;
-    metadata: CreationModificationDates;
+    metadata: StopwatchMetadata;
 }
 
 export interface StopwatchEntity extends BaseStopwatchEntity {
@@ -167,7 +180,7 @@ export interface SerializedStopwatchEntity extends Omit<BaseStopwatchEntity, 'me
         type: ObjectiveType;
         configuration?: Record<string, unknown>
     };
-    metadata: SerializedCreationModificationDates;
+    metadata: SerializedStopwatchMetadata;
 }
 
 export type GroupTimingBehavior = 
