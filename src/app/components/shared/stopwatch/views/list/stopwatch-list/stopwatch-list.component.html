@@ -2,10 +2,12 @@
 
 }
 @else {
-    @for (instance of instances(); track instance.id) {
-        <stopwatch-list-detail-view [id]="instance.id"></stopwatch-list-detail-view>
-    } @empty {
-        <span>No stopwatches found.</span>
+    @if(instances().length > 0) {
+        <div class="row row-gap-2">
+        @for (instance of instances(); track instance.id) {
+            <stopwatch-list-detail-view [id]="instance.id" class="col-12 col-md-6 col-lg-4"></stopwatch-list-detail-view>
+        }
+        </div>
     }
 }
 @if(selectionService.hasSelection()) {

@@ -10,9 +10,9 @@
 
     <!-- Selection Checkbox -->
     <div class="selection-checkbox-container"
+        (click)="onSelectionChange($event)"
          [class.visible]="selectionMode() || hasAnySelection()">
         <mat-icon
-            (click)="onSelectionChange($event)"
             role="checkbox"
             [attr.aria-checked]="isSelected()"
             aria-label="Select stopwatch"
@@ -31,7 +31,6 @@
     <!-- Main Content Container -->
     <div class="list-item-content">
         @if(!displaySettings()) {
-
             <!-- Compact Header Row -->
             <div class="header-row d-flex align-items-center justify-content-between gap-3 py-2">
                 <!-- Title and Status Section -->
@@ -41,18 +40,6 @@
                             <h5 class="stopwatch-title fw-semibold text-truncate mb-0">
                                 {{ getInstance().annotation.title || 'Untitled Stopwatch' }}
                             </h5>
-                            <div class="status-indicators d-flex align-items-center gap-1">
-                                @if(controller().isRunning()) {
-                                    <mat-icon class="status-icon running text-success" matTooltip="Running" style="font-size: 18px;">play_circle</mat-icon>
-                                } @else if(controller().isActive()) {
-                                    <mat-icon class="status-icon paused text-warning" matTooltip="Paused" style="font-size: 18px;">pause_circle</mat-icon>
-                                } @else {
-                                    <mat-icon class="status-icon inactive text-muted" matTooltip="Stopped" style="font-size: 18px;">stop_circle</mat-icon>
-                                }
-                                @if(getInstance().state.lap) {
-                                    <mat-icon class="feature-icon text-info" matTooltip="Lap tracking enabled" style="font-size: 16px;">track_changes</mat-icon>
-                                }
-                            </div>
                         </div>
                         @if(getInstance().annotation.description) {
                             <p class="description text-muted small mb-0 text-truncate">{{ getInstance().annotation.description }}</p>
@@ -112,10 +99,10 @@
                 
 
                 <!-- Compact Controls Section -->
-                <div class="controls-section d-flex align-items-center gap-2">
+                <div class="controls-section d-flex flex-column flex-wrap align-items-center gap-2">
                     <!-- Primary Controls -->
                      @if(showBasicControls()) {
-                        <div class="primary-controls d-flex gap-1"
+                        <div class="primary-controls d-flex flex-column flex-wrap gap-1"
                             [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
                             @if(!controller().isActive()) {
                                 <button mat-raised-button 
