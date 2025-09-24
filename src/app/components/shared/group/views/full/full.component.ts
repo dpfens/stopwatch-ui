@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { BaseGroupDetailViewComponent } from '../base-group-detail-view';
@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { StopwatchCollectionViewComponent } from '../../../stopwatch/collection/stopwatch-collection.component';
+import { SimpleTimerComponent } from "../../../timer/timer.component";
 
 // Define the form structure interface
 interface GroupForm {
@@ -37,7 +38,8 @@ interface GroupForm {
     MatButtonToggleModule,
     MatIconModule,
     MatTooltipModule,
-    StopwatchCollectionViewComponent
+    StopwatchCollectionViewComponent,
+    SimpleTimerComponent
 ],
   templateUrl: './full.component.html',
   styleUrl: './full.component.scss'
@@ -45,7 +47,7 @@ interface GroupForm {
 export class FullGroupDetailComponent extends BaseGroupDetailViewComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-  private isUpdatingPreset = false; // Flag to prevent infinite loops
+  private isUpdatingPreset = false;
 
   isEditting = signal(false);
   

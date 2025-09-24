@@ -8,6 +8,7 @@ import { GroupService } from '../../../../services/group/group.service';
 import { Router } from '@angular/router';
 import { StopwatchBulkOperationsService } from '../../../../services/stopwatch/bulk-operation/stopwatch-bulk-operation-service.service';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
+import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 
 
 @Component({
@@ -72,6 +73,14 @@ export class BaseGroupDetailViewComponent {
     }
     return evaluations.includes(evaluationBehavior);
   }
+
+  /**
+   * Calculates the total umulative time elapsed by all group stopwatches
+   */
+  readonly cumulativeTotalCalc = () => {
+    const controllers = this.getInstance().members.map(sw => new StopwatchStateController(sw.state));
+    return controllers.reduce((acc, controller) => acc + controller.getElapsedTime(), 0);
+  };
 
   async clone() {
     const instance = this.getInstance();

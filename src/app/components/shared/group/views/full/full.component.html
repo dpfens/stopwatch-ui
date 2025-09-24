@@ -214,6 +214,20 @@
         }
     </form>
   } @else {
+    @if(hasEvaluationBehavior('cumulative')) {
+        <div class="duration-display primary mb-1">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="duration-label fw-medium text-uppercase" style="font-size: 10px; line-height: 1;">cumulative</span>
+                                <simple-timer
+                                    [getDuration]="cumulativeTotalCalc"
+                                    [isRunning]="canStopAll()"
+                                    [includeMs]="true"
+                                    class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;"
+                                ></simple-timer>
+                                <span class="duration-label text-muted fw-medium text-uppercase mt-2" style="font-size: 10px; line-height: 1;">of {{ getInstance().members.length }} stopwatches</span>
+                            </div>
+                        </div>
+    }
     @if (getInstance().members.length) {
         <mat-card-content class="mt-5 mb-3">
             @if(isTimingBehavior(['parallel', 'synchronized'])) {

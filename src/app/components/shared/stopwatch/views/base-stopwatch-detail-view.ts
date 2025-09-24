@@ -1,13 +1,9 @@
-import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, OnDestroy, input, effect, OnInit } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
+import { AfterViewInit, Component, computed, inject, signal, WritableSignal, DestroyRef, input, effect, OnInit } from '@angular/core';
 import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, UniqueIdentifier, VisibleSplit } from '../../../../models/sequence/interfaces';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DurationFormatOptions, TimeService } from '../../../../services/time/time.service';
+import { TimeService } from '../../../../services/time/time.service';
 import { LapUnits, Time } from '../../../../utilities/constants';
-import { AnimationTimerService } from '../../../../services/timer/animation-timer.service';
-import { TimerService } from '../../../../services/timer/timer.service';
 import { FormBuilder, FormControl, FormsModule, Validators } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
@@ -23,29 +19,16 @@ interface StopwatchSettingsForm {
   groups: FormControl<UniqueIdentifier[]>;
 }
 
-type DurationCalculator = () => number;
-type DurationUpdater = (durationMs: number, durationFormat: DurationFormatOptions) => void;
-
-interface TimerSubscription {
-  id: string;
-  calculator: DurationCalculator;
-  updater: DurationUpdater;
-  subscription?: any;
-  lastDuration: number;
-}
-
 @Component({
   selector: 'base-stopwatch-detail-view',
   imports: [FormsModule],
   template: ''
 })
-export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   protected readonly service = inject(StopwatchService);
   protected readonly groupService = inject(GroupService);
   protected readonly timeService = inject(TimeService);
   protected readonly snackbar = inject(MatSnackBar);
-  protected readonly animationTimer = inject(AnimationTimerService);
-  protected readonly intervalTimer = inject(TimerService);
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly fb = inject(FormBuilder);
   protected readonly selectionService = inject(StopwatchSelectionService);
@@ -73,11 +56,27 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
   error = this.service.error;
   displaySettings = signal(false);
   lapUnits: SelectOptGroup<string>[] = LapUnits;
-
-  totalDuration: WritableSignal<DurationFormatOptions> = signal({milliseconds: Time.ZERO});
-  splitDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
-  lapDuration: WritableSignal<DurationFormatOptions | undefined> = signal(undefined);
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
+
+  readonly hasSplits = computed(() => 
+    this.controller().getEvents('split').length > 0
+  );
+
+  readonly hasLaps = computed(() => 
+    this.controller().getEvents('lap').length > 0
+  );
+
+  readonly totalDurationCalc = () => this.controller().getElapsedTime();
+  
+  readonly splitDurationCalc = () => {
+    const lastSplitEvent = this.controller().getState().sequence.findLast(event => event.type === 'split');
+    return lastSplitEvent ? this.controller().getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
+  };
+  
+  readonly lapDurationCalc = () => {
+    const lastLapEvent = this.controller().getState().sequence.findLast(event => event.type === 'lap');
+    return lastLapEvent ? this.controller().getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
+  };
 
   // Strongly-typed reactive form
   settingsForm = this.fb.group<StopwatchSettingsForm>({
@@ -94,9 +93,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     const lapUnit = this.settingsForm.controls.lapUnit.value;
     return !!(lapValue && lapUnit);
   });
-
-  private activeTimers: Map<string, TimerSubscription> = new Map();
-  private stopTimers$ = new Subject<void>();
 
   private _controllerCache?: IStopwatchStateController;
   private _lastInstanceVersion?: string;
@@ -146,10 +142,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     effect(() => {
       const instance = this.instance();
       if (!instance) return;
-      
-      // Track the modification timestamp to detect external changes
-      const modificationTimestamp = instance.metadata.lastModification?.timestamp;
-      
       // Update component state when instance changes externally
       // This will trigger when bulk operations update the stopwatch
       this.refreshComponentState();
@@ -161,38 +153,8 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     
     if (controller.isActive()) {
       this.buildSplits();
-      this.updateStaticDurations();
-      
-      // Only start clock if currently running and timers aren't already active
-      if (controller.isRunning() && this.activeTimers.size === 0) {
-        this.startClock();
-      } else if (!controller.isRunning()) {
-        this.cancelInstanceTimers();
-      }
     } else {
-      // Reset for inactive stopwatches
-      this.totalDuration.set({milliseconds: Time.ZERO});
-      this.splitDuration.set(undefined);
-      this.lapDuration.set(undefined);
       this.visibleSplits.set([]);
-      this.cancelInstanceTimers();
-    }
-  }
-
-  private updateStaticDurations(): void {
-    const controller = this.controller();
-    
-    if (!controller.isRunning()) {
-      const rawTotalElapsedTime = controller.getElapsedTime();
-      this.totalDuration.set(this.timeService.toDurationObject(rawTotalElapsedTime));
-
-      const lastSplitEvent = controller.getState().sequence.findLast(event => event.type === 'split');
-      const rawSplitElapsedTime = lastSplitEvent ? controller.getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
-      this.splitDuration.set(rawSplitElapsedTime > 0 ? this.timeService.toDurationObject(rawSplitElapsedTime) : undefined);
-
-      const lastLapEvent = controller.getState().sequence.findLast(event => event.type === 'lap');
-      const rawLapElapsedTime = lastLapEvent ? controller.getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
-      this.lapDuration.set(rawLapElapsedTime > 0 ? this.timeService.toDurationObject(rawLapElapsedTime) : undefined);
     }
   }
 
@@ -204,16 +166,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     const controller = this.controller();
     if (controller.isActive()) {
       this.buildSplits();
-      if (controller.isRunning()) {
-        this.startClock();
-      } else {
-        this.updateStaticDurations();
-      }
     }
-  }
-
-  ngOnDestroy(): void {
-    this.cancelInstanceTimers();
   }
 
   private initializeForm(): void {
@@ -376,7 +329,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
   async start() {
     const now = new Date();
     this.controller().start(now);
-    this.startClock();
     const metadata = {...this.getInstance().metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
@@ -387,7 +339,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
   async stop() {
     const now = new Date();
     this.controller().stop(now);
-    this.cancelInstanceTimers();
     const metadata = {...this.getInstance().metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
@@ -398,7 +349,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
   async resume() {
     const now = new Date();
     this.controller().resume(now);
-    this.startClock();
     const metadata = {...this.getInstance().metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
@@ -446,11 +396,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     const now = new Date();
     this.controller().reset(now);
     const defaultTime = {milliseconds: 0};
-    this.totalDuration.set(defaultTime);
-    this.splitDuration.set(undefined);
-    this.lapDuration.set(undefined);
     this.visibleSplits.set([]);
-    this.cancelInstanceTimers();
 
     const instance = this.getInstance();
     const metadata = {...instance.metadata};
@@ -482,227 +428,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit, 
     await this.service.delete(instance.id);
     this.snackbar.open(`Deleted stopwatch "${instance.annotation.title || instance.id}"`, 'Close');
     setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
-  }
-
-  /**
-   * Starts all duration timers using the appropriate timer service based on duration.
-   * Automatically switches between fast (RAF) and slow (setTimeout) timers as needed.
-   */
-  startClock() {
-    // Stop any existing timers for this instance first
-    this.cancelInstanceTimers();
-
-    // Start updating total duration
-    this.startDurationTimer(
-      'total',
-      () => this.controller().getElapsedTime(),
-      (durationMs, durationFormat) => {
-        this.totalDuration.set(durationFormat);
-      }
-    );
-
-    // Start updating split duration if we have split events
-    this.startDurationTimer(
-      'split',
-      () => {
-        const lastSplitEvent = this.controller().getState().sequence.findLast(event => event.type === 'split');
-        return lastSplitEvent ? this.controller().getElapsedTimeBetweenEvents(lastSplitEvent.id, null) : 0;
-      },
-      (durationMs, durationFormat) => {
-        if (durationMs > 0) {
-          this.splitDuration.set(durationFormat);
-        } else {
-          this.splitDuration.set(undefined);
-        }
-      }
-    );
-
-    // Start updating lap duration if we have lap events
-    this.startDurationTimer(
-      'lap',
-      () => {
-        const lastLapEvent = this.controller().getState().sequence.findLast(event => event.type === 'lap');
-        return lastLapEvent ? this.controller().getElapsedTimeBetweenEvents(lastLapEvent.id, null) : 0;
-      },
-      (durationMs, durationFormat) => {
-        if (durationMs > 0) {
-          this.lapDuration.set(durationFormat);
-        } else {
-          this.lapDuration.set(undefined);
-        }
-      }
-    );
-  }
-
-  /**
-   * Starts a duration timer using the appropriate timer service.
-   * Automatically switches between AnimationTimerService (for smooth updates under 1 minute)
-   * and TimerService (for efficient updates over 1 minute).
-   * 
-   * @param timerType - Type of timer ('total', 'split', 'lap')
-   * @param calculateDuration - Function that returns the current duration in milliseconds
-   * @param updateCallback - Function that updates the appropriate signal/display
-   * @private
-   */
-  private startDurationTimer(
-    timerType: string,
-    calculateDuration: DurationCalculator,
-    updateCallback: DurationUpdater
-  ) {
-    if (!this.controller().isRunning()) {
-      return;
-    }
-
-    // Create instance-specific timer ID
-    const timerId = `${this.getInstance().id}-${timerType}`;
-
-    // Calculate initial duration to determine timer type
-    const initialDuration = calculateDuration();
-    const useAnimationTimer = initialDuration < Time.ONE_MINUTE;
-    const durationFormat = this.timeService.toDurationObject(initialDuration);
-    if (!useAnimationTimer) {
-      durationFormat.milliseconds = 0;
-    }
-    updateCallback(initialDuration, durationFormat);
-
-    // Create timer subscription record
-    const timerSub: TimerSubscription = {
-      id: timerId,
-      calculator: calculateDuration,
-      updater: updateCallback,
-      lastDuration: initialDuration
-    };
-
-    // Choose appropriate timer service based on duration
-    const timerService = useAnimationTimer ? this.animationTimer : this.intervalTimer;
-    
-    // Create timer configuration with instance-specific ID
-    const timerConfig = {
-      id: timerId,
-      delay: useAnimationTimer ? Time.ONE_MINUTE : Time.ONE_SECOND, // Switch threshold or interval
-      repeat: true,
-      immediate: false
-    };
-
-    // Subscribe to timer events
-    timerSub.subscription = timerService.createTimer(timerConfig).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: (event) => {
-        if (event.type === 'tick') {
-          this.updateDuration(timerSub);
-        }
-      },
-      error: (error) => {
-        console.error(`Timer ${timerId} error:`, error);
-      }
-    });
-
-    // Store the subscription for cleanup
-    this.activeTimers.set(timerId, timerSub);
-  }
-
-  /**
-   * Updates a duration timer and potentially switches timer types based on duration.
-   * 
-   * @param timerSub - Timer subscription to update
-   * @private
-   */
-  private updateDuration(timerSub: TimerSubscription) {
-    if (!this.controller().isRunning()) {
-      return;
-    }
-
-    const currentDuration = timerSub.calculator();
-    const includeMs = currentDuration < Time.ONE_MINUTE;
-    const durationFormat = this.timeService.toDurationObject(currentDuration);
-    durationFormat.milliseconds = durationFormat.milliseconds || 0;
-    if (includeMs) {
-      durationFormat.milliseconds = parseInt(durationFormat.milliseconds.toString().substring(0, 3).padEnd(3, '0'));
-    } else {
-      durationFormat.milliseconds = 0;
-    }
-    timerSub.updater(currentDuration, durationFormat);
-
-    // Check if we need to switch timer types
-    const wasUnderMinute = timerSub.lastDuration < Time.ONE_MINUTE;
-    const isUnderMinute = currentDuration < Time.ONE_MINUTE;
-
-    if (wasUnderMinute !== isUnderMinute) {
-      // Cancel current subscription
-      if (timerSub.subscription) {
-        timerSub.subscription.unsubscribe();
-      }
-
-      // Extract timer type from the ID (format: instanceId-timerType)
-      const timerType = timerSub.id.split('-').pop() || 'unknown';
-      
-      // Restart with new timer type
-      this.startDurationTimer(timerType, timerSub.calculator, timerSub.updater);
-    }
-
-    timerSub.lastDuration = currentDuration;
-  }
-
-  /**
-   * Cancels all timers specific to this stopwatch instance.
-   * Does not affect timers from other stopwatch instances.
-   * @private
-   */
-  private cancelInstanceTimers(): void {
-    const instanceId = this.id();
-    const timerTypes = ['total', 'split', 'lap'];
-    
-    timerTypes.forEach(timerType => {
-      const timerId = `${instanceId}-${timerType}`;
-      
-      // Cancel timer in the appropriate service
-      this.animationTimer.cancelTimer(timerId);
-      this.intervalTimer.cancelTimer(timerId);
-      
-      // Clean up local subscription tracking
-      const timerSub = this.activeTimers.get(timerId);
-      if (timerSub?.subscription) {
-        timerSub.subscription.unsubscribe();
-      }
-      this.activeTimers.delete(timerId);
-    });
-  }
-
-  /**
-   * Stops all active timers and cleans up subscriptions.
-   * @deprecated Use cancelInstanceTimers() instead to avoid affecting other instances
-   * @private
-   */
-  private stopAllTimers(): void {
-    console.warn('stopAllTimers() is deprecated and affects all instances. Use cancelInstanceTimers() instead.');
-    this.activeTimers.forEach(timerSub => {
-      if (timerSub.subscription) {
-        timerSub.subscription.unsubscribe();
-      }
-    });
-    this.activeTimers.clear();
-    this.stopTimers$.next();
-  }
-
-  /**
-   * Manually pause all timer services globally.
-   * ⚠️ Warning: This affects ALL stopwatch instances, not just this one.
-   * Useful for debugging or global pause control.
-   */
-  pauseTimers(): void {
-    this.animationTimer.pause();
-    this.intervalTimer.pause();
-  }
-
-  /**
-   * Manually resume all timer services globally.
-   * ⚠️ Warning: This affects ALL stopwatch instances, not just this one.
-   * Useful for debugging or global resume control.
-   */
-  resumeTimers(): void {
-    this.animationTimer.resume();
-    this.intervalTimer.resume();
   }
 
   private buildSplits() {

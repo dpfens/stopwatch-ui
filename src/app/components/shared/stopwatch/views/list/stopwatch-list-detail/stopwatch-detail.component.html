@@ -64,31 +64,40 @@
                         <div class="duration-display primary mb-1">
                             <div class="d-flex flex-column align-items-end">
                                 <span class="duration-label text-muted fw-medium" style="font-size: 10px; line-height: 1;">TOTAL</span>
-                                <time class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;">
-                                    {{ timeService.durationFormatter().format(totalDuration()) }}
-                                </time>
+                                <simple-timer
+                                                [getDuration]="totalDurationCalc"
+                                                [isRunning]="controller().isRunning()"
+                                                [includeMs]="true"
+                                                class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;"
+                                            ></simple-timer>
                             </div>
                         </div>
                         
-                        @if(!!splitDuration() || !!lapDuration()) {
+                        @if(!!hasSplits() || !!hasLaps()) {
                             <div class="secondary-durations d-flex gap-3">
-                                @if(!!lapDuration()) {
+                                @if(hasLaps()) {
                                     <div class="duration-display secondary text-end">
                                         <div class="d-flex flex-column align-items-end">
                                             <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">LAP</span>
-                                            <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
-                                                {{ timeService.durationFormatter().format(lapDuration()!) }}
-                                            </time>
+                                            <simple-timer
+                                                [getDuration]="lapDurationCalc"
+                                                [isRunning]="controller().isRunning()"
+                                                [includeMs]="true"
+                                                class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;"
+                                            ></simple-timer>
                                         </div>
                                     </div>
                                 }
-                                @if(!!splitDuration()) {
+                                @if(hasSplits()) {
                                     <div class="duration-display secondary text-end">
                                         <div class="d-flex flex-column align-items-end">
                                             <span class="duration-label text-muted fw-normal" style="font-size: 9px; line-height: 1;">SPLIT</span>
-                                            <time class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;">
-                                                {{ timeService.durationFormatter().format(splitDuration()!) }}
-                                            </time>
+                                            <simple-timer
+                                                [getDuration]="splitDurationCalc"
+                                                [isRunning]="controller().isRunning()"
+                                                [includeMs]="true"
+                                                class="duration-time fw-medium text-secondary" style="font-size: 14px; line-height: 1.1;"
+                                            ></simple-timer>
                                         </div>
                                     </div>
                                 }

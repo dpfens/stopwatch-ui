@@ -157,20 +157,35 @@
         <div class="d-flex justify-content-around align-items-center mt-3 duration-display-container">
             <div class="d-flex flex-column align-items-start duration-block total">
                 <label class="text-uppercase">total</label>
-                <time class="duration-time">{{ timeService.durationFormatter().format(totalDuration()) }}</time>
+                <simple-timer
+                                [getDuration]="totalDurationCalc"
+                                [isRunning]="controller().isRunning()"
+                                [includeMs]="true"
+                                class="duration-time"
+                            ></simple-timer>
             </div>
-            @if(!!splitDuration() || !!lapDuration()) {
+            @if(hasLaps() || hasSplits()) {
                 <div class="d-flex flex-column">
-                    @if(!!lapDuration()) {
+                    @if(!!hasLaps()) {
                         <div class="d-flex flex-column align-items-start duration-block secondary">
                             <label class="text-uppercase">lap</label>
-                            <time class="duration-time">{{ timeService.durationFormatter().format(lapDuration()!) }}</time>
+                            <simple-timer
+                                [getDuration]="lapDurationCalc"
+                                [isRunning]="controller().isRunning()"
+                                [includeMs]="true"
+                                class="duration-time"
+                            ></simple-timer>
                         </div>
                     }
-                    @if(!!splitDuration()) {
-                        <div class="d-flex flex-column align-items-start duration-block secondary" [class.mt-3]="lapDuration()">
+                    @if(hasSplits()) {
+                        <div class="d-flex flex-column align-items-start duration-block secondary" [class.mt-3]="hasLaps()">
                             <label class="text-uppercase">split</label>
-                            <time class="duration-time">{{ timeService.durationFormatter().format(splitDuration()!) }}</time>
+                            <simple-timer
+                                [getDuration]="splitDurationCalc"
+                                [isRunning]="controller().isRunning()"
+                                [includeMs]="true"
+                                class="duration-time"
+                            ></simple-timer>
                         </div>
                     }
                 </div> 
