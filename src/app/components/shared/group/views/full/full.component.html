@@ -220,7 +220,7 @@
                                 <span class="duration-label fw-medium text-uppercase" style="font-size: 10px; line-height: 1;">cumulative</span>
                                 <simple-timer
                                     [getDuration]="cumulativeTotalCalc"
-                                    [isRunning]="canStopAll()"
+                                    [isRunning]="canStopAny()"
                                     [includeMs]="true"
                                     class="duration-time fw-bold text-dark" style="font-size: 20px; line-height: 1.2;"
                                 ></simple-timer>
@@ -230,7 +230,7 @@
     }
     @if (getInstance().members.length) {
         <mat-card-content class="mt-5 mb-3">
-            @if(isTimingBehavior(['parallel', 'synchronized'])) {
+            @if(isTimingBehavior(['parallel', 'synchronized', 'sequential'])) {
                 <div class="text-center">
                     <mat-button-toggle-group
                         class="mb-3 control-buttons"
@@ -238,38 +238,49 @@
                         aria-label="Group Action"
                         [hideSingleSelectionIndicator]="true"
                         >
-                        @if(canStartAll()) {
-                            <mat-button-toggle (click)="startAll()" aria-label="Start All">
-                                <mat-icon>play_arrow</mat-icon>
-                                Start
-                            </mat-button-toggle>
+                        @if (isTimingBehavior('sequential')) {
+                            @if(canStartAny()) {
+                                <mat-button-toggle (click)="startNext()" aria-label="Start Next">
+                                    <mat-icon>next_plan</mat-icon>
+                                    Next
+                                </mat-button-toggle>
+                            }
                         }
-                        @if(canResumeAll()) {
-                            <mat-button-toggle (click)="resumeAll()" aria-label="Resume All">
-                                <mat-icon>play_circle_outline</mat-icon>
-                                Resume
-                            </mat-button-toggle>
+                        @if(!isTimingBehavior('sequential')) {
+                            @if(canStartAny()) {
+                                <mat-button-toggle (click)="startAll()" aria-label="Start All">
+                                    <mat-icon>play_arrow</mat-icon>
+                                    Start
+                                </mat-button-toggle>
+                            }
+                            @if(canResumeAny()) {
+                                <mat-button-toggle (click)="resumeAll()" aria-label="Resume All">
+                                    <mat-icon>play_circle_outline</mat-icon>
+                                    Resume
+                                </mat-button-toggle>
+                            }
                         }
-                        @if(canStopAll()) {
+                        
+                        @if(canStopAny()) {
                             <mat-button-toggle (click)="stopAll()" aria-label="Stop All">
                                 <mat-icon>stop</mat-icon>
                                 Stop
                             </mat-button-toggle>
                         }
-                        @if(canResetAll()) {
+                        @if(canResetAny()) {
                             <mat-button-toggle (click)="resetAll()" aria-label="Reset All">
                                 <mat-icon>restart_alt</mat-icon>
                                 Reset
                             </mat-button-toggle>
                         }
-                        @if (isTimingBehavior(['synchronized'])) {
-                            @if(canLapAll()) {
+                        @if (isTimingBehavior(['parallel', 'synchronized'])) {
+                            @if(canLapAny()) {
                                 <mat-button-toggle (click)="lapAll()" aria-label="Lap All">
                                     <mat-icon>track_changes</mat-icon>
                                     Lap
                                 </mat-button-toggle>
                             }
-                            @if (canSplitAll()) {
+                            @if (canSplitAny()) {
                                 <mat-button-toggle (click)="splitAll()" aria-label="Split All">
                                     <mat-icon>call_split</mat-icon>
                                     Split
@@ -277,6 +288,8 @@
                             }
                         }
                     </mat-button-toggle-group>
+
+
                 </div>
             }
             <stopwatch-collection-view [instances]="getInstance().members" [showControls]="false" gridClasses="col-12 col-lg-6 col-xl-4">

@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
+import { ContextualStopwatchEntity, GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
 import { GroupPresets, PresetConfig, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
@@ -75,7 +75,7 @@ export class BaseGroupDetailViewComponent {
   }
 
   /**
-   * Calculates the total umulative time elapsed by all group stopwatches
+   * Calculates the total cumulative time elapsed by all group stopwatches
    */
   readonly cumulativeTotalCalc = () => {
     const controllers = this.getInstance().members.map(sw => new StopwatchStateController(sw.state));
@@ -110,37 +110,76 @@ export class BaseGroupDetailViewComponent {
 
 
   // Computed command availability based on selected stopwatches
-  readonly canStartAll = computed(() => {
+  readonly canStartAny = computed(() => {
     const instances = this.getInstance().members;
     return instances.length > 0 && instances.some(sw => !this.stopwatchService.isStopwatchActive(sw));
   });
+
+  readonly canStartAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.every(sw => !this.stopwatchService.isStopwatchActive(sw));
+  });
   
-  readonly canStopAll = computed(() => {
+  // Stop actions
+  readonly canStopAny = computed(() => {
     const instances = this.getInstance().members;
     return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
   });
-  
-  readonly canResumeAll = computed(() => {
+
+  readonly canStopAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
+  });
+
+  // Resume actions
+  readonly canResumeAny = computed(() => {
     const instances = this.getInstance().members;
     return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchStopped(sw));
   });
-  
+
+  readonly canResumeAll = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchStopped(sw));
+  });
+
+  // Reset actions
+  readonly canResetAny = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchActive(sw));
+  });
+
   readonly canResetAll = computed(() => {
     const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchActive(sw) && this.stopwatchService.isStopwatchActive(sw));
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchActive(sw));
   });
-  
+
+  // Split actions
+  readonly canSplitAny = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
+  });
+
   readonly canSplitAll = computed(() => {
     const instances = this.getInstance().members;
     return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
   });
-  
+
+  // Lap actions
+  readonly canLapAny = computed(() => {
+    const instances = this.getInstance().members;
+    return instances.length > 0 && 
+          instances.some(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
+  });
+
   readonly canLapAll = computed(() => {
     const instances = this.getInstance().members;
     return instances.length > 0 && 
-           instances.every(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
+          instances.every(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
   });
 
+  /**
+   * Globally applicable group actions
+   */
   async startAll() {
     await this.bulkOpsService.startAll(this.getInstance().members);
   }
@@ -163,5 +202,42 @@ export class BaseGroupDetailViewComponent {
 
   async lapAll() {
     await this.bulkOpsService.lapAll(this.getInstance().members);
+  }
+
+  /**
+   * Actions unique to the "Sequential" timing behavior
+   */
+  async startNext() {
+    const now = new Date();
+    const stopwatches = this.getInstance().members;
+    const runningStopwatch = stopwatches.findLast(sw => new StopwatchStateController(sw.state).isRunning());
+    const inactiveStopwatch = stopwatches.find(sw => !(new StopwatchStateController(sw.state).isActive()));
+    if (runningStopwatch) {
+      await this.stop(runningStopwatch, now);
+    }
+    if (inactiveStopwatch) {
+        await this.start(inactiveStopwatch, now);
+    }
+  }
+
+
+  async start(stopwatch: ContextualStopwatchEntity, timestamp: Date) {
+    const controller = new StopwatchStateController(stopwatch.state);
+    controller.start(timestamp);
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
+      timestamp: TZDate.now()
+    };
+    await this.stopwatchService.update({...stopwatch, metadata, state: controller.getState()});
+  }
+
+  async stop(stopwatch: ContextualStopwatchEntity, timestamp: Date) {
+    const controller = new StopwatchStateController(stopwatch.state);
+    controller.stop(timestamp);
+    const metadata = {...this.getInstance().metadata};
+    metadata.lastModification = {
+      timestamp: TZDate.now()
+    };
+    await this.stopwatchService.update({...stopwatch, metadata, state: controller.getState()});
   }
 }
