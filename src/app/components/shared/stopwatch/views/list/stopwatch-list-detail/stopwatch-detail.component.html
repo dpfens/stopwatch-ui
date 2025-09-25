@@ -32,14 +32,12 @@
     <div class="list-item-content">
         @if(!displaySettings()) {
             <!-- Compact Header Row -->
-            <div class="header-row d-flex align-items-stretch justify-content-between gap-3 py-2">
+            <div class="header-row d-flex justify-content-between gap-3 py-2">
                 <!-- Title and Status Section -->
-                <div class="title-section min-w-0">
-                    <div class="mb-1">
+                <div class="title-section min-w-0 mb-1">
                         <h5 class="stopwatch-title fw-semibold text-truncate mb-0">
                             {{ getInstance().annotation.title || 'Untitled' }}
                         </h5>
-                    </div>
                     @if(getInstance().annotation.description) {
                         <p class="description text-muted small mb-0 text-truncate">{{ getInstance().annotation.description }}</p>
                     }
@@ -92,7 +90,7 @@
                 
 
                 <!-- Compact Controls Section -->
-                <div class="controls-section d-flex">
+                <div class="controls-section">
                     <!-- Compact Menu -->
                     <div class="menu-section">
                         <button mat-icon-button 
@@ -121,73 +119,53 @@
                 </div>
             </div>
 
-            <div class="d-flex text-center justify-content-evenly">
-                <!-- Primary Controls -->
+            <div class="text-center">
+                <mat-button-toggle-group
+            class="my-3 control-buttons"
+            name="favoriteColor"
+            aria-label="Favorite Color"
+            [hideSingleSelectionIndicator]="true"
+            [class.disabled-in-selection]="selectionMode() || hasAnySelection()"
+            >
                 @if(showBasicControls()) {
-                <div class="primary-controls d-flex gap-1"
-                    [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
                     @if(!controller().isActive()) {
-                        <button mat-raised-button 
-                                color="primary"
-                                (click)="start()"
-                                aria-label="Start stopwatch"
-                                class="primary-btn btn-sm">
+                        <mat-button-toggle (click)="start()">
                             <mat-icon>play_arrow</mat-icon>
                             Start
-                        </button>
+                        </mat-button-toggle>
                     }
                     @if(controller().isActive() && !controller().isRunning()) {
-                        <button mat-raised-button 
-                                color="primary"
-                                (click)="resume()"
-                                aria-label="Resume stopwatch"
-                                class="primary-btn btn-sm">
+                        <mat-button-toggle (click)="resume()">
                             <mat-icon>play_circle_outline</mat-icon>
                             Resume
-                        </button>
-                        <button mat-stroked-button 
-                                (click)="reset()"
-                                aria-label="Reset stopwatch"
-                                class="secondary-btn btn-sm">
+                        </mat-button-toggle>
+                        <mat-button-toggle (click)="reset()">
                             <mat-icon>restart_alt</mat-icon>
                             Reset
-                        </button>
+                        </mat-button-toggle>
                     }
-                    @if(controller().isRunning()) {
-                        <button mat-raised-button 
-                                color="warn"
-                                (click)="stop()"
-                                aria-label="Stop stopwatch"
-                                class="primary-btn btn-sm">
-                            <mat-icon>stop</mat-icon>
-                            Stop
-                        </button>
+                }
+                @if(controller().isRunning()) {
+                    @if (showBasicControls()) {
+                    <mat-button-toggle (click)="stop()">
+                        <mat-icon>stop</mat-icon>
+                        Stop
+                    </mat-button-toggle>
                     }
-                </div>
-            }
-
-            <!-- Secondary Controls -->
-            @if(showCheckpointControls() && controller().isRunning()) {
-                <div class="secondary-controls d-flex gap-1"
-                        [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
-                    @if (!!getInstance().state.lap) {
-                        <button mat-icon-button 
-                                (click)="lap()"
-                                matTooltip="Lap"
-                                aria-label="Record lap time"
-                                class="icon-btn btn-sm p-1 flex-grow-1">
-                            <mat-icon>track_changes</mat-icon>
-                        </button>
+                    @if(showCheckpointControls()) {
+                        @if (!!getInstance().state.lap) {
+                            <mat-button-toggle (click)="lap()">
+                                <mat-icon>track_changes</mat-icon>
+                                Lap
+                            </mat-button-toggle>
+                        }
+                        <mat-button-toggle (click)="split()">
+                            <mat-icon>call_split</mat-icon>
+                            Split
+                        </mat-button-toggle>
                     }
-                    <button mat-icon-button 
-                            (click)="split()"
-                            matTooltip="Split"
-                            aria-label="Record split time"
-                            class="icon-btn btn-sm p-1 flex-grow-1">
-                        <mat-icon>call_split</mat-icon>
-                    </button>
-                </div>
-            }
+                }
+            </mat-button-toggle-group>
             </div>
 
             <!-- Compact Expandable Content -->
