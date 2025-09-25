@@ -6,6 +6,7 @@ import { StopwatchDetailComponent } from './components/pages/stopwatch/stopwatch
 import { GroupListComponent } from './components/pages/group/group-list/group-list.component';
 import { GroupDetailComponent } from './components/pages/group/group-detail/group-detail.component';
 import { AboutComponent } from './components/pages/about/about.component';
+import { GroupOverviewComponent } from './components/pages/group/group-overview/group-overview.component';
 
 export const routes: Routes = [
   { 
@@ -28,6 +29,11 @@ export const routes: Routes = [
     title: 'Groups',
     component: GroupListComponent,
     children: [
+      {
+        path: '',
+        title: 'Groups',
+        component: GroupOverviewComponent,
+      },
       {
         path: ':id',
         title: 'Group',

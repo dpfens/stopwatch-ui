@@ -29,6 +29,14 @@ export class HeaderComponent {
     query: '',
   })
 
+  hasMenu(): boolean {
+    return this.headerActionService.has(GLOBAL.SIDENAV_TOGGLE);
+  }
+
+  executeMenuToggle() {
+    this.headerActionService.execute(GLOBAL.SIDENAV_TOGGLE);
+  }
+
   hasCreate(): boolean {
     return this.headerActionService.has(GLOBAL.CREATE);
   }

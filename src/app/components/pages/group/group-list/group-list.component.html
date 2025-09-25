@@ -2,16 +2,16 @@
 
 }
 @else {
-    @if (instances().length) {
-        <div class="row">
-            <div class="col-3">
-                <group-list-view [instances]="instances()"></group-list-view>
-            </div>
-            <div class="col-9">
-                <router-outlet></router-outlet>
-            </div>
-        </div>
-    } @else {
-        <span>No groups found.</span>
-    }
+    <mat-drawer-container [hasBackdrop]="true" (backdropClick)="showSidenav.set(!showSidenav())">
+    <mat-drawer [opened]="showSidenav()" mode="over">
+        @if (instances().length) {
+            <group-list-view [instances]="instances()"></group-list-view>
+        } @else {
+            <span >No groups found.</span>
+        }
+    </mat-drawer>
+    <mat-drawer-content>
+        <router-outlet></router-outlet>
+    </mat-drawer-content>
+    </mat-drawer-container>
 }

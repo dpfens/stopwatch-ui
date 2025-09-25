@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, OnDestroy, effect, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs/operators';
@@ -7,10 +7,11 @@ import { HeaderActionService } from '../../../../services/action/header-action.s
 import { GLOBAL } from '../../../../utilities/constants';
 import { GroupListViewComponent } from '../../../shared/group/views/list/group-list/group-list.component';
 import { RouterOutlet } from '@angular/router';
+import {MatSidenavModule} from '@angular/material/sidenav';
 
 @Component({
   selector: 'group-list',
-  imports: [GroupListViewComponent, RouterOutlet],
+  imports: [MatSidenavModule, GroupListViewComponent, RouterOutlet],
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
 })
@@ -22,6 +23,8 @@ export class GroupListComponent implements OnDestroy {
   instances = this.service.instances;
   loading = this.service.isLoading;
   error = this.service.error;
+
+  showSidenav = signal<boolean>(false);
 
   // Signal that tracks current URL and determines if we're on list or detail
   private isOnListView = toSignal(
@@ -56,6 +59,7 @@ export class GroupListComponent implements OnDestroy {
   ngOnInit(): void {
     // Initial setup if needed
     this.headerActionService.set(GLOBAL.CREATE, this.createNew.bind(this));
+    this.headerActionService.set(GLOBAL.SIDENAV_TOGGLE, this.toggleSideNav.bind(this));
   }
 
   async createNew(): Promise<void> {
@@ -63,9 +67,16 @@ export class GroupListComponent implements OnDestroy {
     await this.service.create(instance);
   }
 
+  toggleSideNav() {
+    this.showSidenav.set(!this.showSidenav());
+  }
+
   ngOnDestroy() {
     if (this.headerActionService.has(GLOBAL.CREATE)) {
       this.headerActionService.delete(GLOBAL.CREATE);
+    }
+    if(this.headerActionService.has(GLOBAL.SIDENAV_TOGGLE)) {
+      this.headerActionService.delete(GLOBAL.SIDENAV_TOGGLE);
     }
   }
 }

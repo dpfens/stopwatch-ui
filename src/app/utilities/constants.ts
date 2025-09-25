@@ -4,7 +4,8 @@ import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, GroupTr
 export enum GLOBAL {
   CREATE = 'global.create',
   DELETE = 'global.delete',
-  SEARCH = 'global.search'
+  SEARCH = 'global.search',
+  SIDENAV_TOGGLE = 'global.sidenav'
 }
 
 export enum Time {

@@ -1,7 +1,9 @@
 <mat-toolbar>
-  <button matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
-    <mat-icon>menu</mat-icon>
-  </button>
+  @if(hasMenu()) {
+    <button (click)="executeMenuToggle()" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+      <mat-icon>menu</mat-icon>
+    </button>
+  }
   <span [style.cursor]="'pointer'" routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Stopwatch UI</span>
   <a mat-button class="nav-link" routerLink="/stopwatch" routerLinkActive="active" ariaCurrentWhenActive="page">
     <mat-icon>timer</mat-icon>
