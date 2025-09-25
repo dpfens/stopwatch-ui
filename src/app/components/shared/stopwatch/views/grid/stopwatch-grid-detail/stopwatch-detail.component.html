@@ -29,7 +29,7 @@
   <mat-card-header class="d-flex align-items-center">
     @if(!displaySettings()) {
         <div class="flex-grow-1">
-            <mat-card-title>{{ getInstance().annotation.title }}</mat-card-title>
+            <mat-card-title>{{ getInstance().annotation.title || 'Untitled' }}</mat-card-title>
             <mat-card-subtitle></mat-card-subtitle>
         </div>
         <button matIconButton 

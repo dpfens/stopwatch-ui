@@ -393,27 +393,6 @@
 /* Responsive adjustments */
 @media (max-width: 576px) {
   .stopwatch-list-item {
-    .header-row {
-      flex-direction: column;
-      gap: 1rem !important;
-      align-items: stretch !important;
-    }
-
-    .title-section {
-      order: 1;
-    }
-
-    .duration-section {
-      order: 2;
-      text-align: center;
-      min-width: auto;
-    }
-
-    .controls-section {
-      order: 3;
-      justify-content: center;
-      gap: 0 !important;
-    }
 
     .duration-display.primary .duration-time {
       font-size: 24px;
@@ -436,23 +415,6 @@
 }
 
 @media (max-width: 576px) {
-  .stopwatch-list-item {
-    .controls-section {
-      .secondary-controls {
-        width: 100%;
-      }
-
-      .control-btn {
-        justify-content: center;
-      }
-    }
-
-    .duration-section {
-      .secondary-durations {
-        justify-content: center;
-      }
-    }
-  }
 }
 
 /* Animation for expandable content */
@@ -483,21 +445,4 @@
   outline: 2px solid var(--mat-primary);
   outline-offset: 2px;
   border-radius: 50%;
-}
-
-/* Print styles */
-@media print {
-  .stopwatch-list-item {
-    break-inside: avoid;
-    box-shadow: none;
-    border: 1px solid #ccc;
-    
-    .controls-section {
-      display: none;
-    }
-    
-    .selection-checkbox-container {
-      display: none;
-    }
-  }
 }
