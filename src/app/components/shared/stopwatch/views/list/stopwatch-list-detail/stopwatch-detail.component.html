@@ -162,7 +162,7 @@
                     @if(!splitsVisible() && visibleSplits().length > 0) {
                     <span class="splits-preview text-muted small">
                         Last: <span class="fw-medium">{{
-                            timeService.durationFormatter.format(visibleSplits()[visibleSplits().length - 1].duration)
+                            timeService.msDurationFormatter.format(visibleSplits()[visibleSplits().length - 1].duration)
                             }}</span>
                     </span>
                     }
