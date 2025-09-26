@@ -3,7 +3,7 @@ import { ContextualStopwatchEntity, IStopwatchStateController, SelectOptGroup, U
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TimeService } from '../../../../services/time/time.service';
-import { LapUnits, Time } from '../../../../utilities/constants';
+import { LapUnits, ONE_MINUTE, Time } from '../../../../utilities/constants';
 import { FormBuilder, FormControl, FormsModule, Validators } from '@angular/forms';
 import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
@@ -42,6 +42,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   showControls = input(true);
   showBasicControls = input(true);
   showCheckpointControls = input(true);
+  MILLISECOND_THRESHOLD = ONE_MINUTE;
 
   getInstance(): ContextualStopwatchEntity {
     const inst = this.instance();

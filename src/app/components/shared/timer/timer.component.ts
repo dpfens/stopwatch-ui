@@ -18,6 +18,7 @@ export class SimpleTimerComponent {
   // Internal state
   private currentDuration = signal(0);
   private intervalId?: number;
+  private animationFrameId?: number;
   
   // Display the formatted time
   displayTime = computed(() => {
@@ -39,7 +40,7 @@ export class SimpleTimerComponent {
   });
 
   constructor() {
-    // Update timer when running state changes
+    // Update timer when running state or includeMs changes
     effect(() => {
       if (this.isRunning()) {
         this.startTimer();
@@ -47,6 +48,10 @@ export class SimpleTimerComponent {
         this.stopTimer();
         this.updateDuration(); // Update once when stopped
       }
+      
+      // This effect will also run when includeMs() changes
+      // If running, this will restart the timer with the new mode
+      this.includeMs(); // Track includeMs changes
     });
   }
 
@@ -57,18 +62,38 @@ export class SimpleTimerComponent {
 
   private startTimer(): void {
     this.stopTimer(); // Clear any existing timer
-    // Use simple setInterval instead of complex timer services for now
-    this.intervalId = window.setInterval(() => {
+    
+    if (this.includeMs()) {
+      // Use requestAnimationFrame for high-frequency updates when showing milliseconds
+      this.startAnimationFrameTimer();
+    } else {
+      // Use setInterval for lower frequency updates when not showing milliseconds
+      this.intervalId = window.setInterval(() => {
+        if (this.isRunning()) {
+          this.updateDuration();
+        }
+      }, 100);
+    }
+  }
+
+  private startAnimationFrameTimer(): void {
+    const animate = () => {
       if (this.isRunning()) {
         this.updateDuration();
+        this.animationFrameId = requestAnimationFrame(animate);
       }
-    }, 100);
+    };
+    this.animationFrameId = requestAnimationFrame(animate);
   }
 
   private stopTimer(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = undefined;
+    }
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = undefined;
     }
   }
 

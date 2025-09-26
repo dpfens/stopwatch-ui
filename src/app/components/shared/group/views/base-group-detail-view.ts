@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ContextualStopwatchEntity, GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, StopwatchGroup, UniqueIdentifier } from '../../../../models/sequence/interfaces';
-import { GroupPresets, PresetConfig, Time } from '../../../../utilities/constants';
+import { GroupPresets, ONE_MINUTE, PresetConfig, Time } from '../../../../utilities/constants';
 import { TZDate } from '../../../../models/date';
 import { TimeService } from '../../../../services/time/time.service';
 import { GroupService } from '../../../../services/group/group.service';
@@ -27,6 +27,8 @@ export class BaseGroupDetailViewComponent {
   instance = computed(() =>
     this.service.instances().find(inst => inst.id === this.id())
   );
+
+  MILLISECOND_THRESHOLD = ONE_MINUTE;
 
   getInstance(): StopwatchGroup {
       const inst = this.instance();

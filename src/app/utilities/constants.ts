@@ -297,3 +297,5 @@ export const GroupEvaluationBehaviorOptions: SelectOption<GroupEvaluationBehavio
     description: 'Analyzes timer patterns over time to identify trends, improvements, or degradations in performance.'
   }
 ] as const;
+
+export const ONE_MINUTE = 60 * 1000;

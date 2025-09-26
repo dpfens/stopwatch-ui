@@ -160,7 +160,7 @@
                 <simple-timer
                                 [getDuration]="totalDurationCalc"
                                 [isRunning]="controller().isRunning()"
-                                [includeMs]="true"
+                                [includeMs]="totalDurationCalc() < MILLISECOND_THRESHOLD"
                                 class="duration-time"
                             ></simple-timer>
             </div>
@@ -172,7 +172,7 @@
                             <simple-timer
                                 [getDuration]="lapDurationCalc"
                                 [isRunning]="controller().isRunning()"
-                                [includeMs]="true"
+                                [includeMs]="lapDurationCalc() < MILLISECOND_THRESHOLD"
                                 class="duration-time"
                             ></simple-timer>
                         </div>
@@ -183,7 +183,7 @@
                             <simple-timer
                                 [getDuration]="splitDurationCalc"
                                 [isRunning]="controller().isRunning()"
-                                [includeMs]="true"
+                                [includeMs]="splitDurationCalc() < MILLISECOND_THRESHOLD"
                                 class="duration-time"
                             ></simple-timer>
                         </div>
