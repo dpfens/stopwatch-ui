@@ -11,6 +11,7 @@ import { SynchronizationService } from '../synchronization/synchronization.servi
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembershipService } from '../membership/membership.service';
 import { StopwatchStateController } from '../../controllers/stopwatch/stopwatch-state-controller';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ import { StopwatchStateController } from '../../controllers/stopwatch/stopwatch-
 export class StopwatchService {
   platformId = inject(PLATFORM_ID);
   private repository = new StopwatchRepository();
-  private membershipService = inject(MembershipService); // NEW
+  private membershipService = inject(MembershipService);
+  private settingsService = inject(SettingsService);
 
   private destroyRef = inject(DestroyRef);
   private syncService = inject(SynchronizationService);
@@ -52,8 +54,7 @@ export class StopwatchService {
             this.handleGroupDeletion(event.groupId);
           }
         });
-      
-      // SIMPLIFIED: Only listen for membership changes, don't manage them
+  
       this.syncService.membershipEvents$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(event => {
@@ -66,8 +67,11 @@ export class StopwatchService {
   /**
    * Creates a blank stopwatch entity with default values
    */
-  blank(title: string, description: string): StopwatchEntity {
+  async blank(title: string, description: string): Promise<StopwatchEntity> {
     const now = TZDate.now();
+    const lapUnit = await this.settingsService.getValue('defaultLapUnit', 'user');
+    const lapValue = await this.settingsService.getValue('defaultLapValue', 'user');
+    const lap = (lapValue && lapUnit) ? {value: lapValue, unit: lapUnit} : null;
     return {
       id: crypto.randomUUID(),
       annotation: {
@@ -76,7 +80,7 @@ export class StopwatchService {
       },
       state: { 
         sequence: [],
-        lap: null
+        lap
       },
       metadata: {
         creation: { timestamp: now },

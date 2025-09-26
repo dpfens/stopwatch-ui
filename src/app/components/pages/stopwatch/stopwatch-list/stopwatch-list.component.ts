@@ -23,7 +23,7 @@ export class StopwatchListComponent implements OnInit, OnDestroy {
   }
 
   async createNew(): Promise<void> {
-    const instance = this.service.blank('', '');
+    const instance = await this.service.blank('', '');
     await this.service.create(instance);
   }
 

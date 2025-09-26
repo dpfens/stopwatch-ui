@@ -1,11 +1,310 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+
+// Angular Material imports
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
+import { SettingsService } from '../../../services/settings/settings.service';
+import { SettingId, SettingScope } from '../../../models/settings/interfaces';
+import { SelectOptGroup } from '../../../models/sequence/interfaces';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { LapUnits } from '../../../utilities/constants';
+
+/**
+ * Configuration for which scopes each setting supports
+ */
+interface SettingConfiguration {
+  id: SettingId;
+  label: string;
+  description?: string;
+  supportedScopes: SettingScope[];
+  defaultScope: SettingScope;
+  type: 'text' | 'number' | 'select' | 'boolean';
+  options?: SelectOptGroup<any>[];
+  min: number | null;
+  max: number | null;
+  step?: number;
+}
 
 @Component({
   selector: 'app-settings',
-  imports: [],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatIconModule,
+    MatDividerModule,
+    MatChipsModule,
+    MatSlideToggleModule
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
+  private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
+  private settingsService = inject(SettingsService);
 
+  // Form and state management
+  settingsForm: FormGroup;
+  private _isSaving = signal(false);
+  private _hasUnsavedChanges = signal(false);
+
+  // Make Object available for template
+  Object = Object;
+
+  // Computed properties
+  isSaving = this._isSaving.asReadonly();
+  hasUnsavedChanges = this._hasUnsavedChanges.asReadonly();
+  isLoading = this.settingsService.isLoading;
+  error = this.settingsService.error;
+
+  // Settings configuration
+  settingsConfig: SettingConfiguration[] = [
+    {
+      id: 'defaultLapUnit',
+      label: 'Default Lap Unit',
+      description: 'Choose your units for laps',
+      supportedScopes: ['user'], // User-only setting
+      defaultScope: 'user',
+      type: 'select',
+      options: LapUnits,
+      min: null,
+      max: null
+    },
+    {
+      id: 'defaultLapValue',
+      label: 'Default Lap Value',
+      description: 'Set the default value for laps',
+      supportedScopes: ['user'], // User-only setting
+      defaultScope: 'user',
+      type: 'number',
+      min: 0,
+      max: 999999,
+      step: 0.01
+    }
+    // Future settings can be added here with different scope configurations
+  ];
+
+  // Scope display configuration
+  scopeConfig = {
+    user: { label: 'Personal', color: 'primary', icon: 'person' },
+    group: { label: 'Team', color: 'accent', icon: 'group' },
+    global: { label: 'Default', color: 'warn', icon: 'public' }
+  };
+
+  constructor() {
+    this.settingsForm = this.createForm();
+    this.setupFormChangeDetection();
+  }
+
+  ngOnViewInit(): void {
+    this.loadCurrentSettings();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Creates the reactive form based on settings configuration
+   */
+  private createForm(): FormGroup {
+    const formConfig: any = {};
+    
+    this.settingsConfig.forEach(config => {
+      const validators = [];
+      
+      if (config.type === 'number') {
+        validators.push(Validators.required);
+        if (config.min) validators.push(Validators.min(config.min));
+        if (config.max) validators.push(Validators.max(config.max));
+      }
+      
+      formConfig[config.id] = ['', validators];
+    });
+
+    return this.fb.group(formConfig);
+  }
+
+  /**
+   * Sets up form change detection with debouncing
+   */
+  private setupFormChangeDetection(): void {
+    this.settingsForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this._hasUnsavedChanges.set(this.settingsForm.dirty);
+      });
+  }
+
+  /**
+   * Loads current settings values into the form
+   */
+  private async loadCurrentSettings(): Promise<void> {
+    for (const config of this.settingsConfig) {
+      try {
+        // For user-only settings, always use user scope
+        const scope = config.supportedScopes.includes('user') ? 'user' : config.defaultScope;
+        const value = await this.settingsService.getValueWithFallback(config.id, scope);
+        
+        if (value !== null) {
+          this.settingsForm.patchValue({ [config.id]: value }, { emitEvent: false });
+        }
+      } catch (error) {
+        console.error(`Error loading setting ${config.id}:`, error);
+      }
+    }
+    
+    this.settingsForm.markAsPristine();
+    this._hasUnsavedChanges.set(false);
+  }
+
+  /**
+   * Saves all form values to the appropriate scopes
+   */
+  async saveSettings(): Promise<void> {
+    if (!this.settingsForm.valid || this._isSaving()) return;
+
+    this._isSaving.set(true);
+
+    try {
+      const formValues = this.settingsForm.value;
+      const savePromises: Promise<boolean>[] = [];
+
+      for (const config of this.settingsConfig) {
+        const value = formValues[config.id];
+        if (value !== undefined && value !== '') {
+          // Use the default scope for this setting (user for our current settings)
+          const scope = config.defaultScope;
+          savePromises.push(
+            this.settingsService.set(config.id, value, scope)
+          );
+        }
+      }
+
+      const results = await Promise.all(savePromises);
+      const allSuccessful = results.every(result => result === true);
+
+      if (allSuccessful) {
+        this.settingsForm.markAsPristine();
+        this._hasUnsavedChanges.set(false);
+        this.showSuccess('Settings saved successfully!');
+      } else {
+        this.showError('Some settings could not be saved. Please try again.');
+      }
+
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      this.showError('Failed to save settings. Please try again.');
+    } finally {
+      this._isSaving.set(false);
+    }
+  }
+
+  /**
+   * Resets form to last saved state
+   */
+  async resetForm(): Promise<void> {
+    await this.loadCurrentSettings();
+    this.settingsForm.markAsPristine();
+    this._hasUnsavedChanges.set(false);
+    this.showSuccess('Form reset to saved values');
+  }
+
+  /**
+   * Resets a specific setting to system defaults
+   */
+  async resetSetting(settingId: SettingId): Promise<void> {
+    const config = this.settingsConfig.find(c => c.id === settingId);
+    if (!config) return;
+
+    try {
+      // If it's a user setting, delete the user preference to fall back to defaults
+      if (config.supportedScopes.includes('user')) {
+        await this.settingsService.resetUserSetting(settingId);
+      }
+
+      // Reload the form to show the new effective value
+      await this.loadCurrentSettings();
+      this.showSuccess(`${config.label} reset to default`);
+
+    } catch (error) {
+      console.error(`Error resetting setting ${settingId}:`, error);
+      this.showError(`Failed to reset ${config.label}`);
+    }
+  }
+
+  /**
+   * Gets the effective value for a setting (considering scope hierarchy)
+   */
+  getEffectiveValue(settingId: SettingId): any {
+    return this.settingsService.getEffectiveValue(settingId);
+  }
+
+  /**
+   * Checks if a setting has been customized by the user
+   */
+  hasUserCustomization(settingId: SettingId): boolean {
+    return this.settingsService.hasUserCustomization(settingId);
+  }
+
+  /**
+   * Gets the supported scopes for a setting
+   */
+  getSupportedScopes(settingId: SettingId): SettingScope[] {
+    const config = this.settingsConfig.find(c => c.id === settingId);
+    return config?.supportedScopes || [];
+  }
+
+  /**
+   * Clears any error state
+   */
+  clearError(): void {
+    this.settingsService.clearError();
+  }
+
+  /**
+   * Shows success message
+   */
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  /**
+   * Shows error message
+   */
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
+  }
 }

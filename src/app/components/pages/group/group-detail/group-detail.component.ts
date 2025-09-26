@@ -34,7 +34,7 @@ export class GroupDetailComponent implements OnInit {
   }
   
   async createNew(): Promise<void> {
-    const instance = this.stopwatchService.blank('', '');
+    const instance = await this.stopwatchService.blank('', '');
     await this.stopwatchService.create(instance);
     const groupId = this.id();
     if (groupId) {
