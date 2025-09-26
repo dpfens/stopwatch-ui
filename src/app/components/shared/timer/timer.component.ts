@@ -1,30 +1,26 @@
 import { Component, input, computed, effect, inject, signal } from '@angular/core';
 import { TimeService } from '../../../services/time/time.service';
+import { BrowserStateService } from '../../../services/utility/browser/browser-page.service';
 
 @Component({
   selector: 'simple-timer',
   standalone: true,
-  template: `<span class="timer-display">{{ displayTime() }}</span>`,
-  styles: [`
-    .timer-display {
-      font-variant-numeric: tabular-nums;
-      font-feature-settings: "tnum";
-      /* Fallback for older browsers */
-    }
-  `]
+  template: `{{ displayTime() }}`,
+  styles: []
 })
 export class SimpleTimerComponent {
   private readonly timeService = inject(TimeService);
+  private readonly browserState = inject(BrowserStateService);
 
-  // Simple inputs - fixed the type issue
   getDuration = input.required<() => number>();
   isRunning = input<boolean>(false);
   includeMs = input<boolean>(true);
-
+  
   // Internal state
   private currentDuration = signal(0);
   private intervalId?: number;
   private animationFrameId?: number;
+  private shouldBeRunning = signal(false);
   
   // Display the formatted time
   displayTime = computed(() => {
@@ -43,37 +39,57 @@ export class SimpleTimerComponent {
   });
 
   constructor() {
-    // Update timer when running state or includeMs changes
+    // Track running state changes
     effect(() => {
-      if (this.isRunning()) {
-        this.startTimer();
+      const running = this.isRunning();
+      this.shouldBeRunning.set(running);
+      if (running) {
+        this.startTimerIfVisible();
       } else {
         this.stopTimer();
         this.updateDuration(); // Update once when stopped
       }
       
-      // This effect will also run when includeMs() changes
-      // If running, this will restart the timer with the new mode
-      this.includeMs(); // Track includeMs changes
+      this.includeMs();
+    });
+
+    // Handle visibility changes
+    effect(() => {
+      const isVisible = this.browserState.visibility.isVisible();
+      if (isVisible && this.shouldBeRunning()) {
+        this.startTimerIfVisible();
+      } else if (!isVisible) {
+        this.stopTimer();
+      }
+    });
+
+    effect(() => {
+      const hasFocus = this.browserState.visibility.hasFocus();
+      if (hasFocus && this.browserState.visibility.isVisible() && this.shouldBeRunning()) {
+        this.startTimerIfVisible();
+      }
     });
   }
 
   ngAfterViewInit(): void {
-    // Initial update after the component and its inputs are fully initialized
     this.updateDuration();
   }
 
-  private startTimer(): void {
-    this.stopTimer(); // Clear any existing timer
+  private startTimerIfVisible(): void {
+    if (!this.browserState.visibility.isVisible() || !this.shouldBeRunning()) {
+      return;
+    }
+
+    this.stopTimer();
     
     if (this.includeMs()) {
-      // Use requestAnimationFrame for high-frequency updates when showing milliseconds
       this.startAnimationFrameTimer();
     } else {
-      // Use setInterval for lower frequency updates when not showing milliseconds
       this.intervalId = window.setInterval(() => {
-        if (this.isRunning()) {
+        if (this.shouldBeRunning() && this.browserState.visibility.isVisible()) {
           this.updateDuration();
+        } else {
+          this.stopTimer();
         }
       }, 100);
     }
@@ -81,12 +97,17 @@ export class SimpleTimerComponent {
 
   private startAnimationFrameTimer(): void {
     const animate = () => {
-      if (this.isRunning()) {
+      if (this.shouldBeRunning() && this.browserState.visibility.isVisible()) {
         this.updateDuration();
         this.animationFrameId = requestAnimationFrame(animate);
+      } else {
+        this.animationFrameId = undefined;
       }
     };
-    this.animationFrameId = requestAnimationFrame(animate);
+
+    if (this.browserState.visibility.isVisible()) {
+      this.animationFrameId = requestAnimationFrame(animate);
+    }
   }
 
   private stopTimer(): void {
@@ -102,7 +123,6 @@ export class SimpleTimerComponent {
 
   private updateDuration(): void {
     try {
-      // Add safety checks
       const getDurationFn = this.getDuration();
       if (typeof getDurationFn !== 'function') {
         console.error('getDuration is not a function:', getDurationFn);
