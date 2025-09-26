@@ -14,16 +14,10 @@ export interface DurationFormatOptions {
   providedIn: 'root'
 })
 export class TimeService {
-  durationFormatter = computed(() => {
-    if ('DurationFormat' in Intl) {
-      return new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital' });
-    }
-    return {
-      format: (options: DurationFormatOptions) => {
-        return 'DurationFormat not supported';
-      }
-    }
-  });
+  msDurationFormatter = new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', fractionalDigits: 3 })
+  durationFormatter = new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', fractionalDigits: 0 });
+
+  
 
   relativeTimeFormatter = computed(() => {
     if ('RelativeTimeFormat' in Intl) {
@@ -40,10 +34,10 @@ export class TimeService {
    * Converts a duration (in milliseconds) to DurationFormat
    * 
    * @param durationMs Duration in milliseconds
-   * 
+   * @param includeMs Whether to include milliseconds in the result (defaults to false)
    */
   toDurationObject(durationMs: number): DurationFormatOptions {
-    const milliseconds = durationMs % 1000;
+    const milliseconds = Math.floor(durationMs % 1000);
     const seconds = Math.floor(durationMs / 1000) % 60;
     const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
     const hours = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
@@ -56,10 +50,10 @@ export class TimeService {
     if (minutes > 0) duration.minutes = minutes;
     if (seconds > 0) duration.seconds = seconds;
     if (milliseconds > 0) duration.milliseconds = milliseconds;
-    
+
     // Ensure at least one unit is present
     if (Object.keys(duration).length === 0) {
-        duration.seconds = 0;
+      duration.seconds = 0;
     }
     return duration;
   }

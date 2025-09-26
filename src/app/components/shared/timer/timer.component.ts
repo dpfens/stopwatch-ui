@@ -1,11 +1,17 @@
-import { Component, input, computed, effect, inject, DestroyRef, signal } from '@angular/core';
+import { Component, input, computed, effect, inject, signal } from '@angular/core';
 import { TimeService } from '../../../services/time/time.service';
 
 @Component({
   selector: 'simple-timer',
   standalone: true,
-  template: `{{ displayTime() }}`,
-  styles: [``]
+  template: `<span class="timer-display">{{ displayTime() }}</span>`,
+  styles: [`
+    .timer-display {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      /* Fallback for older browsers */
+    }
+  `]
 })
 export class SimpleTimerComponent {
   private readonly timeService = inject(TimeService);
@@ -26,13 +32,10 @@ export class SimpleTimerComponent {
     
     try {
       const duration = this.timeService.toDurationObject(ms);
-      
-      // Only show milliseconds if requested and duration < 1 minute
-      if (!this.includeMs() || ms >= 60000) {
-        duration.milliseconds = 0;
+      if (this.includeMs()) {
+        return this.timeService.msDurationFormatter.format(duration);
       }
-      
-      return this.timeService.durationFormatter().format(duration);
+      return this.timeService.durationFormatter.format(duration);
     } catch (error) {
       console.error('Error formatting duration:', error, 'ms:', ms);
       return '00:00:00';
