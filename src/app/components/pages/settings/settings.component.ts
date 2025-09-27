@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -58,7 +58,7 @@ interface SettingConfiguration {
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent implements OnDestroy {
+export class SettingsComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
@@ -117,7 +117,7 @@ export class SettingsComponent implements OnDestroy {
     this.setupFormChangeDetection();
   }
 
-  ngOnViewInit(): void {
+  ngAfterViewInit(): void {
     this.loadCurrentSettings();
   }
 
@@ -137,11 +137,12 @@ export class SettingsComponent implements OnDestroy {
       
       if (config.type === 'number') {
         validators.push(Validators.required);
-        if (config.min) validators.push(Validators.min(config.min));
-        if (config.max) validators.push(Validators.max(config.max));
+        if (config.min !== null) validators.push(Validators.min(config.min));
+        if (config.max !== null) validators.push(Validators.max(config.max));
       }
       
-      formConfig[config.id] = ['', validators];
+      // Initialize with null instead of empty string
+      formConfig[config.id] = [null, validators];
     });
 
     return this.fb.group(formConfig);
@@ -166,22 +167,52 @@ export class SettingsComponent implements OnDestroy {
    * Loads current settings values into the form
    */
   private async loadCurrentSettings(): Promise<void> {
-    for (const config of this.settingsConfig) {
-      try {
-        // For user-only settings, always use user scope
-        const scope = config.supportedScopes.includes('user') ? 'user' : config.defaultScope;
-        const value = await this.settingsService.getValueWithFallback(config.id, scope);
-        
-        if (value !== null) {
-          this.settingsForm.patchValue({ [config.id]: value }, { emitEvent: false });
-        }
-      } catch (error) {
-        console.error(`Error loading setting ${config.id}:`, error);
+    try {
+      // Wait for settings service to finish loading if it's still loading
+      if (this.settingsService.isLoading()) {
+        // Wait for loading to complete
+        await new Promise<void>((resolve) => {
+          const checkLoading = () => {
+            if (!this.settingsService.isLoading()) {
+              resolve();
+            } else {
+              setTimeout(checkLoading, 50);
+            }
+          };
+          checkLoading();
+        });
       }
+
+      const formValues: any = {};
+      
+      for (const config of this.settingsConfig) {
+        try {
+          // For user-only settings, always use user scope
+          const scope = config.supportedScopes.includes('user') ? 'user' : config.defaultScope;
+          
+          // Use the async repository method to get fresh data
+          const value = await this.settingsService.getValueWithFallbackFromRepository(config.id, scope);
+          
+          if (value !== null && value !== undefined) {
+            formValues[config.id] = value;
+          }
+        } catch (error) {
+          console.error(`Error loading setting ${config.id}:`, error);
+        }
+      }
+      
+      // Patch all values at once
+      if (Object.keys(formValues).length > 0) {
+        this.settingsForm.patchValue(formValues, { emitEvent: false });
+      }
+      
+      this.settingsForm.markAsPristine();
+      this._hasUnsavedChanges.set(false);
+      
+    } catch (error) {
+      console.error('Error loading current settings:', error);
+      this.showError('Failed to load current settings');
     }
-    
-    this.settingsForm.markAsPristine();
-    this._hasUnsavedChanges.set(false);
   }
 
   /**
@@ -198,7 +229,7 @@ export class SettingsComponent implements OnDestroy {
 
       for (const config of this.settingsConfig) {
         const value = formValues[config.id];
-        if (value !== undefined && value !== '') {
+        if (value !== undefined && value !== null && value !== '') {
           // Use the default scope for this setting (user for our current settings)
           const scope = config.defaultScope;
           savePromises.push(

@@ -183,17 +183,6 @@
                     </div>
                   </div>
 
-                  <!-- Current/Effective Value Display -->
-                  @if (getEffectiveValue(config.id) !== null) {
-                    <div class="mt-2 p-2 bg-light rounded-2">
-                      <small class="text-muted">
-                        <strong>Current value:</strong> <span class="text-dark">{{ getEffectiveValue(config.id) }}</span>
-                        @if (!hasUserCustomization(config.id)) {
-                          <em class="text-muted ms-1">(using default)</em>
-                        }
-                      </small>
-                    </div>
-                  }
                 </div>
               }
 
