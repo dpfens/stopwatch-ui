@@ -1,6 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import { HeaderComponent } from './components/shared/header/header.component';
+import { SettingsService } from './services/settings/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,7 @@ import { HeaderComponent } from './components/shared/header/header.component';
 })
 export class AppComponent {
   title = 'Stopwatch';
+  settings = inject(SettingsService);
+
+  theme = computed(() => this.settings.getEffectiveValue('theme'));
 }

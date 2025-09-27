@@ -19,7 +19,7 @@ import { SettingsService } from '../../../services/settings/settings.service';
 import { SettingId, SettingScope } from '../../../models/settings/interfaces';
 import { SelectOptGroup } from '../../../models/sequence/interfaces';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { LapUnits } from '../../../utilities/constants';
+import { LapUnits, ThemeOptions } from '../../../utilities/constants';
 
 /**
  * Configuration for which scopes each setting supports
@@ -80,6 +80,17 @@ export class SettingsComponent implements AfterViewInit, OnDestroy {
 
   // Settings configuration
   settingsConfig: SettingConfiguration[] = [
+    {
+      id: 'theme',
+      label: 'Theme',
+      description: 'Choose your application theme',
+      supportedScopes: ['user'], // User-only setting
+      defaultScope: 'user',
+      type: 'select',
+      options: ThemeOptions,
+      min: null,
+      max: null
+    },
     {
       id: 'defaultLapUnit',
       label: 'Default Lap Unit',

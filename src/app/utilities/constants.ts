@@ -166,6 +166,23 @@ export const LapUnits: SelectOptGroup<string>[] = [
     }
 ] as const;
 
+
+export const ThemeOptions: SelectOptGroup<string>[] = [
+    {
+      display: 'Standard',
+      options: [
+        {
+          display: 'Light',
+          value: 'light'
+        },
+        {
+          display: 'Dark',
+          value: 'dark'
+        }
+      ]
+    }
+] as const;
+
 /** 
  * Group Traits
  */

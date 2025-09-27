@@ -6,6 +6,7 @@ import { UniquelyIdentifiable } from "../sequence/interfaces";
 export type SettingValueMap = {
   'defaultLapUnit': string;
   'defaultLapValue': number;
+  'theme': 'light' | 'dark';
   // Add more settings as needed:
   // 'theme': 'light' | 'dark';
   // 'maxLaps': number;

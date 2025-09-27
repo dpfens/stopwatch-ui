@@ -1,5 +1,8 @@
-<app-header></app-header>
+<div [class.dark-theme]="theme() === 'dark'" [class.light-theme]="theme() === 'light'">
+  <app-header></app-header>
 
 <main class="main container-fluid">
   <router-outlet></router-outlet>
 </main>
+</div>
+
