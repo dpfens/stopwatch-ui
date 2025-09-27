@@ -259,7 +259,7 @@
                 <span class="groups-label text-muted text-uppercase">Groups</span>
                 <mat-chip-set aria-label="Groups" class="mt-1">
                     @for(group of getInstance().groups; track group.id) {
-                        <mat-chip id="{{ group.id }}">{{ group.annotation.title }}</mat-chip>
+                        <mat-chip id="{{ group.id }}">{{ group.annotation.title || truncate(group.id, 10) }}</mat-chip>
                     }
                 </mat-chip-set>
             </div>

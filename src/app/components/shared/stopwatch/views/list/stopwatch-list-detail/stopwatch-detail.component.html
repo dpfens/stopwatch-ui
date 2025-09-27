@@ -24,7 +24,7 @@
         <div class="header-row d-flex justify-content-between gap-3 py-2">
             <!-- Title and Status Section -->
             <div class="title-section min-w-0 mb-1">
-                <h5 class="stopwatch-title fw-semibold text-truncate mb-0">
+                <h5 class="stopwatch-title text-truncate mb-0">
                     {{ getInstance().annotation.title || 'Untitled' }}
                 </h5>
                 @if(getInstance().annotation.description) {
@@ -33,14 +33,14 @@
                 }
             </div>
             <!-- Compact Duration Display Section -->
-            <div class="duration-section d-flex flex-column text-end">
+            <div class="duration-section d-flex flex-column ">
                 <div class="duration-display primary mb-1">
-                    <div class="d-flex flex-column align-items-center justify-content-center">
-                        <span class="duration-label text-muted fw-medium"
-                            style="font-size: 10px; line-height: 1;">TOTAL</span>
+                    <div>
+                        <div class="duration-label text-uppercase"
+                            style="font-size: 10px; line-height: 1;">total</div>
                         <simple-timer [getDuration]="totalDurationCalc" [isRunning]="controller().isRunning()"
                             [includeMs]="totalDurationCalc() < MILLISECOND_THRESHOLD"
-                            class="duration-time fw-bold text-dark"
+                            class="duration-time fw-bold"
                             style="font-size: 20px; line-height: 1.2;"></simple-timer>
                     </div>
                 </div>
@@ -48,25 +48,25 @@
                 @if(!!hasSplits() || !!hasLaps()) {
                 <div class="secondary-durations d-flex justify-content-evenly gap-3">
                     @if(hasLaps()) {
-                    <div class="duration-display secondary text-end">
-                        <div class="d-flex flex-column align-items-end">
-                            <span class="duration-label text-muted fw-normal"
-                                style="font-size: 9px; line-height: 1;">LAP</span>
+                    <div class="duration-display secondary">
+                        <div class="d-flex flex-column">
+                            <span class="duration-label text-uppercase"
+                                style="font-size: 9px; line-height: 1;">lap</span>
                             <simple-timer [getDuration]="lapDurationCalc" [isRunning]="controller().isRunning()"
                                 [includeMs]="lapDurationCalc() < MILLISECOND_THRESHOLD"
-                                class="duration-time fw-medium text-secondary"
+                                class="duration-time"
                                 style="font-size: 14px; line-height: 1.1;"></simple-timer>
                         </div>
                     </div>
                     }
                     @if(hasSplits()) {
-                    <div class="duration-display secondary text-end">
-                        <div class="d-flex flex-column align-items-end">
-                            <span class="duration-label text-muted fw-normal"
-                                style="font-size: 9px; line-height: 1;">SPLIT</span>
+                    <div class="duration-display secondary">
+                        <div class="d-flex flex-column">
+                            <span class="duration-label text-uppercase"
+                                style="font-size: 9px; line-height: 1;">split</span>
                             <simple-timer [getDuration]="splitDurationCalc" [isRunning]="controller().isRunning()"
                                 [includeMs]="splitDurationCalc() < MILLISECOND_THRESHOLD"
-                                class="duration-time fw-medium text-secondary"
+                                class="duration-time"
                                 style="font-size: 14px; line-height: 1.1;"></simple-timer>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                 <span class="section-label text-muted fw-medium small">Groups:</span>
                 <mat-chip-set aria-label="Groups" class="inline-chips">
                     @for(group of getInstance().groups; track group.id) {
-                    <mat-chip class="small">{{ group.annotation.title }}</mat-chip>
+                    <mat-chip class="small">{{ group.annotation.title || truncate(group.id, 10) }}</mat-chip>
                     }
                 </mat-chip-set>
             </div>
