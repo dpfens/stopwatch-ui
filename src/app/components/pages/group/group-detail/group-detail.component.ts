@@ -7,6 +7,7 @@ import { GroupService } from '../../../../services/group/group.service';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { HeaderActionService } from '../../../../services/action/header-action.service';
 import { GLOBAL } from '../../../../utilities/constants';
+import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwatch-selection/stopwatch-selection.service';
 
 @Component({
   selector: 'group-detail',
@@ -18,6 +19,7 @@ export class GroupDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   service = inject(GroupService);
   stopwatchService = inject(StopwatchService);
+  selectionService = inject(StopwatchSelectionService);
   headerActionService = inject(HeaderActionService);
     
   id = toSignal(
@@ -45,6 +47,9 @@ export class GroupDetailComponent implements OnInit {
   ngOnDestroy() {
     if (this.headerActionService.has(GLOBAL.CREATE)) {
       this.headerActionService.delete(GLOBAL.CREATE);
+    }
+    if (this.selectionService.selectedCount() > 0) {
+      this.selectionService.clearSelection();
     }
   }
 }

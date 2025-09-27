@@ -3,6 +3,7 @@ import { StopwatchService } from '../../../../services/stopwatch/stopwatch.servi
 import { HeaderActionService } from '../../../../services/action/header-action.service';
 import { GLOBAL } from '../../../../utilities/constants';
 import { StopwatchCollectionViewComponent } from "../../../shared/stopwatch/collection/stopwatch-collection.component";
+import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwatch-selection/stopwatch-selection.service';
 
 @Component({
   selector: 'stopwatch-list',
@@ -13,6 +14,7 @@ import { StopwatchCollectionViewComponent } from "../../../shared/stopwatch/coll
 export class StopwatchListComponent implements OnInit, OnDestroy {
   private readonly service = inject(StopwatchService);
   private readonly headerActionService = inject(HeaderActionService);
+  private readonly selectionService = inject(StopwatchSelectionService);
   
   instances = this.service.instances;
   loading = this.service.isLoading
@@ -30,6 +32,9 @@ export class StopwatchListComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.headerActionService.has(GLOBAL.CREATE)) {
       this.headerActionService.delete(GLOBAL.CREATE);
+    }
+    if (this.selectionService.selectedCount() > 0) {
+      this.selectionService.clearSelection();
     }
   }
 }
