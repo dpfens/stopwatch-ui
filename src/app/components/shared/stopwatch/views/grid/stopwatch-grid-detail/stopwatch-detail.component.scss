@@ -1,10 +1,10 @@
 /* Duration display container */
 .duration-display-container {
-  background: var(--mat-app-surface-variant, #f5f5f5);
+  background: var(--mat-sys-surface-container);
   border-radius: 12px;
   padding: 1.5rem 1rem;
   margin: 1rem 0;
-  border: 1px solid var(--mat-divider-color);
+  border: 1px solid var(--mat-sys-outline-variant);
 }
 
 /* Individual duration blocks */
@@ -16,7 +16,7 @@
 .duration-block label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--mat-text-secondary);
+  color: var(--mat-sys-on-surface-variant);
   margin-bottom: 0.25rem;
   letter-spacing: 0.5px;
 }
@@ -26,14 +26,14 @@
   font-family: 'Roboto Mono', monospace;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--mat-text-primary);
+  color: var(--mat-sys-on-surface);
   line-height: 1.2;
 }
 
 /* Total duration - make it prominent */
 .duration-block.total .duration-time {
   font-size: 2rem;
-  color: var(--mat-primary);
+  color: var(--mat-sys-primary);
 }
 
 /* Secondary durations (lap/split) */
@@ -43,7 +43,7 @@
 
 .duration-block.secondary .duration-time {
   font-size: 1.25rem;
-  color: var(--mat-text-secondary);
+  color: var(--mat-sys-on-surface-variant);
 }
 
 /* Responsive adjustments */
@@ -69,12 +69,12 @@
 }
 
 .form-actions {
-    border-top: 1px solid var(--mat-divider-color);
+    border-top: 1px solid var(--mat-sys-outline-variant);
     padding-top: 1rem;
 }
 
 .metadata-section {
-    border-top: 1px solid var(--mat-divider-color);
+    border-top: 1px solid var(--mat-sys-outline-variant);
     padding-top: 1rem;
     font-size: 0.875rem;
 }
@@ -84,15 +84,15 @@
 }
 
 .text-warning {
-    color: var(--mat-warn);
+    color: var(--mat-sys-tertiary);
 }
 
 .text-danger {
-    color: var(--mat-error);
+    color: var(--mat-sys-error);
 }
 
 .text-muted {
-    color: var(--mat-text-secondary);
+    color: var(--mat-sys-on-surface-variant);
 }
 
 .groups-label {
@@ -114,9 +114,9 @@
     opacity: 0;
     transform: scale(0.8);
     transition: all 0.2s ease-in-out;
-    background-color: white;
+    background-color: var(--mat-sys-surface-container-highest);
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--mat-sys-level-2);
 
     &.visible {
       opacity: 1;
@@ -141,7 +141,7 @@
     cursor: pointer;
     
     &:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--mat-sys-level-3);
       transform: translateY(-1px);
     }
 
@@ -180,7 +180,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(var(--mat-primary-rgb, 33, 150, 243), 0.04);
+      background: color-mix(in srgb, var(--mat-sys-primary) 4%, transparent);
       border-radius: inherit;
       pointer-events: none;
       z-index: 1;
@@ -189,11 +189,11 @@
 
   /* Selected state styling */
   &.selected {
-    border-color: var(--mat-primary);
-    background: rgba(var(--mat-primary-rgb, 33, 150, 243), 0.08);
+    border-color: var(--mat-sys-primary);
+    background: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface));
     
     &::before {
-      background: rgba(var(--mat-primary-rgb, 33, 150, 243), 0.08);
+      background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
     }
   }
 
@@ -209,11 +209,11 @@
 
 /* Selection icon specific styling */
 .selection-icon {
-  color: var(--mat-primary);
+  color: var(--mat-sys-primary);
   transition: all 0.2s ease-in-out;
   
   &:hover {
-    background: rgba(var(--mat-primary-rgb, 33, 150, 243), 0.1);
+    background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
     border-radius: 50%;
   }
 }

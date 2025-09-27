@@ -1,9 +1,9 @@
 .hero-card {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, var(--mat-sys-primary) 0%, var(--mat-sys-primary-container) 100%);
 }
 
 .hero-icon {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--mat-sys-on-primary);
 }
 
 .feature-card {
@@ -14,7 +14,7 @@
 .feature-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-  border-left-color: #007bff;
+  border-left-color: var(--mat-sys-primary);
 }
 
 .user-card {
@@ -42,13 +42,17 @@ mat-expansion-panel:last-child {
 }
 
 .alert-info {
-  border-left-color: #0dcaf0;
+  border-left-color: var(--mat-sys-tertiary);
 }
 
 .alert-success {
-  border-left-color: #198754;
+  border-left-color: var(--mat-sys-secondary);
 }
 
 .alert-light {
-  border-left-color: #6c757d;
+  border-left-color: var(--mat-sys-outline-variant);
+}
+
+.text-muted {
+  color: var(--mat-sys-on-surface-variant) !important;
 }

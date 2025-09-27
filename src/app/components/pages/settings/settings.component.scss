@@ -1,14 +1,7 @@
-// Settings Component Styles
+// Settings Component Styles - Angular Material 3
 
 .setting-item {
-  background: rgba(0, 0, 0, 0.02);
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: rgba(0, 0, 0, 0.04);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+  background: var(--mat-sys-surface-container-high);
 }
 
 // Scope chip styling
@@ -17,29 +10,29 @@
   height: 24px;
   
   &.scope-user {
-    background-color: rgba(33, 150, 243, 0.1);
-    color: #1976d2;
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
     
     mat-icon {
-      color: #1976d2;
+      color: var(--mat-sys-on-primary-container);
     }
   }
   
   &.scope-group {
-    background-color: rgba(255, 152, 0, 0.1);
-    color: #f57c00;
+    background-color: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
     
     mat-icon {
-      color: #f57c00;
+      color: var(--mat-sys-on-secondary-container);
     }
   }
   
   &.scope-global {
-    background-color: rgba(76, 175, 80, 0.1);
-    color: #388e3c;
+    background-color: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
     
     mat-icon {
-      color: #388e3c;
+      color: var(--mat-sys-on-tertiary-container);
     }
   }
 }
@@ -64,6 +57,7 @@ mat-option {
   .text-muted {
     font-size: 0.8em;
     line-height: 1.2;
+    color: var(--mat-sys-on-surface-variant);
   }
 }
 
@@ -75,12 +69,24 @@ mat-option {
   mat-icon {
     margin-right: 0.25rem;
   }
+  
+  // Override Bootstrap badges with Material 3 colors
+  &.bg-warning {
+    background-color: var(--mat-sys-tertiary-container) !important;
+    color: var(--mat-sys-on-tertiary-container) !important;
+  }
+  
+  &.bg-success {
+    background-color: var(--mat-sys-primary-container) !important;
+    color: var(--mat-sys-on-primary-container) !important;
+  }
 }
 
 // Card enhancements
 mat-card {
   border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--mat-sys-outline-variant);
+  background-color: var(--mat-sys-surface-container-low);
   
   mat-card-header {
     padding-bottom: 1rem;
@@ -89,11 +95,12 @@ mat-card {
       font-size: 1.25rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
+      color: var(--mat-sys-on-surface);
     }
     
     mat-card-subtitle {
       font-size: 0.9rem;
-      opacity: 0.7;
+      color: var(--mat-sys-on-surface-variant);
     }
   }
 }
@@ -101,6 +108,7 @@ mat-card {
 // Action buttons styling
 mat-card-actions {
   padding: 1rem 1.5rem;
+  border-top: 1px solid var(--mat-sys-outline-variant);
   
   button[matButton] {
     display: inline-flex;
@@ -132,6 +140,21 @@ button[matButton] {
   border-radius: 8px;
   border: none;
   
+  &.alert-danger {
+    background-color: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+    
+    .btn-outline-danger {
+      border-color: var(--mat-sys-error);
+      color: var(--mat-sys-error);
+      
+      &:hover {
+        background-color: var(--mat-sys-error);
+        color: var(--mat-sys-on-error);
+      }
+    }
+  }
+  
   mat-icon {
     font-size: 1.2rem;
     width: 1.2rem;
@@ -141,25 +164,42 @@ button[matButton] {
 
 // Current value display
 .bg-light {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: var(--mat-sys-surface-container) !important;
+  border: 1px solid var(--mat-sys-outline-variant);
 }
 
 // Page header enhancements
 h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #333;
+  color: var(--mat-sys-on-surface);
 }
 
 .text-primary {
-  color: #1976d2 !important;
+  color: var(--mat-sys-primary) !important;
+}
+
+.text-muted {
+  color: var(--mat-sys-on-surface-variant) !important;
 }
 
 // Info card styling
 .info-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--mat-sys-surface-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+// Scope info section colors
+.text-primary {
+  color: var(--mat-sys-primary) !important;
+}
+
+.text-secondary {
+  color: var(--mat-sys-secondary) !important;
+}
+
+.text-tertiary {
+  color: var(--mat-sys-tertiary) !important;
 }
 
 // Responsive adjustments
@@ -190,15 +230,15 @@ h1 {
   }
 }
 
-// Snackbar custom classes
+// Snackbar custom classes - keeping these as custom since they're notification specific
 .success-snackbar {
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
 }
 
 .error-snackbar {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--mat-sys-error);
+  color: var(--mat-sys-on-error);
 }
 
 // Smooth transitions
@@ -209,7 +249,7 @@ h1 {
 // Custom focus states for better accessibility
 .btn:focus,
 mat-form-field:focus-within {
-  outline: 2px solid rgba(33, 150, 243, 0.3);
+  outline: 2px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
   outline-offset: 2px;
 }
 
@@ -226,8 +266,43 @@ mat-chip-set {
 mat-error {
   font-size: 0.75rem;
   margin-top: 0.25rem;
+  color: var(--mat-sys-error);
 }
 
-// Object.entries() fix for template
-// This is a TypeScript helper, not CSS, but keeping here for reference
-// In component: Object = Object; // Add this line to make Object available in template
+// Additional Material 3 specific enhancements
+.border-bottom {
+  border-bottom-color: var(--mat-sys-outline-variant) !important;
+}
+
+.border-top {
+  border-top-color: var(--mat-sys-outline-variant) !important;
+}
+
+.border {
+  border-color: var(--mat-sys-outline-variant) !important;
+}
+
+// Shadow enhancements using Material 3 elevation
+.shadow-sm {
+  box-shadow: 
+    0px 1px 2px var(--mat-sys-shadow),
+    0px 1px 3px color-mix(in srgb, var(--mat-sys-shadow) 30%, transparent) !important;
+}
+
+// Custom Material 3 elevation levels
+.elevation-1 {
+  box-shadow: 
+    0px 1px 2px var(--mat-sys-shadow),
+    0px 1px 3px color-mix(in srgb, var(--mat-sys-shadow) 30%, transparent);
+}
+
+.elevation-2 {
+  box-shadow: 
+    0px 1px 5px var(--mat-sys-shadow),
+    0px 2px 4px color-mix(in srgb, var(--mat-sys-shadow) 30%, transparent);
+}
+
+// Person icon indicator for user customizations
+mat-icon[style*="font-size: 16px"] {
+  color: var(--mat-sys-primary);
+}
