@@ -96,37 +96,43 @@ export class SettingsService {
   }
 
   /**
-   * Gets a setting value with type safety
+   * Gets a setting value with type safety (REACTIVE - uses in-memory data)
    */
-  async getValue<K extends SettingId>(
-    key: K, 
-    scope: SettingScope
-  ): Promise<SettingValueMap[K] | null> {
-    try {
-      this._error.set(null);
-      return await this.repository.getValue(key, scope);
-    } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Failed to get setting value');
-      console.error('Error getting value:', error);
-      return null;
-    }
+  getValue<K extends SettingId>(key: K, scope: SettingScope): SettingValueMap[K] | null {
+    const setting = this.instances().find(s => s.key === key && s.scope === scope);
+    return setting ? setting.value as SettingValueMap[K] : null;
   }
 
   /**
-   * Gets a setting value with intelligent fallback logic
+   * Gets a setting value with intelligent fallback logic (REACTIVE - uses in-memory data)
    */
-  async getValueWithFallback<K extends SettingId>(
+  getValueWithFallback<K extends SettingId>(
     key: K, 
     scope: SettingScope = 'user'
-  ): Promise<SettingValueMap[K] | null> {
-    try {
-      this._error.set(null);
-      return await this.repository.getValueWithFallback(key, scope);
-    } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Failed to get setting value with fallback');
-      console.error('Error getting value with fallback:', error);
-      return null;
+  ): SettingValueMap[K] | null {
+    const instances = this.instances();
+    
+    // Try specified scope first
+    const primarySetting = instances.find(s => s.key === key && s.scope === scope);
+    if (primarySetting) {
+      return primarySetting.value as SettingValueMap[K];
     }
+
+    // Fallback hierarchy
+    const fallbackOrder: SettingScope[] = scope === 'user' 
+      ? ['global', 'group']
+      : scope === 'global'
+      ? ['user', 'group'] 
+      : ['user', 'global'];
+
+    for (const fallbackScope of fallbackOrder) {
+      const fallbackSetting = instances.find(s => s.key === key && s.scope === fallbackScope);
+      if (fallbackSetting) {
+        return fallbackSetting.value as SettingValueMap[K];
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -239,21 +245,19 @@ export class SettingsService {
   }
 
   /**
-   * Gets a hierarchical view of setting values across all scopes
+   * Gets a hierarchical view of setting values across all scopes (REACTIVE - uses in-memory data)
    */
-  async getHierarchy<K extends SettingId>(key: K): Promise<{
+  getHierarchy<K extends SettingId>(key: K): {
     global?: SettingValueMap[K];
     user?: SettingValueMap[K];
     group?: SettingValueMap[K];
-  } | null> {
-    try {
-      this._error.set(null);
-      return await this.repository.getHierarchy(key);
-    } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Failed to get setting hierarchy');
-      console.error('Error getting hierarchy:', error);
-      return null;
-    }
+  } {
+    
+    return {
+      global: this.globalSettings().find(s => s.key === key)?.value as SettingValueMap[K],
+      user: this.userSettings().find(s => s.key === key)?.value as SettingValueMap[K],
+      group: this.groupSettings().find(s => s.key === key)?.value as SettingValueMap[K],
+    };
   }
 
   /**
@@ -450,5 +454,60 @@ export class SettingsService {
    */
   async refresh(): Promise<void> {
     await this.loadInstances();
+  }
+
+  // === Async Repository Methods (for when you need fresh data) ===
+
+  /**
+   * Gets a setting value directly from repository (NON-REACTIVE - bypasses cache)
+   * Use this when you need the absolute latest data from storage
+   */
+  async getValueFromRepository<K extends SettingId>(
+    key: K, 
+    scope: SettingScope
+  ): Promise<SettingValueMap[K] | null> {
+    try {
+      this._error.set(null);
+      return await this.repository.getValue(key, scope);
+    } catch (error) {
+      this._error.set(error instanceof Error ? error.message : 'Failed to get setting value');
+      console.error('Error getting value:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Gets a setting value with fallback from repository (NON-REACTIVE - bypasses cache)
+   */
+  async getValueWithFallbackFromRepository<K extends SettingId>(
+    key: K, 
+    scope: SettingScope = 'user'
+  ): Promise<SettingValueMap[K] | null> {
+    try {
+      this._error.set(null);
+      return await this.repository.getValueWithFallback(key, scope);
+    } catch (error) {
+      this._error.set(error instanceof Error ? error.message : 'Failed to get setting value with fallback');
+      console.error('Error getting value with fallback:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Gets hierarchical view from repository (NON-REACTIVE - bypasses cache)
+   */
+  async getHierarchyFromRepository<K extends SettingId>(key: K): Promise<{
+    global?: SettingValueMap[K];
+    user?: SettingValueMap[K];
+    group?: SettingValueMap[K];
+  } | null> {
+    try {
+      this._error.set(null);
+      return await this.repository.getHierarchy(key);
+    } catch (error) {
+      this._error.set(error instanceof Error ? error.message : 'Failed to get setting hierarchy');
+      console.error('Error getting hierarchy:', error);
+      return null;
+    }
   }
 }
