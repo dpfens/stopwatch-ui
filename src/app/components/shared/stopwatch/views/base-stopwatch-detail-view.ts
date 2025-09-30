@@ -60,15 +60,15 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   visibleSplits: WritableSignal<VisibleSplit[]> = signal([]);
 
   truncate(str: string | number, maxLength: number) {
-  if (typeof str === 'number') {
-    str = str.toString();
+    if (typeof str === 'number') {
+      str = str.toString();
+    }
+    if (str.length <= maxLength) {
+      return str;
+    } else {
+      return str.slice(0, maxLength - 3) + "..."; 
+    }
   }
-  if (str.length <= maxLength) {
-    return str;
-  } else {
-    return str.slice(0, maxLength - 3) + "..."; 
-  }
-}
 
 
   readonly hasSplits = computed(() => 
