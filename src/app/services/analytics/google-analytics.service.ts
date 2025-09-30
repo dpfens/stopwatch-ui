@@ -251,6 +251,7 @@ export class GoogleAnalyticsService {
     window.gtag('config', measurementId, {
       send_page_view: false, // We'll handle page views manually
       link_attribution: true,
+      debug_mode: this.debug 
     });
 
     // Load the script
