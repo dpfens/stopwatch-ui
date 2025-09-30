@@ -1,6 +1,4 @@
-// full.component.scss
-
-// full.component.scss
+// full.component.scss - Material 3 System Colors
 
 .small-icon {
   font-size: 14px !important;
@@ -12,14 +10,14 @@
 
 .info-icon {
   cursor: help;
-  color: #757575;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #2196f3;
+    color: var(--mat-sys-primary);
   }
 }
 
@@ -35,41 +33,37 @@
 // Clean up select options
 :host ::ng-deep .mat-select-panel {
   .mat-option {
-    border-bottom: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
     
     &:last-child {
       border-bottom: none;
     }
     
     &:hover {
-      background-color: rgba(0,0,0,0.04) !important;
+      background-color: var(--mat-sys-surface-container-highest) !important;
     }
   }
 }
 
 .preset-info {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--mat-sys-outline-variant);
   transition: all 0.2s ease-in-out;
   
   &:hover {
-    border-color: #ccc;
-    background-color: #f8f9fa !important;
+    border-color: var(--mat-sys-outline);
+    background-color: var(--mat-sys-surface-container-low) !important;
   }
 }
 
 .text-warning {
-  color: #ff9800 !important;
-}
-
-.bg-light {
-  background-color: #f8f9fa !important;
+  color: var(--mat-sys-error) !important;
 }
 
 // Information Panel Styles
 .info-panel {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
   padding: 16px;
   margin-top: 8px;
   max-height: 600px;
@@ -81,7 +75,7 @@
 }
 
 .info-panel-title {
-  color: #495057;
+  color: var(--mat-sys-on-surface);
   margin-bottom: 16px;
   font-weight: 600;
   display: flex;
@@ -92,6 +86,7 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
+    color: var(--mat-sys-primary);
   }
 }
 
@@ -100,17 +95,17 @@
   padding-bottom: 16px;
   
   &:not(:last-child) {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
   }
   
   &.warning-section {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 6px;
+    background: var(--mat-sys-error-container);
+    border: 1px solid var(--mat-sys-error);
+    border-radius: 8px;
     padding: 12px;
     
     .info-description {
-      color: #856404;
+      color: var(--mat-sys-on-error-container);
     }
   }
 }
@@ -120,18 +115,23 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  color: #495057;
+  color: var(--mat-sys-on-surface);
+  
+  strong {
+    color: var(--mat-sys-on-surface);
+  }
 }
 
 .section-icon {
   font-size: 16px !important;
   width: 16px !important;
   height: 16px !important;
+  color: var(--mat-sys-primary);
 }
 
 .info-description {
   font-size: 14px;
-  color: #6c757d;
+  color: var(--mat-sys-on-surface-variant);
   line-height: 1.5;
   margin-bottom: 8px;
 }
@@ -142,7 +142,7 @@
 
 .use-cases-title {
   font-weight: 600;
-  color: #495057;
+  color: var(--mat-sys-on-surface);
   display: block;
   margin-bottom: 6px;
 }
@@ -153,7 +153,7 @@
   
   li {
     font-size: 13px;
-    color: #6c757d;
+    color: var(--mat-sys-on-surface-variant);
     margin-bottom: 2px;
   }
 }
@@ -168,7 +168,7 @@
 
 .evaluation-title {
   font-weight: 500;
-  color: #495057;
+  color: var(--mat-sys-on-surface);
   font-size: 14px;
   margin-bottom: 4px;
 }
@@ -180,13 +180,13 @@
 
 .option-title {
   font-weight: 500;
-  color: #333;
+  color: var(--mat-sys-on-surface);
   line-height: 1.3;
 }
 
 .option-description {
   font-size: 12px;
-  color: #666;
+  color: var(--mat-sys-on-surface-variant);
   line-height: 1.4;
   margin-top: 2px;
   white-space: normal;
@@ -234,7 +234,7 @@
 
 @keyframes preset-highlight {
   0% { background-color: transparent; }
-  50% { background-color: rgba(33, 150, 243, 0.1); }
+  50% { background-color: var(--mat-sys-primary-container); }
   100% { background-color: transparent; }
 }
 
@@ -245,16 +245,91 @@
   }
   
   &::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--mat-sys-surface-container);
     border-radius: 3px;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: var(--mat-sys-outline);
     border-radius: 3px;
     
     &:hover {
-      background: #a8a8a8;
+      background: var(--mat-sys-on-surface-variant);
+    }
+  }
+}
+
+// Additional Material 3 enhancements
+.duration-display {
+  background: var(--mat-sys-surface-container);
+  border-radius: 12px;
+  padding: 16px;
+  
+  &.primary {
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+}
+
+.duration-label {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.duration-time {
+  color: var(--mat-sys-on-surface);
+}
+
+// Alert styling
+.alert {
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+  border: 1px solid var(--mat-sys-error);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &.alert-warning {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+    border-color: var(--mat-sys-tertiary);
+  }
+  
+  mat-icon {
+    color: inherit;
+  }
+}
+
+// Card footer
+.example-card-footer {
+  background: var(--mat-sys-surface-container-lowest);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  padding: 12px 16px;
+  
+  .text-muted {
+    color: var(--mat-sys-on-surface-variant);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+// Control buttons
+.control-buttons {
+  background: var(--mat-sys-surface-container);
+  border-radius: 8px;
+  
+  mat-button-toggle {
+    color: var(--mat-sys-on-surface);
+    
+    &:hover {
+      background: var(--mat-sys-surface-container-highest);
+    }
+    
+    &.mat-button-toggle-checked {
+      background: var(--mat-sys-secondary-container);
+      color: var(--mat-sys-on-secondary-container);
     }
   }
 }

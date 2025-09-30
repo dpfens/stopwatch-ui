@@ -3,45 +3,45 @@
     routerLinkActive="active" 
     ariaCurrentWhenActive="page"
     id="{{ getInstance().id }}" 
-    class="group-list-item d-flex text-decoration-none p-3 border-bottom">
+    class="group-list-item">
     
     <!-- Primary Content Section -->
-    <div class="flex-grow-1 min-width-0">
+    <div class="primary-content">
         <!-- Primary: Group Title -->
-        <div class="group-title fw-semibold fs-6 text-truncate mb-1" 
+        <div class="group-title" 
              [title]="getInstance().annotation.title || 'Untitled Group'">
             {{ getInstance().annotation.title || 'Untitled Group' }}
         </div>
         
         <!-- Secondary: Preset Info -->
-        <div class="group-preset text-muted fs-7 text-truncate">
+        <div class="group-preset">
             {{ preset() }}
         </div>
     </div>
     
     <!-- Metadata Section -->
-    <div class="d-flex flex-column align-items-end text-end ms-3 min-width-0">
+    <div class="metadata-section">
         <!-- Secondary: Stopwatch Count -->
-        <div class="stopwatch-count fw-medium fs-7 text-nowrap mb-1">
-            <span class="text-primary">{{ getInstance().members.length }}</span>
-            <span class="text-muted ms-1">{{ getInstance().members.length === 1 ? 'stopwatch' : 'stopwatches' }}</span>
+        <div class="stopwatch-count">
+            <span class="count-number">{{ getInstance().members.length }}</span>
+            <span class="count-label">{{ getInstance().members.length === 1 ? 'stopwatch' : 'stopwatches' }}</span>
         </div>
         
         <!-- Tertiary: Creation Time -->
-        <div class="creation-time text-muted fs-8 text-nowrap">
+        <div class="creation-time">
             {{ relativeTime(getInstance().metadata.creation.timestamp) }}
         </div>
     </div>
     
     <!-- Action Section -->
-    <div class="d-flex align-items-center ms-2">
+    <div class="action-section">
         <button 
-            matIconButton 
+            mat-icon-button 
             aria-label="Delete group"
             class="delete-button"
             (click)="delete($event)"
             [title]="'Delete group: ' + (getInstance().annotation.title || 'Untitled Group')">
-            <mat-icon class="fs-5">delete</mat-icon>
+            <mat-icon>delete</mat-icon>
         </button>
     </div>
 </a>

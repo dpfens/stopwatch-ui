@@ -7,12 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'stopwatch-list-grid-view',
   imports: [StopwatchGridDetailViewComponent, GlobalActionBarComponent,
     MatCardModule, MatIconModule,  MatInputModule,
-    MatCheckboxModule, MatFormFieldModule
+    MatCheckboxModule, MatFormFieldModule, MatProgressSpinnerModule
   ],
   templateUrl: './stopwatch-list.component.html',
   styleUrl: './stopwatch-list.component.scss'
