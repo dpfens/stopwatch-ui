@@ -78,6 +78,8 @@ export interface GoogleAnalyticsConfig {
   enabled?: boolean;
   /** Enable debug mode to log analytics calls to console without sending data. @defaultValue false */
   debug?: boolean;
+
+  link_attribution?: boolean;  // Track multiple links to same destination
 }
 
 /**
@@ -247,7 +249,8 @@ export class GoogleAnalyticsService {
     
     window.gtag('js', new Date());
     window.gtag('config', measurementId, {
-      send_page_view: false // We'll handle page views manually
+      send_page_view: false, // We'll handle page views manually
+      link_attribution: true,
     });
 
     // Load the script
