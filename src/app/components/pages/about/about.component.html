@@ -1,365 +1,318 @@
-<div class="container-fluid py-4">
-  <!-- Hero Section -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <mat-card class="hero-card bg-primary text-white mb-4">
-        <mat-card-content class="text-center py-5">
-          <mat-icon class="hero-icon mb-3" style="font-size: 4rem; height: 4rem; width: 4rem;">timer</mat-icon>
-          <h1 class="display-4 fw-bold mb-3">About</h1>
-          <p class="lead">Professional timing made simple, reliable, and accessible to everyone.</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-
-  <!-- Why This Exists Section -->
-  <div class="row mb-5">
-    <div class="col-12 col-lg-8 mx-auto">
-      <mat-card class="shadow-sm">
-        <mat-card-header class="pb-3">
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-primary">lightbulb</mat-icon>
-            <h2 class="h3 mb-0">Why This Exists</h2>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="row align-items-center">
-            <div class="col-12 col-md-8">
-              <p class="lead mb-3">A few years back, I went to a track meet to watch my old college team compete. I tried timing some runners with my phone's stopwatch, wanting to see how the team had progressed since I was on it.</p>
-              <p class="mb-3">It wasn't good. I could barely keep track of which split belonged to which runner, couldn't record anything without losing focus on timing, and ended up with a confusing mess of numbers I couldn't do anything useful with.</p>
-              <p class="mb-3">The experience stuck with me. I'd only tried timing a couple races out of an entire meet, but coaches and athletes deal with this constantly while trying to focus on what actually matters - supporting their team, cheering at the right moments, giving real-time feedback. It seemed ridiculous that such a basic need was forcing people to choose between getting useful data and being present for their athletes.  A couple months later COVID lockdown started, so I built my own.</p>
-              <p class="text-muted">I let Reddit know about it, and turns out hundreds of people had the same problem. This is version 2.   Same idea, but rebuilt to be more reliable, easier to use, and easier for me to work on.</p>
-            </div>
-            <div class="col-12 col-md-4 text-center">
-              <mat-icon style="font-size: 6rem; height: 6rem; width: 6rem; color: #007bff; opacity: 0.2;">track_changes</mat-icon>
-            </div>
+<div class="about-container">
+  <!-- Hero Section - Asymmetric Title Block -->
+  <section class="hero-section">
+    <div class="hero-grid">
+      <div class="title-block-rotated">
+        <div class="section-number">01</div>
+        <h1 class="massive-title text-uppercase">About</h1>
+      </div>
+      <div class="hero-statement">
+        <div class="statement-inner">
+          <div class="geometric-accent">
+            <div class="red-bar"></div>
+            <div class="black-square"></div>
           </div>
-        </mat-card-content>
-      </mat-card>
+          <p class="lead-text">Professional timing made simple, reliable, and accessible to everyone.</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Features Section -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <h2 class="text-center mb-4 display-6">What It Actually Does</h2>
-    </div>
-  </div>
-
-  <div class="row mb-4 g-4">
-    <!-- Multiple Independent Timers -->
-    <div class="col-12 col-md-6 col-xl-4">
-      <mat-card class="h-100 feature-card">
-        <mat-card-header>
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-success">access_time_filled</mat-icon>
-            Multiple Independent Timers
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <ul class="list-unstyled mt-2">
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Run as many stopwatches as you need simultaneously</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Copy a running timer to start timing someone else mid-race</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Each timer keeps its own splits and history</span>
-            </li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Organization -->
-    <div class="col-12 col-md-6 col-xl-4">
-      <mat-card class="h-100 feature-card">
-        <mat-card-header>
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-warning">folder_open</mat-icon>
-            Organization That Makes Sense
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <ul class="list-unstyled mt-2">
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Name your timers (runner names, event types, whatever)</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Group related timers together (by event, team, session)</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Archive old sessions to keep current ones clean</span>
-            </li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Timing Features -->
-    <div class="col-12 col-md-6 col-xl-4">
-      <mat-card class="h-100 feature-card">
-        <mat-card-header>
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-info">sports_stopwatch</mat-icon>
-            Timing Features You'll Actually Use
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <ul class="list-unstyled mt-2">
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Record splits during races without stopping the main timer</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Add lap markers for track events</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Note events and measurements as they happen</span>
-            </li>
-            <li class="mb-2 d-flex align-items-start">
-              <mat-icon class="me-2 text-muted flex-shrink-0" style="font-size: 1.2rem; margin-top: 0.125rem;">check_circle</mat-icon>
-              <span>Export data when you need it elsewhere</span>
-            </li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-
-  <!-- Built for Real Conditions -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <mat-card>
-        <mat-card-header class="bg-light">
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-primary">build</mat-icon>
-            <h2 class="h3 mb-0">Built for Real Conditions</h2>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div class="row g-4">
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="text-center">
-                <mat-icon class="mb-3 text-success" style="font-size: 3rem; height: 3rem; width: 3rem;">cloud_off</mat-icon>
-                <h4 class="h5">Works Offline</h4>
-                <p class="text-muted small">Your data lives on your device, not in the cloud. No internet? No problem. Rural track with zero cell service? Still works perfectly.</p>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="text-center">
-                <mat-icon class="mb-3 text-warning" style="font-size: 3rem; height: 3rem; width: 3rem;">battery_charging_full</mat-icon>
-                <h4 class="h5">Battery Conscious</h4>
-                <p class="text-muted small">Won't drain your phone during long meets or training sessions. I've used it for 5+ hour events without noticeable battery impact beyond the norm.</p>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="text-center">
-                <mat-icon class="mb-3 text-info" style="font-size: 3rem; height: 3rem; width: 3rem;">verified</mat-icon>
-                <h4 class="h5">Actually Reliable</h4>
-                <p class="text-muted small">Close the app, switch to other apps, take a call - your timers keep running accurately. Sounds obvious, but you'd be surprised how many timing apps mess this up.</p>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="text-center">
-                <mat-icon class="mb-3 text-primary" style="font-size: 3rem; height: 3rem; width: 3rem;">devices</mat-icon>
-                <h4 class="h5">Responsive Interface</h4>
-                <p class="text-muted small">Works on phones, tablets, laptops. Touch or mouse. Portrait or landscape. The interface adapts.</p>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-
-  <!-- Who Uses This -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <h2 class="text-center mb-4 display-6">Who Uses This</h2>
-    </div>
-  </div>
-
-  <div class="row g-4 mb-5">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <mat-card class="h-100 text-center user-card">
-        <mat-card-content class="pt-4">
-          <mat-icon class="mb-3 text-primary" style="font-size: 3rem; height: 3rem; width: 3rem;">directions_run</mat-icon>
-          <h4 class="h5">Track & Field Coaches and Athletes</h4>
-          <p class="text-muted">Time multiple runners, record splits, track training progress</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <mat-card class="h-100 text-center user-card">
-        <mat-card-content class="pt-4">
-          <mat-icon class="mb-3 text-success" style="font-size: 3rem; height: 3rem; width: 3rem;">science</mat-icon>
-          <h4 class="h5">Researchers</h4>
-          <p class="text-muted">Precise timing for experiments, data collection, observations</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <mat-card class="h-100 text-center user-card">
-        <mat-card-content class="pt-4">
-          <mat-icon class="mb-3 text-warning" style="font-size: 3rem; height: 3rem; width: 3rem;">business_center</mat-icon>
-          <h4 class="h5">Professionals</h4>
-          <p class="text-muted">Time tracking that doesn't require accounts, subscriptions, or sending data to servers</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <mat-card class="h-100 text-center user-card">
-        <mat-card-content class="pt-4">
-          <mat-icon class="mb-3 text-info" style="font-size: 3rem; height: 3rem; width: 3rem;">people</mat-icon>
-          <h4 class="h5">Anyone Timing Multiple Things</h4>
-          <p class="text-muted">Manufacturing processes, cooking, studying, project work</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-
-  <!-- Version 2 Features - Accordion -->
-  <div class="row mb-5">
-    <div class="col-12 col-lg-10 mx-auto">
-      <h2 class="text-center mb-4 display-6">What's Different in Version 2</h2>
-      <mat-accordion multi>
+  <!-- Why This Exists - Diagonal Story -->
+  <section class="origin-section">
+    <div class="origin-grid">
+      <div class="section-label-vertical sticky-top">
+          <span class="text-uppercase">Origin</span>
+          <span class="text-uppercase">Story</span>
+      </div>
+      
+      <div class="story-content">
+        <div class="story-header-diagonal">
+          <mat-icon class="story-icon">lightbulb</mat-icon>
+          <h2>Why This Exists</h2>
+        </div>
         
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title class="d-flex align-items-center">
-              <mat-icon class="me-2 text-success">upgrade</mat-icon>
-              Actually Upgradeable
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="expansion-content pt-3">
-            <p class="mb-3">The original version worked, but making changes was a nightmare. Everything was tightly coupled. The way data was stored and how timing worked heavily limited what features were possible. Adding new functionality meant potentially breaking everyone's existing data.</p>
-            
-            <p class="mb-3">This version uses a completely different approach. Instead of storing calculated durations, it stores a sequence of events (start, stop, split, lap). Your timing data becomes a timeline of what actually happened, not a rigid snapshot.</p>
-            
-            <div class="alert alert-info d-flex align-items-start">
-              <mat-icon class="me-2 mt-1">info</mat-icon>
-              <div>
-                <strong>Result:</strong> I can add features, fix bugs, and improve things without your data becoming incompatible.
-              </div>
+        <div class="story-text-blocks">
+          <div class="text-block primary">
+            <p class="opening-statement">A few years back, I went to a track meet to watch my old college team compete. I tried timing some runners with my phone's stopwatch, wanting to see how the team had progressed since I was on it.</p>
+          </div>
+          
+          <div class="text-block secondary rotated-left">
+            <p>I was trying to time 3 multiple people and ended up spending the entire time focused on how to make my mess of a timer work instead of actually watching the race and taking split on the side. I lost track of whose splits were whose and what each split was supposed to indicate/record (ex. I took a split when they passed/were passed key people, or when they fell, as well as their laps and 200m splits). At the end, I was never really sure of whose splits were whose and felt like I wasted my time and effort. I did it for a couple other races with similarly poor results. I looked at other people at the meet, and they seemed to simply introduce more people, and have each person time a single person/relay.</p>
+          </div>
+          
+          <div class="text-block tertiary">
+            <div class="quote-block">
+              <div class="quote-bar"></div>
+              <p>The experience stuck with me. Handling multiple timers gracefully seemed like something some timing company or even a couple junior developer would have solved already.  More importantly, I'd only tried timing a couple races out of an entire meet. </p>
             </div>
           </div>
-        </mat-expansion-panel>
-
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title class="d-flex align-items-center">
-              <mat-icon class="me-2 text-primary">analytics</mat-icon>
-              Smart Analytics
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="expansion-content pt-3">
-            <p class="mb-3">Raw timing data is just numbers. The new modular analytics framework can actually analyze what your timing data means in context.</p>
-            
-            <p class="mb-3">Track performance trends, identify patterns, compare sessions. The system understands different types of timing scenarios and can provide relevant insights instead of generic statistics.</p>
+          
+          <div class="text-block quaternary rotated-right">
+            <p>Coaches and athletes deal with this constantly while trying to focus on what actually matters which is supporting their team, cheering at the right moments, giving real-time feedback. It seemed ridiculous that such a basic need was forcing people to choose between getting useful data and being present for their athletes. It was also frustrating that companies are out there building extravagant tools requiring very complex code, and yet solutions to my problem are still common. So while I was watching TV I'd idly sketch out some ideas of what one might look like.</p>
           </div>
-        </mat-expansion-panel>
-
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title class="d-flex align-items-center">
-              <mat-icon class="me-2 text-warning">group_work</mat-icon>
-              Group Intelligence
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="expansion-content pt-3">
-            <p class="mb-3">Managing multiple stopwatches during a fast-paced event like a race is chaotic. The new group system understands different timing contexts:</p>
-            
-            <div class="row g-3">
-              <div class="col-12 col-md-6">
-                <div class="d-flex align-items-start">
-                  <mat-icon class="me-2 mt-1 text-success">play_arrow</mat-icon>
-                  <div>
-                    <strong>Parallel timing</strong> for races where everyone starts together
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-6">
-                <div class="d-flex align-items-start">
-                  <mat-icon class="me-2 mt-1 text-info">swap_horiz</mat-icon>
-                  <div>
-                    <strong>Sequential timing</strong> for relay handoffs or process workflows
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-6">
-                <div class="d-flex align-items-start">
-                  <mat-icon class="me-2 mt-1 text-warning">apps</mat-icon>
-                  <div>
-                    <strong>Independent timing</strong> for general use
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-6">
-                <div class="d-flex align-items-start">
-                  <mat-icon class="me-2 mt-1 text-primary">assessment</mat-icon>
-                  <div>
-                    <strong>Evaluation strategies</strong> for rankings, totals, or threshold monitoring
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="alert alert-light mt-3">
-              <p class="mb-0"><small>The framework is designed to support more timing behaviors and evaluation types as different use cases emerge.</small></p>
+          
+          <div class="text-block primary asymmetric">
+            <p>But, then COVID happened about 10 months later and I had a lot of time on my hands. So I decided to try building my own. I built it in ~3 weeks, working on it while I watched TV after work. It had no polish whatsoever, but it worked. I posted it to Reddit, and got some really helpful objective and functional feedback. Within a couple weeks I had about a couple hundred weekly users. I thought they would all eventually forget about it, but the numbers slowly creeped up, despite me not posting more about it.</p>
+          </div>
+          
+          <div class="text-block conclusion">
+            <div class="conclusion-inner">
+              <p>I would use it periodically myself when I needed it. But I thought it was interesting that apparently other folks do too. This kept me thinking about it every few weeks. I would think of how I could have done a better job.</p>
+              <p>Over the course of a few months I came up with features it could use until I had a nice laundry list of new feature to add that seemed worthwhile. Then I figured out how I would need to build it so I could continue adding stuff to it in the future. This is important because I wanted it to be local-first. Since with local-first apps you can't restructure the data on your own between upgrades, I knew I had to get the fundamentals of it exactly right ahead of time. Once I had that, I knew I was ready to build version 2.</p>
+              <p class="final-statement">This is that Version 2. Same fundamental idea as the first, but rebuilt to be more reliable, easier to use, and easier for me to work on.</p>
             </div>
           </div>
-        </mat-expansion-panel>
-
-      </mat-accordion>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- The Point & Privacy -->
-  <div class="row mb-5">
-    <div class="col-12 col-lg-6 mb-4">
-      <mat-card class="h-100">
-        <mat-card-header>
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-primary">star</mat-icon>
-            The Point
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="mb-3">Good tools shouldn't cost hundreds of dollars or require you to hand over your data to some company. Sometimes you just need something that works, works well, and gets out of your way.</p>
-          <div class="alert alert-success">
-            <strong>This does more than most expensive stopwatches, costs nothing, and your data stays yours.</strong>
-          </div>
-          <p class="text-muted mb-0">That combination apparently works for people.</p>
-        </mat-card-content>
-      </mat-card>
+  <!-- Version 2 Technical Details - Accordion with Asymmetry -->
+  <section class="technical-section">
+    <div class="technical-header">
+      <div class="section-number-large">02</div>
+      <h2 class="section-title-diagonal">
+        <span class="title-stroke text-uppercase">Version 2</span>
+        <span class="title-fill text-uppercase">Technical Details</span>
+      </h2>
     </div>
     
-    <div class="col-12 col-lg-6">
-      <mat-card class="h-100">
-        <mat-card-header>
-          <mat-card-title class="d-flex align-items-center">
-            <mat-icon class="me-2 text-success">security</mat-icon>
-            Privacy
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="mb-3">Everything happens on your device. No accounts, no tracking, no data collection.</p>
-          <div class="alert alert-info">
-            <strong>Your timing data never leaves your browser unless you explicitly export it.</strong>
+    <div class="technical-content">
+      <mat-accordion multi class="technical-accordion">
+        <!-- Actually Upgradeable -->
+        <mat-expansion-panel class="panel-asymmetric upgrade">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="panel-title-custom">
+              <div class="panel-icon-block">
+                <mat-icon>upgrade</mat-icon>
+              </div>
+              <div class="panel-text-block">
+                <span class="panel-label text-uppercase">Architecture</span>
+                <span class="panel-name">Actually Upgradeable</span>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          
+          <div class="panel-content-asymmetric">
+            <div class="content-section problem">
+              <h3>The Problem with V1</h3>
+              <p>In version 1, I was using an early version of VueJS which did not have services for inter-communication across an application. This made cross-communication between different parts/page of the application very difficult.</p>
+              <p>In v1, my stopwatches only stored aggregate runtime data to make run faster, not the full time series of start/stops/splits. This had numerous bad effects:</p>
+              <ol>
+                <li>Adding a new type of split meant I had to completely rebuild the stopwatch to add a new type of split.</li>
+                <li>Removing splits/laps was very complicated because I had to manually edit several quantitative state variables to keep the stopwatch data correct.</li>
+                <li>There was no way to merge stopwatches and/or split a stopwatch into multiple because too much data would be lost.</li>
+              </ol>
+            </div>
+            
+            <div class="content-section solution">
+              <h3>The Solution</h3>
+              <div class="solution-highlight">
+                <p><strong>Angular 20.</strong> I decided to build the second version with Angular v20, which has very robust support for intercommunication through services, has dependency injection to manage memory/dependencies better, and has signals to manage the state of the user interface easier.</p>
+              </div>
+            </div>
           </div>
-          <p class="text-muted mb-0">Built by someone who actually uses this stuff and got tired of tools that don't work when you need them to.</p>
+        </mat-expansion-panel>
+
+        <!-- Smart Analytics -->
+        <mat-expansion-panel class="panel-asymmetric analytics">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="panel-title-custom">
+              <div class="panel-icon-block">
+                <mat-icon>analytics</mat-icon>
+              </div>
+              <div class="panel-text-block">
+                <span class="panel-label text-uppercase">Data</span>
+                <span class="panel-name">Smart Analytics</span>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          
+          <div class="panel-content-asymmetric">
+            <div class="content-section">
+              <p>For work, sometimes I had to build analytics platforms. Mainly for time series analysis for folks who don't have the time at work to actually analyze data themselves. Neither do the people running stopwatches. During a race, they want to focus on the race, not on number-crunching. So I figured I could get the app to do some number crunching for them. For now, I'm starting simple and I can add more over time.</p>
+            </div>
+            
+            <div class="content-section solution">
+              <h3>Continuous Event Stream</h3>
+              <div class="solution-highlight">
+                <p>The second version stores every aspect of the stopwatch execution as separate event with a timestamp. Starting, stopping, and resuming the stopwatch are all separate timestamps, as well as taking splits. This greatly simplifies the logic for removing splits and for adding new split types, as the fundamental data structure doesn't change. Now adding another split only involves adding split-specific processing logic for that on behalf of the user.</p>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </section>
+
+  <!-- The Point & Privacy - Asymmetric Dual Block -->
+  <section class="philosophy-section">
+    <div class="philosophy-grid">
+      <div class="section-number-rotated">03</div>
+      
+      <mat-card class="philosophy-card point">
+        <div class="card-header-geometric">
+          <div class="header-shape"></div>
+          <mat-card-header>
+            <mat-icon>star</mat-icon>
+            <mat-card-title>The Point</mat-card-title>
+          </mat-card-header>
+        </div>
+        <mat-card-content>
+          <p class="lead-paragraph">Good tools are built to be used. Existing solutions provided simple tools at professional pricing. This one provides a borderline professional tool at no cost.</p>
+          <div class="highlight-box">
+            <div class="box-accent"></div>
+            <p><strong>Result:</strong> This does more than most expensive stopwatches, costs nothing, and your data stays yours.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="philosophy-card privacy">
+        <div class="card-header-geometric">
+          <div class="header-shape"></div>
+          <mat-card-header>
+            <mat-icon>security</mat-icon>
+            <mat-card-title>Privacy</mat-card-title>
+          </mat-card-header>
+        </div>
+        <mat-card-content>
+          <p class="lead-paragraph">It's completely private because there's no reason to have to store your stopwatch data on a server somewhere. And I don't have to run/pay for a server.</p>
+          <p>Privacy was actually a by-product of my original desire to have a stopwatch that didn't need internet access and for it to be free. A lot of track/cross country meets are in areas with poor cell reception, so I wanted mine to work reliably. It also helped that the tooling for front-end only web applications was hitting maturity at the time.</p>
+          <div class="highlight-box">
+            <div class="box-accent"></div>
+            <p><strong>Reality:</strong> I can see how many people created a stopwatch, or created splits. I can't tell anything about you, your stopwatch or your split.</p>
+          </div>
         </mat-card-content>
       </mat-card>
     </div>
-  </div>
+  </section>
+
+  <!-- FAQ Section - Industrial Grid -->
+  <section class="faq-section">
+    <div class="faq-header">
+      <div class="section-number-large">04</div>
+      <h2 class="section-title-stacked">
+        <span class="title-line-1 text-uppercase">Frequently</span>
+        <span class="title-line-2 text-uppercase">Asked</span>
+        <span class="title-line-3 text-uppercase">Questions</span>
+      </h2>
+    </div>
+    
+    <div class="faq-grid">
+      <div class="faq-item accuracy">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Accuracy</span>
+        </div>
+        <div class="faq-content">
+          <h3>How accurate is the timing?</h3>
+          <p>Uses the same Web API that powers most online stopwatches. Accurate to milliseconds. In practical testing, it seems to match dedicated timing devices within 0.01 seconds.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item compatibility">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Compatibility</span>
+        </div>
+        <div class="faq-content">
+          <h3>Will this work on my device?</h3>
+          <p>Works on any modern browser (Chrome, Safari, Firefox, Edge). Tested on iPhones, Android phones, iPads, and laptops. If your browser was released in the last 3 years, you're good.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item reliability">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Reliability</span>
+        </div>
+        <div class="faq-content">
+          <h3>What happens if I accidentally close the browser?</h3>
+          <p>Your timers keep running. Everything is saved automatically. Open it back up and they'll be there.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item cost">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Cost</span>
+        </div>
+        <div class="faq-content">
+          <h3>Why is this free?</h3>
+          <p>Because I built it for myself and figured other people might find it useful.  And I don't want to turn a side project that costs me nothing into a job.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item use-case">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Use Cases</span>
+        </div>
+        <div class="faq-content">
+          <h3>Can I use this for [specific use case]?</h3>
+          <p>If you need to time multiple things accurately, probably yes.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item features">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Features</span>
+        </div>
+        <div class="faq-content">
+          <h3>What about [some niche feature]?</h3>
+          <p>Maybe! Send me your use case on GitHub. I'm more interested in solving real problems than adding features nobody uses.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item offline">
+        <div class="faq-label-rotated">
+          <span class="text-uppercase">Offline</span>
+        </div>
+        <div class="faq-content">
+          <h3>Does it work offline/with no cell service?</h3>
+          <p>Yes. Everything runs locally. You could time at the bottom of a canyon with zero service and it works perfectly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap Section - Diagonal Timeline -->
+  <!--section class="roadmap-section">
+    <div class="roadmap-header-asymmetric">
+      <div class="section-number-vertical">
+        <span>0</span>
+        <span>5</span>
+      </div>
+      <div class="roadmap-title-block">
+        <h2 class="section-title-diagonal">
+          <span class="title-stroke">FUTURE</span>
+          <span class="title-fill">PLANS</span>
+        </h2>
+        <p class="roadmap-subtitle">What's coming, what's being considered</p>
+      </div>
+    </div>
+    
+    <div class="roadmap-placeholder">
+      <div class="placeholder-geometric">
+        <div class="geo-circle"></div>
+        <div class="geo-bar"></div>
+      </div>
+      <p class="placeholder-text">Roadmap details coming soon. Check back or follow on GitHub for updates.</p>
+    </div>
+  </section-->
+
+  <!-- Feedback Section - Bold CTA -->
+  <section class="feedback-section">
+    <div class="feedback-grid">
+      <div class="feedback-content">
+        <div class="section-number-massive">05</div>
+        <h2 class="feedback-title text-uppercase">Feedback</h2>
+        <p class="feedback-text">Have suggestions? Found a bug? Want a feature?</p>
+        <p class="feedback-subtext">Contact info, bug reporting, and feature requests available on GitHub.</p>
+      </div>
+      <div class="feedback-geometric">
+        <div class="geometric-stack">
+          <div class="stack-square red"></div>
+          <div class="stack-square black"></div>
+          <div class="stack-circle"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
