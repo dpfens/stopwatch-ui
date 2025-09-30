@@ -51,10 +51,10 @@
         </mat-card>
         
         <div class="action-block">
-          <button mat-fab extended color="primary" class="primary-action" (click)="onGetStarted()">
+          <button routerLink="/stopwatch/" mat-fab extended color="primary" class="primary-action" (click)="onGetStarted()">
             START TIMING
           </button>
-          <button mat-stroked-button color="primary" class="secondary-action" (click)="onAboutPage()">
+          <button matButton="outlined" routerLink="/about/" color="primary" class="secondary-action" (click)="onAboutPage()">
             ABOUT
           </button>
         </div>
@@ -256,11 +256,11 @@
         <div class="section-number">06</div>
         <h2>FREE TO USE</h2>
         <p>Your data stays yours. No subscriptions, no accounts, no data sent to servers.</p>
-        <p>For more details about how and why this works the way it does, <button mat-button color="primary" (click)="onAboutPage()">see the About page</button>.</p>
+        <p>For more details about how and why this works the way it does, <button matButton routerLink="/about/" color="primary" (click)="onAboutPage()">see the About page</button>.</p>
       </div>
       
       <div class="final-action">
-        <button mat-fab extended color="primary" class="final-cta" (click)="onGetStarted()">
+        <button routerLink="/stopwatch/" matFab extended color="primary" class="final-cta" (click)="onGetStarted()">
           <mat-icon>play_arrow</mat-icon>
           START TIMING
         </button>

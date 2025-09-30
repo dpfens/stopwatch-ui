@@ -71,28 +71,30 @@
 
       <div class="groups-list minimal">
         @for (group of instances(); track group.id) {
-          <mat-card class="group-card asymmetric">
-            <mat-card-header>
-              <mat-card-title>{{group.annotation.title || truncate(group.id, 15) }}</mat-card-title>
-              <mat-card-subtitle>{{ group.annotation.description }}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="group-meta">
-                <div class="meta-item timing">
-                  <span class="label">Timing</span>
-                  <span class="value">{{ group.traits.timing }}</span>
+          <a routerLink="/group/{{ group.id }}">
+            <mat-card class="group-card asymmetric">
+              <mat-card-header>
+                <mat-card-title>{{group.annotation.title || truncate(group.id, 15) }}</mat-card-title>
+                <mat-card-subtitle>{{ group.annotation.description }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="group-meta">
+                  <div class="meta-item timing">
+                    <span class="label">Timing</span>
+                    <span class="value">{{ group.traits.timing }}</span>
+                  </div>
+                  <div class="meta-item evaluation">
+                    <span class="label">Evaluation</span>
+                    <span class="value">{{ group.traits.evaluation.join(', ') }}</span>
+                  </div>
+                  <div class="meta-item members">
+                    <span class="label">Members</span>
+                    <span class="value">{{ group.members.length }}</span>
+                  </div>
                 </div>
-                <div class="meta-item evaluation">
-                  <span class="label">Evaluation</span>
-                  <span class="value">{{ group.traits.evaluation.join(', ') }}</span>
-                </div>
-                <div class="meta-item members">
-                  <span class="label">Members</span>
-                  <span class="value">{{ group.members.length }}</span>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
+              </mat-card-content>
+            </mat-card>
+          </a>
         }
       </div>
     </div>
@@ -145,7 +147,7 @@
               </div>
               <div class="preset-members">
                 @for (group of preset.groups; track group.id) {
-                  <button mat-button class="member-link">
+                  <button mat-button class="member-link" routerLink="/group/{{ group.id }}">
                     {{group.annotation.title || truncate(group.id, 15) }}
                   </button>
                 }
@@ -296,7 +298,7 @@
               @if (period.groups.length > 0) {
                 <div class="segment-groups">
                   @for (group of period.groups.slice(0, 3); track group.id) {
-                    <span class="group-tag">{{group.annotation.title || truncate(group.id, 15) }}</span>
+                    <a class="group-tag text-decoration-none" routerLink="/group/{{ group.id }}">{{group.annotation.title || truncate(group.id, 15) }}</a>
                   }
                   @if (period.groups.length > 3) {
                     <span class="more-tag">+{{ period.groups.length - 3 }} more</span>

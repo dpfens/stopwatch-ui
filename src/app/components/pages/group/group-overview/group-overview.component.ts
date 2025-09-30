@@ -13,6 +13,7 @@ import {
   StopwatchAnalyticsTrait
 } from '../../../../models/sequence/interfaces';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 
 interface PresetBreakdown {
   name: string;
@@ -82,7 +83,8 @@ interface ComplexityLevel {
     MatCardModule,
     MatButtonModule,
     MatChipsModule,
-    MatIconModule
+    MatIconModule,
+    RouterLink
   ],
   templateUrl: './group-overview.component.html',
   styleUrl: './group-overview.component.scss'
