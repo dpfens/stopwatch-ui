@@ -1,5 +1,5 @@
 <!-- Global Action Bar - Slides up when selections are made -->
-<div class="global-action-bar position-fixed bottom-0 start-0 end-0 bg-white shadow-lg border-top" 
+<div class="global-action-bar position-fixed bottom-0 start-0 end-0 shadow-lg border-top" 
      [class.visible]="hasSelection()"
      [class.processing]="isProcessing()">
   
@@ -159,7 +159,6 @@
           mat-fab 
           [disabled]="isProcessing()"
           (click)="executeStartAll()"
-          class="bg-success text-white"
           matTooltip="Start {{ getStartableCount() }} stopwatches">
           <mat-icon>play_arrow</mat-icon>
         </button>
@@ -170,7 +169,6 @@
           mat-fab 
           [disabled]="isProcessing()"
           (click)="executeStopAll()"
-          class="bg-danger text-white"
           matTooltip="Stop {{ getStoppableCount() }} stopwatches">
           <mat-icon>stop</mat-icon>
         </button>
@@ -181,7 +179,6 @@
           mat-fab 
           [disabled]="isProcessing()"
           (click)="executeResumeAll()"
-          class="bg-warning text-white"
           matTooltip="Resume {{ getResumableCount() }} stopwatches">
           <mat-icon>play_circle_outline</mat-icon>
         </button>

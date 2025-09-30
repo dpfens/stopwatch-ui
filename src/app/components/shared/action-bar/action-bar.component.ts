@@ -20,6 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatProgressBarModule,
     MatTooltipModule
   ],
+  styleUrl: 'action-bar.component.scss',
   templateUrl: 'action-bar.component.html'
 })
 export class GlobalActionBarComponent {

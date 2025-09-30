@@ -1,4 +1,4 @@
-// Global Action Bar - Enhanced Material Design 3 Implementation
+// Global Action Bar - Material Design 3 System Colors
 .global-action-bar {
   position: fixed;
   bottom: 0;
@@ -13,12 +13,10 @@
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Slide up animation
   &.visible {
     transform: translateY(0);
   }
 
-  // Processing state styling
   &.processing {
     .action-toolbar {
       opacity: 0.7;
@@ -118,7 +116,6 @@
     border-right: 1px solid var(--mat-sys-outline-variant);
   }
 
-  // Button styling within groups
   button {
     min-width: auto;
     height: 40px;
@@ -146,26 +143,44 @@
     .start-button {
       background: var(--mat-sys-primary);
       color: var(--mat-sys-on-primary);
+
+      &:hover {
+        background: var(--mat-sys-primary);
+        filter: brightness(1.1);
+      }
     }
 
     .stop-button {
       background: var(--mat-sys-error);
       color: var(--mat-sys-on-error);
+
+      &:hover {
+        background: var(--mat-sys-error);
+        filter: brightness(1.1);
+      }
     }
 
     .resume-button {
       background: var(--mat-sys-secondary);
       color: var(--mat-sys-on-secondary);
+
+      &:hover {
+        background: var(--mat-sys-secondary);
+        filter: brightness(1.1);
+      }
     }
   }
 
-  // Event group - secondary actions
+  // Event group - outlined buttons with primary color
   &.event-group button {
-    border-color: var(--mat-sys-primary);
+    border: 1px solid var(--mat-sys-outline);
+    background: transparent;
     color: var(--mat-sys-primary);
 
     &:hover {
       background: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
+      border-color: var(--mat-sys-primary);
     }
   }
 
@@ -173,28 +188,37 @@
   &.management-group {
     .reset-button {
       color: var(--mat-sys-error);
-      border-color: var(--mat-sys-error);
+      border: 1px solid var(--mat-sys-outline);
+      background: transparent;
 
       &:hover {
         background: var(--mat-sys-error-container);
+        color: var(--mat-sys-on-error-container);
+        border-color: var(--mat-sys-error);
       }
     }
 
     .delete-button {
       color: var(--mat-sys-error);
-      border-color: var(--mat-sys-error);
+      border: 1px solid var(--mat-sys-outline);
+      background: transparent;
 
       &:hover {
         background: var(--mat-sys-error-container);
+        color: var(--mat-sys-on-error-container);
+        border-color: var(--mat-sys-error);
       }
     }
 
     .fork-button {
       color: var(--mat-sys-tertiary);
-      border-color: var(--mat-sys-tertiary);
+      border: 1px solid var(--mat-sys-outline);
+      background: transparent;
 
       &:hover {
         background: var(--mat-sys-tertiary-container);
+        color: var(--mat-sys-on-tertiary-container);
+        border-color: var(--mat-sys-tertiary);
       }
     }
   }
@@ -215,16 +239,31 @@
     &.start-fab {
       background: var(--mat-sys-primary);
       color: var(--mat-sys-on-primary);
+
+      &:hover {
+        background: var(--mat-sys-primary);
+        filter: brightness(1.1);
+      }
     }
 
     &.stop-fab {
       background: var(--mat-sys-error);
       color: var(--mat-sys-on-error);
+
+      &:hover {
+        background: var(--mat-sys-error);
+        filter: brightness(1.1);
+      }
     }
 
     &.resume-fab {
       background: var(--mat-sys-secondary);
       color: var(--mat-sys-on-secondary);
+
+      &:hover {
+        background: var(--mat-sys-secondary);
+        filter: brightness(1.1);
+      }
     }
 
     mat-icon {
@@ -276,7 +315,6 @@
       }
     }
 
-    // Hide button text on smaller screens
     button span:not(.action-count) {
       display: none;
     }
@@ -293,14 +331,12 @@
     min-width: 120px;
   }
 
-  // Hide less important action groups
   .event-group,
   .management-group .fork-button,
   .management-group .reset-button {
     display: none;
   }
 
-  // Show quick actions instead
   .quick-actions {
     display: flex;
   }
@@ -312,7 +348,6 @@
     padding: 6px 8px;
   }
 
-  // Only show most essential actions
   .action-group:not(.control-group):not(.management-group) {
     display: none;
   }
