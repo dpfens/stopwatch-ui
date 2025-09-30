@@ -14,8 +14,10 @@ export interface DurationFormatOptions {
   providedIn: 'root'
 })
 export class TimeService {
-  msDurationFormatter = new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', hoursDisplay: 'auto', minutesDisplay: 'auto', fractionalDigits: 3 })
-  durationFormatter = new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', hoursDisplay: 'auto', minutesDisplay: 'auto', fractionalDigits: 0 });
+  msDurationFormatter = () => 
+    new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', hoursDisplay: 'auto', minutesDisplay: 'auto', fractionalDigits: 3 });
+  durationFormatter = () =>
+    new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', hoursDisplay: 'auto', minutesDisplay: 'auto', fractionalDigits: 0 });
 
 
   relativeTimeFormatter = computed(() => {

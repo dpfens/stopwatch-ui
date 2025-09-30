@@ -323,4 +323,13 @@ export class FullGroupDetailComponent extends BaseGroupDetailViewComponent imple
   getEvaluationOption(value: GroupEvaluationBehavior) {
     return this.groupEvaluationBehaviorOptions.find(opt => opt.value === value);
   }
+
+  async createNew(): Promise<void> {
+    const instance = await this.stopwatchService.blank('', '');
+    await this.stopwatchService.create(instance);
+    const groupId = this.id();
+    if (groupId) {
+      await this.service.addMember(groupId, instance.id);
+    }
+  }
 }

@@ -12,6 +12,7 @@ import {
   GroupEvaluationBehavior,
   StopwatchAnalyticsTrait
 } from '../../../../models/sequence/interfaces';
+import { MatIconModule } from '@angular/material/icon';
 
 interface PresetBreakdown {
   name: string;
@@ -80,7 +81,8 @@ interface ComplexityLevel {
     MatSidenavModule,
     MatCardModule,
     MatButtonModule,
-    MatChipsModule
+    MatChipsModule,
+    MatIconModule
   ],
   templateUrl: './group-overview.component.html',
   styleUrl: './group-overview.component.scss'
@@ -536,5 +538,10 @@ export class GroupOverviewComponent {
     });
 
     return sorted.slice(0, 6);
+  }
+
+  async createNew(): Promise<void> {
+    const instance = this.service.blank('', '');
+    await this.service.create(instance);
   }
 }

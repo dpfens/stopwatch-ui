@@ -29,9 +29,9 @@ export class SimpleTimerComponent {
     try {
       const duration = this.timeService.toDurationObject(ms);
       if (this.includeMs()) {
-        return this.timeService.msDurationFormatter.format(duration);
+        return this.timeService.msDurationFormatter().format(duration);
       }
-      return this.timeService.durationFormatter.format(duration);
+      return this.timeService.durationFormatter().format(duration);
     } catch (error) {
       console.error('Error formatting duration:', error, 'ms:', ms);
       return '00:00:00';

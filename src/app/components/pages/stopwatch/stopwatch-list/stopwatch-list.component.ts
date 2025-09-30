@@ -4,10 +4,14 @@ import { HeaderActionService } from '../../../../services/action/header-action.s
 import { GLOBAL } from '../../../../utilities/constants';
 import { StopwatchCollectionViewComponent } from "../../../shared/stopwatch/collection/stopwatch-collection.component";
 import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwatch-selection/stopwatch-selection.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'stopwatch-list',
-  imports: [ StopwatchCollectionViewComponent],
+  imports: [ StopwatchCollectionViewComponent, MatCardModule, MatProgressBarModule, MatIconModule, MatButtonModule],
   templateUrl: './stopwatch-list.component.html',
   styleUrl: './stopwatch-list.component.scss'
 })

@@ -292,10 +292,39 @@
 
                 </div>
             }
-            <stopwatch-collection-view [instances]="getInstance().members" [showControls]="false" gridClasses="col-12 col-lg-6 col-xl-4">
 
-            </stopwatch-collection-view>
+            <stopwatch-collection-view [instances]="getInstance().members" [showControls]="false" gridClasses="col-12 col-lg-6 col-xl-4"></stopwatch-collection-view>
+            
         </mat-card-content>
+    } @else {
+        <div class="empty-state">
+            <div class="empty-geometry">
+                <mat-card class="empty-card card-1">
+                <mat-card-content>
+                    <mat-icon class="empty-icon">timer_off</mat-icon>
+                </mat-card-content>
+                </mat-card>
+                <mat-card class="empty-card card-2">
+                <mat-card-content>
+                    <div class="empty-stripe"></div>
+                </mat-card-content>
+                </mat-card>
+                <mat-card class="empty-card card-3">
+                <mat-card-content>
+                    <span class="empty-number">0</span>
+                </mat-card-content>
+                </mat-card>
+            </div>
+            
+            <div class="empty-content">
+                <h2 class="empty-title">No stopwatches yet</h2>
+                <p class="empty-description">Create a stopwatch for this group to start tracking time</p>
+                <button mat-raised-button color="primary" class="create-button" (click)="createNew()">
+                <mat-icon>add</mat-icon>
+                Create Stopwatch
+                </button>
+            </div>
+        </div>
     }
   }
   
