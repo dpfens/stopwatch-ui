@@ -82,7 +82,6 @@ export class PageVisibilityService {
     // Log visibility changes
     effect(() => {
       const state = this.visibilityState();
-      console.log(`Page visibility changed to: ${state}`);
     });
   }
 
@@ -368,7 +367,6 @@ export class IdleDetectionService {
       
       if (timeSinceActivity >= this.IDLE_THRESHOLD && !this.isIdle()) {
         this.isIdle.set(true);
-        console.log('User is now idle');
       }
     }, 1000);
   }
@@ -407,7 +405,6 @@ export class IdleDetectionService {
     if (this.isIdle()) {
       this.isIdle.set(false);
       this.idleTime.set(0);
-      console.log('User is now active');
     }
   }
 
