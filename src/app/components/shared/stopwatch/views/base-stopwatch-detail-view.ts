@@ -9,6 +9,7 @@ import { TZDate } from '../../../../models/date';
 import { GroupService } from '../../../../services/group/group.service';
 import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
 import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwatch-selection/stopwatch-selection.service';
+import { ApplicationAnalyticsService } from '../../../../services/analytics/application-analytics.service';
 
 // Define strongly-typed form interface
 interface StopwatchSettingsForm {
@@ -32,6 +33,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly fb = inject(FormBuilder);
   protected readonly selectionService = inject(StopwatchSelectionService);
+  protected readonly analyticService = inject(ApplicationAnalyticsService);
 
   id = input.required<UniqueIdentifier>();
   instance = computed(() => 
@@ -210,6 +212,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   showSettings(): void {
     this.initializeForm();
     this.displaySettings.set(true);
+    this.analyticService.trackStopwatchShowSettings(this.getInstance().id);
   }
 
   // Simplified and more reactive settings change handler
@@ -251,7 +254,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   // Extracted group assignment logic for better reusability
   private async updateGroupAssignments(instance: ContextualStopwatchEntity, newGroupIds: UniqueIdentifier[]): Promise<void> {
     const success = await this.service.setGroupMemberships(instance.id, newGroupIds);
-    
     if (!success) {
       throw new Error('Failed to update group memberships');
     }
@@ -291,11 +293,11 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
     }
 
     const formValue = this.settingsForm.value;
-    
+    const instance = this.getInstance();
     try {
       // Update stopwatch metadata
       const updatedStopwatch = {
-        ...this.getInstance(),
+        ...instance,
         annotation: {
           title: formValue.title || '',
           description: formValue.description || ''
@@ -319,12 +321,13 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
       if (success) {
         const groupIds = formValue.groups || [];
         const membershipSuccess = await this.service.setGroupMemberships(
-          this.getInstance().id, 
+          instance.id, 
           groupIds
         );
         
         if (membershipSuccess) {
           this.displaySettings.set(false);
+          this.analyticService.trackStopwatchSaveSettings(instance.id, []);
         } else {
           console.error('Failed to update group memberships');
           // Handle error appropriately
@@ -346,27 +349,33 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
-    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
+    const instance = this.getInstance();
+    await this.service.update({...instance, metadata, state: this.controller().getState()});
+    this.analyticService.trackStopwatchStart(instance.id);
   }
 
   async stop() {
     const now = new Date();
     this.controller().stop(now);
-    const metadata = {...this.getInstance().metadata};
+    const instance = this.getInstance();
+    const metadata = {...instance.metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
-    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
+    this.analyticService.trackStopwatchStop(instance.id);
+    await this.service.update({...instance, metadata, state: this.controller().getState()});
   }
 
   async resume() {
     const now = new Date();
     this.controller().resume(now);
-    const metadata = {...this.getInstance().metadata};
+    const instance = this.getInstance();
+    const metadata = {...instance.metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
-    await this.service.update({...this.getInstance(), metadata, state: this.controller().getState()});
+    this.analyticService.trackStopwatchResume(instance.id);
+    await this.service.update({...instance, metadata, state: this.controller().getState()});
   }
 
   async lap() {
@@ -382,13 +391,15 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
         lastLapEvent.unit = {value: state.lap!.value * lapEvents.length, unit: state.lap?.unit};
       }
     }
-
-    const metadata = {...this.getInstance().metadata};
+    const instance = this.getInstance()
+    const metadata = {...instance.metadata};
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
+    const lapNumber = this.controller().getEvents('lap').length;
+    this.analyticService.trackLapCreate(instance.id, lapNumber);
     this.buildSplits();
-    await this.service.update({...this.getInstance(), metadata, state});
+    await this.service.update({...instance, metadata, state});
   }
 
   async split() {
@@ -401,6 +412,8 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
+    const splitNumber = this.controller().getEvents('split').length;
+    this.analyticService.trackSplitCreate(instance.id, splitNumber);
     this.buildSplits();
     await this.service.update({...instance, metadata, state: this.controller().getState()});
   }
@@ -408,7 +421,6 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   async reset() {
     const now = new Date();
     this.controller().reset(now);
-    const defaultTime = {milliseconds: 0};
     this.visibleSplits.set([]);
 
     const instance = this.getInstance();
@@ -416,6 +428,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
     metadata.lastModification = {
       timestamp: TZDate.now()
     };
+    this.analyticService.trackStopwatchReset(instance.id);
     await this.service.update({...instance, metadata, state: this.controller().getState()});
   }
 
@@ -430,6 +443,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
         clone: { source: instance.id}
       }
     };
+    this.analyticService.trackStopwatchFork(instance.id, newInstance.id);
     await this.service.create(newInstance);
     await Promise.all(
       instance.groups.map(g => this.groupService.addMember(g.id, newInstance.id))
@@ -439,6 +453,7 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
   async delete() {
     const instance = this.getInstance();
     await this.service.delete(instance.id);
+    this.analyticService.trackStopwatchDelete(instance.id);
     this.snackbar.open(`Deleted stopwatch "${instance.annotation.title || instance.id}"`, 'Close');
     setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
   }
@@ -484,16 +499,20 @@ export class BaseStopwatchDetailViewComponent implements OnInit, AfterViewInit {
       const visibleSplitIndex = visibleSplits.findIndex(split => split.event.id === event.id);
       visibleSplits[visibleSplitIndex] = instance;
       this.visibleSplits.set([...visibleSplits]);
-
-      this.service.update({...this.getInstance(), state});
+      const stopwatchInstance = this.getInstance();
+      this.service.update({...stopwatchInstance, state});
+      this.analyticService.trackSplitSaveSettings(stopwatchInstance.id, []);
     }
   }
 
   async handleSplitDelete(instance: VisibleSplit) {
     const event = instance.event;
+    const eventCount = this.controller().getEvents(event.type).length;
     this.controller().removeEvent(event);
     this.buildSplits();
-    this.service.update({...this.getInstance(), state: this.controller().getState()});
+    const stopwatchInstance = this.getInstance();
+    this.service.update({...stopwatchInstance, state: this.controller().getState()});
+    this.analyticService.trackSplitDelete(stopwatchInstance.id, event.type, eventCount);
   }
 
   private findAvailableEventName(eventType: string): string {

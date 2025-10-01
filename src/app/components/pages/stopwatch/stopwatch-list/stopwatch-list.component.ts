@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
+import { ApplicationAnalyticsService } from '../../../../services/analytics/application-analytics.service';
 
 @Component({
   selector: 'stopwatch-list',
@@ -19,6 +20,7 @@ export class StopwatchListComponent implements OnInit, OnDestroy {
   private readonly service = inject(StopwatchService);
   private readonly headerActionService = inject(HeaderActionService);
   private readonly selectionService = inject(StopwatchSelectionService);
+  private readonly analyticsService = inject(ApplicationAnalyticsService);
   
   instances = this.service.instances;
   loading = this.service.isLoading
@@ -31,6 +33,7 @@ export class StopwatchListComponent implements OnInit, OnDestroy {
   async createNew(): Promise<void> {
     const instance = await this.service.blank('', '');
     await this.service.create(instance);
+    this.analyticsService.trackStopwatchCreate(instance.id);
   }
 
   ngOnDestroy() {

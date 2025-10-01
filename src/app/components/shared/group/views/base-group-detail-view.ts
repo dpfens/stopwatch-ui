@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { StopwatchBulkOperationsService } from '../../../../services/stopwatch/bulk-operation/stopwatch-bulk-operation-service.service';
 import { StopwatchService } from '../../../../services/stopwatch/stopwatch.service';
 import { StopwatchStateController } from '../../../../controllers/stopwatch/stopwatch-state-controller';
+import { ApplicationAnalyticsService } from '../../../../services/analytics/application-analytics.service';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class BaseGroupDetailViewComponent {
   protected readonly snackbar = inject(MatSnackBar);
   protected readonly time = inject(TimeService);
   protected readonly router = inject(Router);
+  protected readonly analyticsService = inject(ApplicationAnalyticsService);
 
   id = input.required<UniqueIdentifier>();
   instance = computed(() =>
@@ -91,6 +93,7 @@ export class BaseGroupDetailViewComponent {
     await Promise.all(
       instance.members.map(stopwatch => this.service.addMember(clonedInstance.id, stopwatch.id))
     );
+    this.analyticsService.trackGroupFork(instance.id, clonedInstance.id, clonedInstance.members.length);
   }
 
   async delete(event: Event) {
@@ -99,6 +102,7 @@ export class BaseGroupDetailViewComponent {
     const instance = this.getInstance();
     await this.service.delete(instance.id);
     this.snackbar.open(`Deleted group "${instance.annotation.title || instance.id}"`, 'Close');
+    this.analyticsService.trackGroupDelete(instance.id, instance.members.length);
     // navigate away from group URL to prevent re-loading attempt
     this.router.navigate(['/group']);
     setTimeout(() => this.snackbar.dismiss(), Time.FIVE_SECONDS);
@@ -216,6 +220,7 @@ export class BaseGroupDetailViewComponent {
       timestamp: TZDate.now()
     };
     await this.stopwatchService.update({...stopwatch, metadata, state: controller.getState()});
+    this.analyticsService.trackStopwatchStart(stopwatch.id, !!stopwatch.metadata.clone?.source);
   }
 
   async stop(stopwatch: ContextualStopwatchEntity, timestamp: Date) {
@@ -226,5 +231,6 @@ export class BaseGroupDetailViewComponent {
       timestamp: TZDate.now()
     };
     await this.stopwatchService.update({...stopwatch, metadata, state: controller.getState()});
+    this.analyticsService.trackStopwatchStop(stopwatch.id);
   }
 }

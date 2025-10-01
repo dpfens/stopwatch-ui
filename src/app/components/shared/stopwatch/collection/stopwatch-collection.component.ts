@@ -9,10 +9,10 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { StopwatchListViewComponent } from '../views/list/stopwatch-list/stopwatch-list.component';
 import { StopwatchListGridViewComponent } from '../views/grid/stopwatch-grid/stopwatch-list.component';
-import { GlobalActionBarComponent } from '../../action-bar/action-bar.component';
 import { StopwatchSearchService } from '../../../../services/stopwatch/search/search.service';
 import { ContextualStopwatchEntity } from '../../../../models/sequence/interfaces';
 import { SettingsService } from '../../../../services/settings/settings.service';
+import { ApplicationAnalyticsService } from '../../../../services/analytics/application-analytics.service';
 
 export type ViewMode = 'compact' | 'grid';
 
@@ -36,6 +36,7 @@ export type ViewMode = 'compact' | 'grid';
 export class StopwatchCollectionViewComponent {
   readonly searchService = inject(StopwatchSearchService);
   readonly settingService = inject(SettingsService);
+  private readonly analyticsService = inject(ApplicationAnalyticsService);
 
 
   stopwatchView = () => this.settingService.getEffectiveValue('stopwatchView') || 'grid';
@@ -64,8 +65,10 @@ export class StopwatchCollectionViewComponent {
   
   // View switching
   async setView(view: ViewMode): Promise<void> {
+    const oldView = this._currentView();
     this._currentView.set(view);
     await this.settingService.set('stopwatchView', view, 'user');
+    this.analyticsService.trackSettingChange('stopwatchView', oldView, view);
   }
   
   // Search methods

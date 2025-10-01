@@ -20,6 +20,7 @@ import { SettingId, SettingScope } from '../../../models/settings/interfaces';
 import { SelectOptGroup } from '../../../models/sequence/interfaces';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LapUnits, stopwatchViewOptions, ThemeOptions } from '../../../utilities/constants';
+import { ApplicationAnalyticsService } from '../../../services/analytics/application-analytics.service';
 
 /**
  * Configuration for which scopes each setting supports
@@ -63,6 +64,7 @@ export class SettingsComponent implements AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private settingsService = inject(SettingsService);
+  private readonly analyticsService = inject(ApplicationAnalyticsService);
 
   // Form and state management
   settingsForm: FormGroup;
@@ -250,6 +252,7 @@ export class SettingsComponent implements AfterViewInit, OnDestroy {
       const savePromises: Promise<boolean>[] = [];
 
       for (const config of this.settingsConfig) {
+        const oldValue = this.getEffectiveValue(config.id);
         const value = formValues[config.id];
         if (value !== undefined && value !== null && value !== '') {
           // Use the default scope for this setting (user for our current settings)
@@ -257,6 +260,7 @@ export class SettingsComponent implements AfterViewInit, OnDestroy {
           savePromises.push(
             this.settingsService.set(config.id, value, scope)
           );
+          this.analyticsService.trackSettingChange(config.id, oldValue, value);
         }
       }
 

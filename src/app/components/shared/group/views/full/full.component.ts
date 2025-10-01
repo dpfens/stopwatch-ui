@@ -218,6 +218,7 @@ export class FullGroupDetailComponent extends BaseGroupDetailViewComponent imple
 
     try {
       await this.service.update(instance);
+      this.analyticsService.trackGroupSaveSettings(this.getInstance().id, []);
     } catch (error) {
       console.error('Error saving settings:', error);
       // Handle error appropriately
@@ -328,8 +329,11 @@ export class FullGroupDetailComponent extends BaseGroupDetailViewComponent imple
     const instance = await this.stopwatchService.blank('', '');
     await this.stopwatchService.create(instance);
     const groupId = this.id();
+    this.analyticsService.trackStopwatchCreate(instance.id);
     if (groupId) {
       await this.service.addMember(groupId, instance.id);
+      this.analyticsService.trackStopwatchAddToGroup(instance.id, [groupId]);
     }
+
   }
 }

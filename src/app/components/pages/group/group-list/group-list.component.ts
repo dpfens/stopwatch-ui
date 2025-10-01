@@ -8,6 +8,7 @@ import { GLOBAL } from '../../../../utilities/constants';
 import { GroupListViewComponent } from '../../../shared/group/views/list/group-list/group-list.component';
 import { RouterOutlet } from '@angular/router';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import { ApplicationAnalyticsService } from '../../../../services/analytics/application-analytics.service';
 
 @Component({
   selector: 'group-list',
@@ -19,6 +20,7 @@ export class GroupListComponent implements OnDestroy {
   private service = inject(GroupService);
   private router = inject(Router);
   public readonly headerActionService = inject(HeaderActionService);
+  private readonly analyticsService = inject(ApplicationAnalyticsService);
   
   instances = this.service.instances;
   loading = this.service.isLoading;
@@ -65,6 +67,7 @@ export class GroupListComponent implements OnDestroy {
   async createNew(): Promise<void> {
     const instance = this.service.blank('', '');
     await this.service.create(instance);
+    this.analyticsService.trackGroupCreate(instance.id, 0);
   }
 
   toggleSideNav() {

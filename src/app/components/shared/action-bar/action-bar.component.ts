@@ -9,6 +9,7 @@ import { StopwatchSelectionService } from '../../../services/stopwatch/stopwatch
 import { StopwatchBulkOperationsService, BulkOperationResult } from '../../../services/stopwatch/bulk-operation/stopwatch-bulk-operation-service.service';
 import { Time } from '../../../utilities/constants';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ApplicationAnalyticsService } from '../../../services/analytics/application-analytics.service';
 
 @Component({
   selector: 'global-action-bar',
@@ -27,6 +28,7 @@ export class GlobalActionBarComponent {
   private readonly selectionService = inject(StopwatchSelectionService);
   private readonly bulkOpsService = inject(StopwatchBulkOperationsService);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly analyticService = inject(ApplicationAnalyticsService);
 
   readonly isProcessing = signal(false);
 
@@ -87,6 +89,7 @@ export class GlobalActionBarComponent {
       'start',
       stopwatches.length
     );
+    this.analyticService.trackBulkStart(stopwatches.map(sw => sw.id), "manual");
   }
 
   /**
@@ -99,6 +102,7 @@ export class GlobalActionBarComponent {
       'stop',
       stopwatches.length
     );
+    this.analyticService.trackBulkStop(stopwatches.map(sw => sw.id), "manual");
   }
 
   /**
@@ -111,6 +115,7 @@ export class GlobalActionBarComponent {
       'resume',
       stopwatches.length
     );
+    this.analyticService.trackBulkResume(stopwatches.map(sw => sw.id), "manual");
   }
 
   /**
@@ -123,6 +128,7 @@ export class GlobalActionBarComponent {
       'reset',
       stopwatches.length
     );
+    this.analyticService.trackBulkReset(stopwatches.map(sw => sw.id), "manual");
   }
 
   /**
@@ -185,6 +191,7 @@ export class GlobalActionBarComponent {
     if (result && result.successCount > 0) {
       this.selectionService.clearSelection();
     }
+    this.analyticService.trackBulkDelete(stopwatches.map(sw => sw.id), "manual");
   }
 
   /**
