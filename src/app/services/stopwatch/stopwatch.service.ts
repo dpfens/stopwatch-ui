@@ -69,8 +69,8 @@ export class StopwatchService {
    */
   async blank(title: string, description: string): Promise<StopwatchEntity> {
     const now = TZDate.now();
-    const lapUnit = await this.settingsService.getValue('defaultLapUnit', 'user');
-    const lapValue = await this.settingsService.getValue('defaultLapValue', 'user');
+    const lapUnit = this.settingsService.getValue('defaultLapUnit', 'user');
+    const lapValue = this.settingsService.getValue('defaultLapValue', 'user');
     const lap = (lapValue && lapUnit) ? {value: lapValue, unit: lapUnit} : null;
     return {
       id: crypto.randomUUID(),

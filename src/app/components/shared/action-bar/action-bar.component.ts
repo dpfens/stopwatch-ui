@@ -36,12 +36,12 @@ export class GlobalActionBarComponent {
   readonly selectedStopwatches = this.selectionService.selectedStopwatches;
   
   // Command availability
-  readonly canStartAll = this.selectionService.canStartAll;
-  readonly canStopAll = this.selectionService.canStopAll;
-  readonly canResumeAll = this.selectionService.canResumeAll;
-  readonly canResetAll = this.selectionService.canResetAll;
-  readonly canSplitAll = this.selectionService.canSplitAll;
-  readonly canLapAll = this.selectionService.canLapAll;
+  readonly canStartAny = this.selectionService.canStartAny;
+  readonly canStopAny = this.selectionService.canStopAny;
+  readonly canResumeAny = this.selectionService.canResumeAny;
+  readonly canResetAny = this.selectionService.canResetAny;
+  readonly canSplitAny = this.selectionService.canSplitAny;
+  readonly canLapAny = this.selectionService.canLapAny;
 
   // Computed counts for display
   readonly getStartableCount = computed(() => {

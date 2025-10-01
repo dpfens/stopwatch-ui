@@ -14,6 +14,8 @@ import {
 } from '../../../../models/sequence/interfaces';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { GroupListViewComponent } from "../../../shared/group/views/list/group-list/group-list.component";
+import { StopwatchCollectionViewComponent } from "../../../shared/stopwatch/collection/stopwatch-collection.component";
 
 interface PresetBreakdown {
   name: string;
@@ -84,8 +86,10 @@ interface ComplexityLevel {
     MatButtonModule,
     MatChipsModule,
     MatIconModule,
-    RouterLink
-  ],
+    RouterLink,
+    GroupListViewComponent,
+    StopwatchCollectionViewComponent
+],
   templateUrl: './group-overview.component.html',
   styleUrl: './group-overview.component.scss'
 })

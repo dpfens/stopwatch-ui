@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { ContextualStopwatchEntity, UniqueIdentifier } from '../../../models/sequence/interfaces';
 import { StopwatchStateController } from '../../../controllers/stopwatch/stopwatch-state-controller';
 import { StopwatchService } from '../stopwatch.service';
+import { StopwatchBulkOperationsService } from '../bulk-operation/stopwatch-bulk-operation-service.service';
 
 /**
  * Service for managing stopwatch selection state and bulk operations
@@ -11,6 +12,7 @@ import { StopwatchService } from '../stopwatch.service';
 })
 export class StopwatchSelectionService {
   service = inject(StopwatchService);
+  bulkOperationsService = inject(StopwatchBulkOperationsService);
 
   private _selectedIds = signal<Set<UniqueIdentifier>>(new Set());
   private allStopwatches = this.service.instances;
@@ -31,37 +33,54 @@ export class StopwatchSelectionService {
     const selected = this.selectedIds();
     return all.length > 0 && all.every(sw => selected.has(sw.id));
   });
-  
-  // Computed command availability based on selected stopwatches
+
+  // Command availability - computed based on current selection
   readonly canStartAll = computed(() => {
-    const selected = this.selectedStopwatches();
-    return selected.length > 0 && selected.some(sw => !this.isStopwatchActive(sw));
+    return this.bulkOperationsService.canStartAll(this.selectedStopwatches());
   });
-  
+
+  readonly canStartAny = computed(() => {
+    return this.bulkOperationsService.canStartAny(this.selectedStopwatches());
+  });
+
   readonly canStopAll = computed(() => {
-    const selected = this.selectedStopwatches();
-    return selected.length > 0 && selected.some(sw => this.isStopwatchRunning(sw));
+    return this.bulkOperationsService.canStopAll(this.selectedStopwatches());
   });
-  
+
+  readonly canStopAny = computed(() => {
+    return this.bulkOperationsService.canStopAny(this.selectedStopwatches());
+  });
+
   readonly canResumeAll = computed(() => {
-    const selected = this.selectedStopwatches();
-    return selected.length > 0 && selected.some(sw => this.isStopwatchStopped(sw));
+    return this.bulkOperationsService.canResumeAll(this.selectedStopwatches());
   });
-  
+
+  readonly canResumeAny = computed(() => {
+    return this.bulkOperationsService.canResumeAny(this.selectedStopwatches());
+  });
+
   readonly canResetAll = computed(() => {
-    const selected = this.selectedStopwatches();
-    return selected.length > 0 && selected.some(sw => this.isStopwatchActive(sw));
+    return this.bulkOperationsService.canResetAll(this.selectedStopwatches());
   });
-  
+
+  readonly canResetAny = computed(() => {
+    return this.bulkOperationsService.canResetAny(this.selectedStopwatches());
+  });
+
   readonly canSplitAll = computed(() => {
-    const selected = this.selectedStopwatches();
-    return selected.length > 0 && selected.every(sw => this.isStopwatchRunning(sw));
+    return this.bulkOperationsService.canSplitAll(this.selectedStopwatches());
   });
-  
+
+  readonly canSplitAny = computed(() => {
+    return this.bulkOperationsService.canSplitAny(this.selectedStopwatches());
+  });
+
   readonly canLapAll = computed(() => {
-    const selected = this.selectedStopwatches();
-    return selected.length > 0 && 
-           selected.every(sw => this.isStopwatchRunning(sw) && !!sw.state.lap);
+    return this.bulkOperationsService.canLapAll(this.selectedStopwatches());
+  });
+
+  readonly canLapAny = computed(() => {
+    return this.bulkOperationsService.canLapAny(this.selectedStopwatches());
   });
 
   /**

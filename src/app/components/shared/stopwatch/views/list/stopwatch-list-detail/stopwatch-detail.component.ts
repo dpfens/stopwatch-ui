@@ -15,12 +15,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SimpleTimerComponent } from "../../../../timer/timer.component";
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'stopwatch-list-detail-view',
   imports: [MatCardModule, MatButtonToggleModule, MatButtonModule, MatMenuModule, MatIconModule, MatChipsModule, MatExpansionModule, SplitExpansionPanelComponent,
     FormsModule, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatListModule, MatCheckboxModule, SimpleTimerComponent],
+    MatListModule, MatCheckboxModule, SimpleTimerComponent, RouterModule],
   templateUrl: './stopwatch-detail.component.html',
   styleUrl: './stopwatch-detail.component.scss'
 })

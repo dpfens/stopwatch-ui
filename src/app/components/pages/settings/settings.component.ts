@@ -19,7 +19,7 @@ import { SettingsService } from '../../../services/settings/settings.service';
 import { SettingId, SettingScope } from '../../../models/settings/interfaces';
 import { SelectOptGroup } from '../../../models/sequence/interfaces';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { LapUnits, ThemeOptions } from '../../../utilities/constants';
+import { LapUnits, stopwatchViewOptions, ThemeOptions } from '../../../utilities/constants';
 
 /**
  * Configuration for which scopes each setting supports
@@ -88,6 +88,17 @@ export class SettingsComponent implements AfterViewInit, OnDestroy {
       defaultScope: 'user',
       type: 'select',
       options: ThemeOptions,
+      min: null,
+      max: null
+    },
+    {
+      id: 'stopwatchView',
+      label: 'Stopwatch View',
+      description: 'Choose how you want stopwatches to be rendered',
+      supportedScopes: ['user'], // User-only setting
+      defaultScope: 'user',
+      type: 'select',
+      options: stopwatchViewOptions,
       min: null,
       max: null
     },

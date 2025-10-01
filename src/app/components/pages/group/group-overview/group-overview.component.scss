@@ -268,7 +268,6 @@
 .full-overview {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 2rem;
 }
 
 // Overview Header - Asymmetric Grid
@@ -1379,10 +1378,6 @@
 
 @media (max-width: 768px) {
   .overview-container {
-    padding: 1rem;
-  }
-
-  .full-overview {
     padding: 1rem;
   }
 

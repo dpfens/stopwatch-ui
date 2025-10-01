@@ -352,4 +352,60 @@ export class StopwatchBulkOperationsService {
       hasLapConfig: stopwatches.filter(sw => !!sw.state.lap).length
     };
   }
+
+  // Computed command availability based on selected stopwatches
+  canStartAny = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.some(sw => !this.stopwatchService.isStopwatchActive(sw));
+  }
+
+  canStartAll = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.every(sw => !this.stopwatchService.isStopwatchActive(sw));
+  }
+  
+  // Stop actions
+  canStopAny = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
+  }
+
+  canStopAll = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
+  }
+
+  // Resume actions
+  canResumeAny = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchStopped(sw));
+  }
+
+  canResumeAll = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchStopped(sw));
+  }
+
+  // Reset actions
+  canResetAny = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchActive(sw));
+  }
+
+  canResetAll = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchActive(sw));
+  }
+
+  // Split actions
+  canSplitAny = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
+  }
+
+  canSplitAll = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
+  }
+
+  // Lap actions
+  canLapAny = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && 
+          instances.some(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
+  }
+
+  canLapAll = (instances: ContextualStopwatchEntity[]) => {
+    return instances.length > 0 && 
+          instances.every(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
+  }
 }

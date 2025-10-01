@@ -12,8 +12,9 @@ import { StopwatchListGridViewComponent } from '../views/grid/stopwatch-grid/sto
 import { GlobalActionBarComponent } from '../../action-bar/action-bar.component';
 import { StopwatchSearchService } from '../../../../services/stopwatch/search/search.service';
 import { ContextualStopwatchEntity } from '../../../../models/sequence/interfaces';
+import { SettingsService } from '../../../../services/settings/settings.service';
 
-export type ViewMode = 'list' | 'grid';
+export type ViewMode = 'compact' | 'grid';
 
 @Component({
   selector: 'stopwatch-collection-view',
@@ -34,6 +35,10 @@ export type ViewMode = 'list' | 'grid';
 })
 export class StopwatchCollectionViewComponent {
   readonly searchService = inject(StopwatchSearchService);
+  readonly settingService = inject(SettingsService);
+
+
+  stopwatchView = () => this.settingService.getEffectiveValue('stopwatchView') || 'grid';
 
   // Display
   gridClasses = input<string>('col-12 col-sm-6 col-md-4 col-lg-3');
@@ -42,7 +47,7 @@ export class StopwatchCollectionViewComponent {
   // Inputs
   instances = input.required<ContextualStopwatchEntity[]>();
   showControls = input<boolean>(true);
-  defaultView = input<ViewMode>('list');
+  defaultView = input<'compact' | 'grid'>(this.stopwatchView());
   
   // View state
   private readonly _currentView = signal<ViewMode>(this.defaultView());
@@ -58,8 +63,9 @@ export class StopwatchCollectionViewComponent {
   readonly hasActiveFilters = this.searchService.hasActiveFilters;
   
   // View switching
-  setView(view: ViewMode): void {
+  async setView(view: ViewMode): Promise<void> {
     this._currentView.set(view);
+    await this.settingService.set('stopwatchView', view, 'user');
   }
   
   // Search methods

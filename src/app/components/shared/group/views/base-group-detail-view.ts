@@ -110,73 +110,58 @@ export class BaseGroupDetailViewComponent {
     return this.time.relativeTimeFormatter().format(relativeTimeInfo.value, relativeTimeInfo.unit);
   }
 
-
-  // Computed command availability based on selected stopwatches
+  // Computed command availability based on group members
   readonly canStartAny = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => !this.stopwatchService.isStopwatchActive(sw));
+    return this.bulkOpsService.canStartAny(this.getInstance().members);
   });
 
   readonly canStartAll = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.every(sw => !this.stopwatchService.isStopwatchActive(sw));
+    return this.bulkOpsService.canStartAll(this.getInstance().members);
   });
-  
+
   // Stop actions
   readonly canStopAny = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
+    return this.bulkOpsService.canStopAny(this.getInstance().members);
   });
 
   readonly canStopAll = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
+    return this.bulkOpsService.canStopAll(this.getInstance().members);
   });
 
   // Resume actions
   readonly canResumeAny = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchStopped(sw));
+    return this.bulkOpsService.canResumeAny(this.getInstance().members);
   });
 
   readonly canResumeAll = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchStopped(sw));
+    return this.bulkOpsService.canResumeAll(this.getInstance().members);
   });
 
   // Reset actions
   readonly canResetAny = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchActive(sw));
+    return this.bulkOpsService.canResetAny(this.getInstance().members);
   });
 
   readonly canResetAll = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchActive(sw));
+    return this.bulkOpsService.canResetAll(this.getInstance().members);
   });
 
   // Split actions
   readonly canSplitAny = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.some(sw => this.stopwatchService.isStopwatchRunning(sw));
+    return this.bulkOpsService.canSplitAny(this.getInstance().members);
   });
 
   readonly canSplitAll = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && instances.every(sw => this.stopwatchService.isStopwatchRunning(sw));
+    return this.bulkOpsService.canSplitAll(this.getInstance().members);
   });
 
   // Lap actions
   readonly canLapAny = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && 
-          instances.some(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
+    return this.bulkOpsService.canLapAny(this.getInstance().members);
   });
 
   readonly canLapAll = computed(() => {
-    const instances = this.getInstance().members;
-    return instances.length > 0 && 
-          instances.every(sw => this.stopwatchService.isStopwatchRunning(sw) && !!sw.state.lap);
+    return this.bulkOpsService.canLapAll(this.getInstance().members);
   });
 
   /**

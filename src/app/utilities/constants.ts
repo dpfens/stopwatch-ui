@@ -183,6 +183,23 @@ export const ThemeOptions: SelectOptGroup<string>[] = [
     }
 ] as const;
 
+
+export const stopwatchViewOptions: SelectOptGroup<string>[] = [
+    {
+      display: 'Standard',
+      options: [
+        {
+          display: 'Grid',
+          value: 'grid'
+        },
+        {
+          display: 'Compact',
+          value: 'compact'
+        }
+      ]
+    }
+] as const;
+
 /** 
  * Group Traits
  */
