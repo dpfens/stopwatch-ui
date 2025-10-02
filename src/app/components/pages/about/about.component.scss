@@ -1114,6 +1114,18 @@
   }
 }
 
+@media (max-width: 540px) {
+  .technical-accordion {
+    .panel-content-asymmetric {
+      padding: 0;
+
+      .solution-highlight {
+        padding: 0;
+      }
+    }
+  }
+}
+
 // Accessibility
 @media (prefers-reduced-motion: reduce) {
   * {
