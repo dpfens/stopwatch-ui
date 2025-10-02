@@ -1,4 +1,4 @@
-import { Component, input, computed, effect, inject, signal } from '@angular/core';
+import { Component, input, computed, effect, inject, signal, ElementRef } from '@angular/core';
 import { TimeService } from '../../../services/time/time.service';
 import { BrowserStateService } from '../../../services/utility/browser/browser-page.service';
 
@@ -11,6 +11,7 @@ import { BrowserStateService } from '../../../services/utility/browser/browser-p
 export class SimpleTimerComponent {
   private readonly timeService = inject(TimeService);
   private readonly browserState = inject(BrowserStateService);
+  private readonly elementRef = inject(ElementRef);
 
   getDuration = input.required<() => number>();
   isRunning = input<boolean>(false);
@@ -21,6 +22,8 @@ export class SimpleTimerComponent {
   private intervalId?: number;
   private animationFrameId?: number;
   private shouldBeRunning = signal(false);
+  private isIntersecting = signal(false);
+  private intersectionObserver?: IntersectionObserver;
   
   // Display the formatted time
   displayTime = computed(() => {
@@ -53,7 +56,7 @@ export class SimpleTimerComponent {
       this.includeMs();
     });
 
-    // Handle visibility changes
+    // Handle browser tab visibility changes
     effect(() => {
       const isVisible = this.browserState.visibility.isVisible();
       if (isVisible && this.shouldBeRunning()) {
@@ -69,14 +72,45 @@ export class SimpleTimerComponent {
         this.startTimerIfVisible();
       }
     });
+
+    // Handle intersection visibility changes
+    effect(() => {
+      const isInView = this.isIntersecting();
+      if (isInView && this.shouldBeRunning() && this.browserState.visibility.isVisible()) {
+        this.startTimerIfVisible();
+      } else if (!isInView) {
+        this.stopTimer();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
     this.updateDuration();
+    this.setupIntersectionObserver();
+  }
+
+  private setupIntersectionObserver(): void {
+    // Create observer with root margin to start slightly before element enters viewport
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          this.isIntersecting.set(entry.isIntersecting);
+        });
+      },
+      {
+        threshold: 0, // Trigger as soon as any part is visible
+        rootMargin: '50px' // Start observing 50px before entering viewport
+      }
+    );
+
+    this.intersectionObserver.observe(this.elementRef.nativeElement);
   }
 
   private startTimerIfVisible(): void {
-    if (!this.browserState.visibility.isVisible() || !this.shouldBeRunning()) {
+    // Check all visibility conditions
+    if (!this.browserState.visibility.isVisible() || 
+        !this.shouldBeRunning() || 
+        !this.isIntersecting()) {
       return;
     }
 
@@ -86,7 +120,9 @@ export class SimpleTimerComponent {
       this.startAnimationFrameTimer();
     } else {
       this.intervalId = window.setInterval(() => {
-        if (this.shouldBeRunning() && this.browserState.visibility.isVisible()) {
+        if (this.shouldBeRunning() && 
+            this.browserState.visibility.isVisible() && 
+            this.isIntersecting()) {
           this.updateDuration();
         } else {
           this.stopTimer();
@@ -97,7 +133,9 @@ export class SimpleTimerComponent {
 
   private startAnimationFrameTimer(): void {
     const animate = () => {
-      if (this.shouldBeRunning() && this.browserState.visibility.isVisible()) {
+      if (this.shouldBeRunning() && 
+          this.browserState.visibility.isVisible() && 
+          this.isIntersecting()) {
         this.updateDuration();
         this.animationFrameId = requestAnimationFrame(animate);
       } else {
@@ -105,7 +143,7 @@ export class SimpleTimerComponent {
       }
     };
 
-    if (this.browserState.visibility.isVisible()) {
+    if (this.browserState.visibility.isVisible() && this.isIntersecting()) {
       this.animationFrameId = requestAnimationFrame(animate);
     }
   }
@@ -143,5 +181,11 @@ export class SimpleTimerComponent {
 
   ngOnDestroy(): void {
     this.stopTimer();
+    
+    // Clean up intersection observer
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = undefined;
+    }
   }
 }
