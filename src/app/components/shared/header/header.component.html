@@ -1,49 +1,63 @@
 <mat-toolbar>
   @if(hasMenu()) {
-    <button (click)="executeMenuToggle()" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+    <button (click)="executeMenuToggle()" mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
       <mat-icon>menu</mat-icon>
     </button>
   }
-  <span [style.cursor]="'pointer'" routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Stopwatch UI</span>
-  <a mat-button class="nav-link" routerLink="/stopwatch" routerLinkActive="active" ariaCurrentWhenActive="page">
+  <span [style.cursor]="'pointer'" routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Epochron</span>
+  
+  <!-- Stopwatches -->
+  <a mat-icon-button routerLink="/stopwatch" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-sm-none" aria-label="Stopwatches">
+    <mat-icon>timer</mat-icon>
+  </a>
+  <a mat-button routerLink="/stopwatch" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-none d-sm-inline-flex">
     <mat-icon>timer</mat-icon>
     Stopwatches
   </a>
-  <a mat-button routerLink="/group" routerLinkActive="active" ariaCurrentWhenActive="page">
+  
+  <!-- Groups -->
+  <a mat-icon-button routerLink="/group" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-sm-none" aria-label="Groups">
+    <mat-icon>groups</mat-icon>
+  </a>
+  <a mat-button routerLink="/group" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-none d-sm-inline-flex">
     <mat-icon>groups</mat-icon>
     Groups
   </a>
-  <a mat-button routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page">
+  
+  <!-- Settings -->
+  <a mat-icon-button routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-sm-none" aria-label="Settings">
+    <mat-icon>settings</mat-icon>
+  </a>
+  <a mat-button routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-none d-sm-inline-flex">
     <mat-icon>settings</mat-icon>
     Settings
   </a>
-  <a mat-button routerLink="/about" routerLinkActive="active" ariaCurrentWhenActive="page">
+  
+  <!-- About -->
+  <a mat-icon-button routerLink="/about" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-sm-none" aria-label="About">
+    <mat-icon>info</mat-icon>
+  </a>
+  <a mat-button routerLink="/about" routerLinkActive="active" ariaCurrentWhenActive="page" 
+     class="d-none d-sm-inline-flex">
     About
   </a>
+  
   <span class="flex-fill"></span>
   @if(hasCreate()) {
-    <button matIconButton (click)="createNew()" aria-label="Add">
+    <button mat-icon-button (click)="createNew()" aria-label="Add">
       <mat-icon>add</mat-icon>
     </button>
   }
   @if(hasShare()) {
-    <button matIconButton (click)="executeShare()" aria-label="Share to social media">
+    <button mat-icon-button (click)="executeShare()" aria-label="Share to social media">
       <mat-icon>share</mat-icon>
     </button>
-  }
-  @if(hasSearch()) {
-    <form [formGroup]="searchForm">
-      <mat-form-field subscriptSizing="dynamic">
-        <mat-label>Search</mat-label>
-        <input type="search"
-              matInput
-              formControlName="query"
-              [matAutocomplete]="autoComplete">
-          <mat-autocomplete #autoComplete="matAutocomplete"></mat-autocomplete>
-        <button matSuffix mat-icon-button aria-label="Search">
-          <mat-icon>search</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
   }
 </mat-toolbar>

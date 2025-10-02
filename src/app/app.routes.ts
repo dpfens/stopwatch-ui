@@ -8,47 +8,49 @@ import { AboutComponent } from './components/pages/about/about.component';
 import { GroupOverviewComponent } from './components/pages/group/group-overview/group-overview.component';
 import { NotFoundComponent } from './components/pages/not-found/not-found.component';
 
+const appName = 'Epochron';
+
 export const routes: Routes = [
   { 
     path: '',
-    title: 'Home',
+    title: `Home - ${appName}`,
     component: HomeComponent
   },
   { 
     path: 'stopwatch', 
-    title: 'Stopwatches',
+    title: `Stopwatches - ${appName}`,
     component: StopwatchListComponent,
   },
   { 
     path: 'group', 
-    title: 'Groups',
+    title: `Groups - ${appName}`,
     component: GroupListComponent,
     children: [
       {
         path: '',
-        title: 'Groups',
+        title: `Groups - ${appName}`,
         component: GroupOverviewComponent,
       },
       {
         path: ':id',
-        title: 'Group',
+        title: `Group - ${appName}`,
         component: GroupDetailComponent,
       }
     ]
   },
   { 
     path: 'settings', 
-    title: 'Settings',
+    title: `Settings - ${appName}`,
     component: SettingsComponent
   },
   { 
     path: 'about', 
-    title: 'About',
+    title: `About - ${appName}`,
     component: AboutComponent
   },
   {
     path: '**',
-    title: 'Page Not Found',
+    title: `Page Not Found - ${appName}`,
     component: NotFoundComponent
   }
 ];
