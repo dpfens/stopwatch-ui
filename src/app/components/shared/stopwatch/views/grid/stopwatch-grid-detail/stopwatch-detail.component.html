@@ -1,7 +1,7 @@
 <mat-card 
     id="{{ getInstance().id }}"
     appearance="outlined"
-    class="pb-3 stopwatch-card"
+    class="flex-grow-1 pb-3 stopwatch-card"
     [class.selected]="isSelected()"
     [class.selection-mode]="selectionMode() || hasAnySelection()"
     (click)="onCardClick($event)"
@@ -162,6 +162,7 @@
                                 [isRunning]="controller().isRunning()"
                                 [includeMs]="totalDurationCalc() < MILLISECOND_THRESHOLD"
                                 class="duration-time"
+                                [class.text-start]="hasLaps() || hasSplits()"
                             ></simple-timer>
             </div>
             @if(hasLaps() || hasSplits()) {
@@ -173,7 +174,7 @@
                                 [getDuration]="lapDurationCalc"
                                 [isRunning]="controller().isRunning()"
                                 [includeMs]="lapDurationCalc() < MILLISECOND_THRESHOLD"
-                                class="duration-time"
+                                class="duration-time text-start"
                             ></simple-timer>
                         </div>
                     }
@@ -184,7 +185,7 @@
                                 [getDuration]="splitDurationCalc"
                                 [isRunning]="controller().isRunning()"
                                 [includeMs]="splitDurationCalc() < MILLISECOND_THRESHOLD"
-                                class="duration-time"
+                                class="duration-time text-start"
                             ></simple-timer>
                         </div>
                     }

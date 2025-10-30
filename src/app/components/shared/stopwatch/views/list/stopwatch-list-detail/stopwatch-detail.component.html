@@ -1,4 +1,4 @@
-<div id="{{ getInstance().id }}" class="stopwatch-list-item" [class.selected]="isSelected()"
+<div id="{{ getInstance().id }}" class="stopwatch-list-item flex-grow-1" [class.selected]="isSelected()"
     [class.selection-mode]="selectionMode() || hasAnySelection()" [class.running]="controller().isRunning()"
     [class.paused]="controller().isActive() && !controller().isRunning()" [class.inactive]="!controller().isActive()"
     (click)="onCardClick($event)">
@@ -23,7 +23,7 @@
         <!-- Compact Header Row -->
         <div class="header-row d-flex justify-content-between gap-3 py-2">
             <!-- Title and Status Section -->
-            <div class="title-section min-w-0 mb-1">
+            <div class="title-section d-flex align-items-center">
                 <h5 class="stopwatch-title text-truncate mb-0">
                     {{ getInstance().annotation.title || 'Untitled' }}
                 </h5>
@@ -32,59 +32,52 @@
                 </p>
                 }
             </div>
-            <!-- Compact Duration Display Section -->
-            <div class="duration-section d-flex flex-column ">
-                <div class="duration-display primary mb-1">
-                    <div>
-                        <div class="duration-label text-uppercase"
-                            style="font-size: 10px; line-height: 1;">total</div>
-                        <simple-timer [getDuration]="totalDurationCalc" [isRunning]="controller().isRunning()"
-                            [includeMs]="totalDurationCalc() < MILLISECOND_THRESHOLD"
-                            class="duration-time fw-bold"
-                            style="font-size: 20px; line-height: 1.2;"></simple-timer>
-                    </div>
-                </div>
-
-                @if(!!hasSplits() || !!hasLaps()) {
-                <div class="secondary-durations d-flex justify-content-evenly gap-3">
-                    @if(hasLaps()) {
-                    <div class="duration-display secondary">
-                        <div class="d-flex flex-column">
-                            <span class="duration-label text-uppercase"
-                                style="font-size: 9px; line-height: 1;">lap</span>
-                            <simple-timer [getDuration]="lapDurationCalc" [isRunning]="controller().isRunning()"
-                                [includeMs]="lapDurationCalc() < MILLISECOND_THRESHOLD"
-                                class="duration-time"
-                                style="font-size: 14px; line-height: 1.1;"></simple-timer>
-                        </div>
-                    </div>
-                    }
-                    @if(hasSplits()) {
-                    <div class="duration-display secondary">
-                        <div class="d-flex flex-column">
-                            <span class="duration-label text-uppercase"
-                                style="font-size: 9px; line-height: 1;">split</span>
-                            <simple-timer [getDuration]="splitDurationCalc" [isRunning]="controller().isRunning()"
-                                [includeMs]="splitDurationCalc() < MILLISECOND_THRESHOLD"
-                                class="duration-time"
-                                style="font-size: 14px; line-height: 1.1;"></simple-timer>
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
-            </div>
-
 
             <!-- Compact Controls Section -->
             <div class="controls-section">
                 <!-- Compact Menu -->
-                <div class="menu-section">
-                    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Stopwatch options"
-                        class="menu-button btn-sm p-1"
-                        [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
+                <div class="menu-section d-flex align-items-center">
+                    <mat-button-toggle-group class="control-buttons" name="favoriteColor" aria-label="Favorite Color"
+                    [hideSingleSelectionIndicator]="true"
+                    [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
+                        @if(showBasicControls()) {
+                            @if(!controller().isActive()) {
+                                <mat-button-toggle (click)="start()" aria-label="Start">
+                                    <mat-icon>play_arrow</mat-icon>
+                                </mat-button-toggle>
+                            }
+                            @if(controller().isActive() && !controller().isRunning()) {
+                                <mat-button-toggle (click)="resume()" aria-label="Resume">
+                                    <mat-icon>play_circle_outline</mat-icon>
+                                </mat-button-toggle>
+                                <mat-button-toggle (click)="reset()" aria-label="Reset">
+                                    <mat-icon>restart_alt</mat-icon>
+                                </mat-button-toggle>
+                            }
+                        }
+                        @if(controller().isRunning()) {
+                            @if (showBasicControls()) {
+                                <mat-button-toggle (click)="stop()" aria-label="Stop">
+                                    <mat-icon>stop</mat-icon>
+                                </mat-button-toggle>
+                            }
+                            @if(showCheckpointControls()) {
+                                @if (!!getInstance().state.lap) {
+                                    <mat-button-toggle (click)="lap()" aria-label="Lap">
+                                        <mat-icon>track_changes</mat-icon>
+                                    </mat-button-toggle>
+                                }
+                                <mat-button-toggle (click)="split()" aria-label="Split">
+                                    <mat-icon>call_split</mat-icon>
+                                </mat-button-toggle>
+                            }
+                        }
+                        <mat-button-toggle [matMenuTriggerFor]="menu" aria-label="Stopwatch options"
+                            class="menu-button btn-smp-1"
+                            [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
+                            <mat-icon>more_vert</mat-icon>
+                        </mat-button-toggle>
+                    </mat-button-toggle-group>
                     <mat-menu #menu="matMenu" xPosition="before">
                         <button mat-menu-item (click)="fork()">
                             <mat-icon>fork_right</mat-icon>
@@ -104,97 +97,90 @@
             </div>
         </div>
 
-        <div class="text-center">
-            <mat-button-toggle-group class="my-3 control-buttons" name="favoriteColor" aria-label="Favorite Color"
-                [hideSingleSelectionIndicator]="true"
-                [class.disabled-in-selection]="selectionMode() || hasAnySelection()">
-                @if(showBasicControls()) {
-                @if(!controller().isActive()) {
-                <mat-button-toggle (click)="start()">
-                    <mat-icon>play_arrow</mat-icon>
-                    Start
-                </mat-button-toggle>
-                }
-                @if(controller().isActive() && !controller().isRunning()) {
-                <mat-button-toggle (click)="resume()">
-                    <mat-icon>play_circle_outline</mat-icon>
-                    Resume
-                </mat-button-toggle>
-                <mat-button-toggle (click)="reset()">
-                    <mat-icon>restart_alt</mat-icon>
-                    Reset
-                </mat-button-toggle>
-                }
-                }
-                @if(controller().isRunning()) {
-                    @if (showBasicControls()) {
-                    <mat-button-toggle (click)="stop()">
-                        <mat-icon>stop</mat-icon>
-                        Stop
-                    </mat-button-toggle>
-                    }
-                    @if(showCheckpointControls()) {
-                    @if (!!getInstance().state.lap) {
-                    <mat-button-toggle (click)="lap()">
-                        <mat-icon>track_changes</mat-icon>
-                        Lap
-                    </mat-button-toggle>
-                    }
-                    <mat-button-toggle (click)="split()">
-                        <mat-icon>call_split</mat-icon>
-                        Split
-                    </mat-button-toggle>
-                    }
-                }
-            </mat-button-toggle-group>
-        </div>
-
-        <!-- Compact Expandable Content -->
-        <div class="expandable-content">
-            @if(visibleSplits().length) {
-            <div class="splits-section py-2 border-top">
-                <div class="splits-header d-flex align-items-center justify-content-between">
-                    <button mat-button class="toggle-splits-btn p-1 fw-medium small" (click)="toggleSplitsVisible()"
-                        [attr.aria-label]="splitsVisible() ? 'Hide splits' : 'Show splits'">
-                        <mat-icon>{{ splitsVisible() ? 'expand_less' : 'expand_more' }}</mat-icon>
-                        {{ visibleSplits().length }} Split{{ visibleSplits().length !== 1 ? 's' : '' }}
-                    </button>
-                    @if(!splitsVisible() && visibleSplits().length > 0) {
-                    <span class="splits-preview small">
-                        Last: <span class="fw-medium">{{
-                            timeService.msDurationFormatter().format(visibleSplits()[visibleSplits().length - 1].duration)
-                            }}</span>
-                    </span>
-                    }
+        <div class="d-flex justify-content-center mt-2">
+            <div class="duration-section d-flex flex-column">
+                <div class="duration-display primary mb-1">
+                    <div>
+                        <div class="duration-label text-uppercase">total</div>
+                        <simple-timer [getDuration]="totalDurationCalc" [isRunning]="controller().isRunning()"
+                            [includeMs]="totalDurationCalc() < MILLISECOND_THRESHOLD"
+                            class="duration-time fw-bold"></simple-timer>
+                    </div>
                 </div>
 
-                @if(splitsVisible()) {
-                <div class="splits-container mt-2">
-                    @for(split of visibleSplits(); track $index) {
-                    <split-expansion-panel [instance]="split" (updateEmitter)="handleSplitUpdate($event)"
-                        (deleteEmitter)="handleSplitDelete($event)"
-                        [class.disabled-in-selection]="selectionMode() || hasAnySelection()" class="list-split mb-1">
-                    </split-expansion-panel>
+                @if(!!hasSplits() || !!hasLaps()) {
+                <div class="secondary-durations d-flex justify-content-evenly gap-3">
+                    @if(hasLaps()) {
+                    <div class="duration-display secondary">
+                        <div class="d-flex flex-column">
+                            <span class="duration-label text-uppercase">lap</span>
+                            <simple-timer [getDuration]="lapDurationCalc" [isRunning]="controller().isRunning()"
+                                [includeMs]="lapDurationCalc() < MILLISECOND_THRESHOLD"
+                                class="duration-time text-start"></simple-timer>
+                        </div>
+                    </div>
+                    }
+                    @if(hasSplits()) {
+                    <div class="duration-display secondary">
+                        <div class="d-flex flex-column">
+                            <span class="duration-label text-uppercase">split</span>
+                            <simple-timer [getDuration]="splitDurationCalc" [isRunning]="controller().isRunning()"
+                                [includeMs]="splitDurationCalc() < MILLISECOND_THRESHOLD"
+                                class="duration-time"></simple-timer>
+                        </div>
+                    </div>
                     }
                 </div>
                 }
             </div>
+        </div>
+
+        <div class="expandable-content mt-3">
+            @if(visibleSplits().length || getInstance().groups.length) {
+            <mat-accordion class="compact-accordion" multi>
+                <!-- Splits Panel -->
+                @if(visibleSplits().length) {
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="me-2">call_split</mat-icon>
+                            <span class="fw-medium">{{ visibleSplits().length }} Split{{ visibleSplits().length !== 1 ? 's' : '' }}</span>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    
+                    <div class="splits-container mt-2">
+                        @for(split of visibleSplits(); track $index) {
+                        <split-expansion-panel [instance]="split" (updateEmitter)="handleSplitUpdate($event)"
+                            (deleteEmitter)="handleSplitDelete($event)"
+                            [class.disabled-in-selection]="selectionMode() || hasAnySelection()" class="list-split mb-1">
+                        </split-expansion-panel>
+                        }
+                    </div>
+                </mat-expansion-panel>
+                }
+
+                <!-- Groups Panel -->
+                @if(getInstance().groups.length) {
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="me-2">folder</mat-icon>
+                            <span class="fw-medium">{{ getInstance().groups.length }} Group{{ getInstance().groups.length !== 1 ? 's' : '' }}</span>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    
+                    <mat-chip-set aria-label="Groups" class="mt-2">
+                        @for(group of getInstance().groups; track group.id) {
+                        <mat-chip routerLink="/group/{{ group.id }}">
+                            {{ group.annotation.title || truncate(group.id, 10) }}
+                        </mat-chip>
+                        }
+                    </mat-chip-set>
+                </mat-expansion-panel>
+                }
+            </mat-accordion>
             }
         </div>
-
-        <!-- Groups - More compact -->
-        @if(getInstance().groups.length) {
-        <div>
-            <div class="d-flex flex-column">
-                <span class="section-label fw-medium small text-uppercase">Groups</span>
-                <mat-chip-set aria-label="Groups" class="inline-chips">
-                    @for(group of getInstance().groups; track group.id) {
-                    <mat-chip class="small" routerLink="/group/{{ group.id }}">{{ group.annotation.title || truncate(group.id, 10) }}</mat-chip>
-                    }
-                </mat-chip-set>
-            </div>
-        </div>
-        }
         } @else {
         <!-- Settings View -->
         <div class="settings-view">

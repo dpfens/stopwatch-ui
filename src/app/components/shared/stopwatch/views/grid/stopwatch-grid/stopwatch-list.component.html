@@ -25,7 +25,7 @@
     @if(instances().length > 0) {
         <div class="row g-4 mb-3">
             @for (instance of instances(); track instance.id) {
-                <stopwatch-grid-detail-view [id]="instance.id" [class]="columns()">
+                <stopwatch-grid-detail-view [id]="instance.id" [class]="columns()" class="d-flex flex-column">
                 </stopwatch-grid-detail-view>
             }
         </div>

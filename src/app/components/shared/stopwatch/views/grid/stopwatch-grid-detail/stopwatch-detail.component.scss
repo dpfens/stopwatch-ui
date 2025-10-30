@@ -17,7 +17,7 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--mat-sys-on-surface-variant);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0;
   letter-spacing: 0.5px;
 }
 
@@ -190,7 +190,7 @@
   /* Selected state styling */
   &.selected {
     border-color: var(--mat-sys-primary);
-    background: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface));
+    background: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface-container));
     
     &::before {
       background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
