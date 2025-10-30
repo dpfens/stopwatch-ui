@@ -29,5 +29,4 @@ import { RouterModule } from '@angular/router';
   styleUrl: './stopwatch-detail.component.scss'
 })
 export class StopwatchGridDetailViewComponent extends BaseStopwatchDetailViewComponent {
-  readonly panelOpenState = signal(false);
 }

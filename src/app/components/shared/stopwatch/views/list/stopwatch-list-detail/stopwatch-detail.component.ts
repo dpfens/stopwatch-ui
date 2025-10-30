@@ -26,9 +26,4 @@ import { RouterModule } from '@angular/router';
   styleUrl: './stopwatch-detail.component.scss'
 })
 export class StopwatchListDetailViewComponent extends BaseStopwatchDetailViewComponent {
-  splitsVisible = signal(false);
-
-  toggleSplitsVisible(): void {
-    this.splitsVisible.set(!this.splitsVisible());
-  }
 }
