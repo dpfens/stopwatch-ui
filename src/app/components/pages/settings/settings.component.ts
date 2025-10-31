@@ -131,10 +131,10 @@ export class SettingsComponent implements AfterViewInit, OnDestroy {
 
   // Scope display configuration
   scopeConfig = {
-    user: { label: 'Personal', color: 'primary', icon: 'person' },
-    group: { label: 'Team', color: 'accent', icon: 'group' },
-    global: { label: 'Default', color: 'warn', icon: 'public' }
-  };
+    user: { label: 'Personal', color: '--mat-sys-primary', icon: 'person' },
+    group: { label: 'Group', color: '--mat-sys-secondary', icon: 'group' },
+    global: { label: 'Default', color: '--mat-sys-tertiary', icon: 'public' }
+  } as const;
 
   constructor() {
     this.settingsForm = this.createForm();

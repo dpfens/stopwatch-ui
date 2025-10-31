@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <!-- View Toggle Section (Always Visible) -->
+  <!-- View Toggle Section -->
   <div class="row mb-3">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
@@ -16,12 +16,12 @@
           }
         </div>
         
-        <!-- View Toggle (Always Available) -->
+        <!-- View Toggle -->
         <mat-button-toggle-group 
           [value]="currentView()" 
           (change)="setView($event.value)"
           aria-label="View mode">
-          <mat-button-toggle value="compact" matTooltip="Compact view">
+          <mat-button-toggle value="list" matTooltip="List view">
             <mat-icon>view_list</mat-icon>
           </mat-button-toggle>
           <mat-button-toggle value="grid" matTooltip="Grid view">
@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  <!-- Search Controls Section (Conditional) -->
+  <!-- Search Controls Section -->
 @if (showControls()) {
   <div class="row mb-4">
     <div class="col-12">
@@ -133,7 +133,7 @@
   <div class="row">
     <div class="col-12">
       @switch (currentView()) {
-        @case ('compact') {
+        @case ('list') {
           <stopwatch-list-view [instances]="filteredInstances()" />
         }
         @case ('grid') {

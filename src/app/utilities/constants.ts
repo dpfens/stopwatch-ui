@@ -12,6 +12,7 @@ export enum Time {
   ONE_MINUTE = 60000,
   ONE_SECOND = 1000,
   FIVE_SECONDS = 5000,
+  ONE_HOUR = 60 * 60 * 1000,
   ZERO = 0
 }
 
@@ -193,8 +194,8 @@ export const stopwatchViewOptions: SelectOptGroup<string>[] = [
           value: 'grid'
         },
         {
-          display: 'Compact',
-          value: 'compact'
+          display: 'List',
+          value: 'list'
         }
       ]
     }

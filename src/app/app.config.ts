@@ -1,9 +1,10 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { GoogleAnalyticsService } from './services/analytics/google-analytics.service';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,9 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const gaService = inject(GoogleAnalyticsService);
       gaService.initialize('G-XXXXXXXXXX'); // Your GA4 measurement ID
-    })
+    }), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };

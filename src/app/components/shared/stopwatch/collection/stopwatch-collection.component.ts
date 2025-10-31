@@ -14,7 +14,7 @@ import { ContextualStopwatchEntity } from '../../../../models/sequence/interface
 import { SettingsService } from '../../../../services/settings/settings.service';
 import { ApplicationAnalyticsService } from '../../../../services/analytics/application-analytics.service';
 
-export type ViewMode = 'compact' | 'grid';
+export type ViewMode = 'list' | 'grid';
 
 @Component({
   selector: 'stopwatch-collection-view',
@@ -48,7 +48,7 @@ export class StopwatchCollectionViewComponent {
   // Inputs
   instances = input.required<ContextualStopwatchEntity[]>();
   showControls = input<boolean>(true);
-  defaultView = input<'compact' | 'grid'>(this.stopwatchView());
+  defaultView = input<'list' | 'grid'>(this.stopwatchView());
   
   // View state
   private readonly _currentView = signal<ViewMode>(this.defaultView());

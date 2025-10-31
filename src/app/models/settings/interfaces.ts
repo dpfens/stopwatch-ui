@@ -7,7 +7,7 @@ export type SettingValueMap = {
   'defaultLapUnit': string;
   'defaultLapValue': number;
   'theme': 'light' | 'dark';
-  'stopwatchView': 'grid' | 'compact'
+  'stopwatchView': 'grid' | 'list'
   // Add more settings as needed:
   // 'theme': 'light' | 'dark';
   // 'maxLaps': number;

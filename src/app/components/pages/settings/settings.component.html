@@ -4,21 +4,25 @@
       
       <!-- Page Header -->
       <div class="d-flex align-items-center mb-4">
-        <mat-icon class="me-3 text-primary fs-2">settings</mat-icon>
+        <mat-icon class="me-3 mat-primary-icon fs-2">settings</mat-icon>
         <div>
           <h1 class="mb-1">Settings</h1>
-          <p class="text-muted mb-0">Customize your application preferences</p>
+          <p class="mat-muted-text mb-0">Customize your application preferences</p>
         </div>
       </div>
 
       <!-- Error Alert -->
       @if (!isLoading() && error()) {
-        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+        <div class="mat-error-alert d-flex align-items-center mb-4" role="alert">
           <mat-icon class="me-2">error</mat-icon>
           <div class="flex-grow-1">
             {{ error() }}
           </div>
-          <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="clearError()">
+          <button type="button" 
+                  mat-stroked-button 
+                  color="warn" 
+                  class="btn-sm ms-2" 
+                  (click)="clearError()">
             Dismiss
           </button>
         </div>
@@ -40,7 +44,7 @@
           <!-- Loading Spinner -->
           @if (isLoading()) {
             <div class="d-flex justify-content-center py-5">
-              <mat-spinner diameter="40"></mat-spinner>
+              <mat-spinner diameter="40" color="primary"></mat-spinner>
             </div>
           } @else {
             
@@ -56,13 +60,13 @@
                       <h6 class="mb-1 fw-semibold">
                         {{ config.label }}
                         @if (hasUserCustomization(config.id)) {
-                          <mat-icon class="ms-1 text-primary" style="font-size: 16px; width: 16px; height: 16px;">
+                          <mat-icon class="ms-1 mat-primary-icon" style="font-size: 16px; width: 16px; height: 16px;">
                             person
                           </mat-icon>
                         }
                       </h6>
                       @if (config.description) {
-                        <small class="text-muted">{{ config.description }}</small>
+                        <small class="mat-muted-text">{{ config.description }}</small>
                       }
                     </div>
                     
@@ -134,7 +138,7 @@
                                       <div>
                                         <div>{{ option.display }}</div>
                                         @if (option.description) {
-                                          <small class="text-muted">{{ option.description }}</small>
+                                          <small class="mat-muted-text">{{ option.description }}</small>
                                         }
                                       </div>
                                     </mat-option>
@@ -156,11 +160,14 @@
                       <!-- Boolean Input -->
                       @if (config.type === 'boolean') {
                         <div class="d-flex align-items-center py-2">
-                          <mat-slide-toggle [formControlName]="config.id" class="me-3">
+                          <mat-slide-toggle 
+                            [formControlName]="config.id" 
+                            color="primary" 
+                            class="me-3">
                             {{ config.label }}
                           </mat-slide-toggle>
                           @if (config.description) {
-                            <small class="text-muted ms-2">{{ config.description }}</small>
+                            <small class="mat-muted-text ms-2">{{ config.description }}</small>
                           }
                         </div>
                       }
@@ -172,7 +179,8 @@
                       <div class="d-flex justify-content-end">
                         @if (hasUserCustomization(config.id)) {
                           <button type="button" 
-                                  matButton="outlined"
+                                  mat-stroked-button
+                                  color="primary"
                                   (click)="resetSetting(config.id)"
                                   [disabled]="isSaving()">
                             <mat-icon>refresh</mat-icon>
@@ -195,21 +203,21 @@
           <mat-card-actions class="border-top pt-3 d-flex justify-content-between">
             <div>
               @if (hasUnsavedChanges()) {
-                <span class="badge bg-warning text-dark">
-                  <mat-icon class="me-1" style="font-size: 14px;">edit</mat-icon>
+                <mat-chip class="mat-warning-chip d-flex align-items-center">
+                  <mat-icon class="me-1">edit</mat-icon>
                   Unsaved changes
-                </span>
+                </mat-chip>
               } @else {
-                <span class="badge bg-success">
-                  <mat-icon class="me-1" style="font-size: 14px;">check</mat-icon>
+                <mat-chip class="mat-success-chip d-flex align-items-center">
+                  <mat-icon class="me-1">check</mat-icon>
                   All changes saved
-                </span>
+                </mat-chip>
               }
             </div>
 
             <div class="d-flex gap-2">
               <button type="button"
-                      matButton="outlined"
+                      mat-stroked-button
                       (click)="resetForm()"
                       [disabled]="isSaving() || !hasUnsavedChanges()">
                 <mat-icon>undo</mat-icon>
@@ -217,11 +225,12 @@
               </button>
 
               <button type="button"
-                      matButton="filled"
+                      mat-flat-button
+                      color="primary"
                       (click)="saveSettings()"
                       [disabled]="isSaving() || !settingsForm.valid || !hasUnsavedChanges()">
                 @if (isSaving()) {
-                  <mat-spinner diameter="16"></mat-spinner>
+                  <mat-spinner diameter="16" color="primary"></mat-spinner>
                   Saving...
                 } @else {
                   <mat-icon>save</mat-icon>
@@ -248,12 +257,14 @@
             @for (scopeEntry of Object.entries(scopeConfig); track scopeEntry[0]) {
               <div class="col-md-4 mb-3">
                 <div class="d-flex align-items-start">
-                  <mat-icon [class]="'me-2 text-' + scopeEntry[1].color">
+                  <mat-icon 
+                    [style.color]="'var(' + scopeEntry[1].color + ')'"
+                    class="me-2">
                     {{ scopeEntry[1].icon }}
                   </mat-icon>
                   <div>
                     <h6 class="mb-1">{{ scopeEntry[1].label }}</h6>
-                    <small class="text-muted">
+                    <small class="mat-muted-text">
                       @switch (scopeEntry[0]) {
                         @case ('user') {
                           Your personal preferences that apply to all your stopwatches
