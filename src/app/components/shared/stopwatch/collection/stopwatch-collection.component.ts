@@ -42,7 +42,7 @@ export class StopwatchCollectionViewComponent {
   stopwatchView = () => this.settingService.getEffectiveValue('stopwatchView') || 'grid';
 
   // Display
-  gridClasses = input<string>('col-12 col-md-6 col-xl-4');
+  gridClasses = input<string>('col-12 col-md-6 col-xl-4 col-xxl-3');
   listClasses = input<string>('col-12');
   
   // Inputs
