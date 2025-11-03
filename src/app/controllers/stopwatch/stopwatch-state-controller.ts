@@ -6,6 +6,8 @@ import {
   StopwatchState,
   ActionTracking,
   IStopwatchStateController,
+  EventOriginationType,
+  EventQualification,
 } from "../../models/sequence/interfaces";
 
 /**
@@ -94,7 +96,9 @@ export class StopwatchStateController implements IStopwatchStateController {
     title: string, 
     timestamp: Date, 
     description: string = "", 
-    unit?: UnitValue
+    unit?: UnitValue,
+    qualification: EventQualification = 'actual',
+    origin: EventOriginationType = "user"
   ): void {
     // Create event metadata
     const now = this.createActionTracking();
@@ -105,6 +109,13 @@ export class StopwatchStateController implements IStopwatchStateController {
       type,
       timestamp: new TZDate(timestamp),
       annotation: { title, description },
+      origin,
+      qualification,
+      semantics: {
+        progress: [],
+        quality: [],
+        performance: []
+      },
       metadata: {
         creation: now,
         lastModification: now

@@ -58,12 +58,34 @@ export interface Annotatable {
 
 type OperationalStopWatchEventType = 'start' | 'stop' | 'resume';
 type UserOperationalStopwatchEventType = 'user_start' | 'user_stop' | 'user_resume';
-type PerformanceMonitoringStopWatchEventType = 'split' | 'lap' | 'interval' | 'latency' | 'capacity' | 'threshold';
-type QualityStabilityStopWatchEventType = 'drift' | 'equilibrium' | 'oscillation' | 'variance' | 'compensation' | 'stability';
-type ProgressStopWatchEventType = 'accumulation' | 'convergence' | 'state-transition' | 'saturation' | 'milestone' | 'acceleration' | 'deceleration';
-type AnalyticEventType = 'forecast' | 'trend' | 'anomaly';
-export type ComputedEventType = AnalyticEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
-export type StopWatchEventType = OperationalStopWatchEventType | UserOperationalStopwatchEventType | PerformanceMonitoringStopWatchEventType | QualityStabilityStopWatchEventType | ProgressStopWatchEventType;
+type PerformanceMonitoringStopWatchEventType = 'split' | 'lap' | 'interval';
+export type StopWatchEventType = OperationalStopWatchEventType | UserOperationalStopwatchEventType | PerformanceMonitoringStopWatchEventType;
+
+// Semantic tags for what the event represents
+export type ProgressSemanticTag = 
+    | 'accumulation' | 'convergence' | 'state-transition' 
+    | 'saturation' | 'milestone' | 'acceleration' | 'deceleration';
+
+export type QualitySemanticTag = 
+    | 'drift' | 'equilibrium' | 'oscillation' 
+    | 'variance' | 'compensation' | 'stability';
+
+export type PerformanceSemanticTag = 
+    | 'latency' | 'capacity' | 'threshold';
+
+interface EventSemantics {
+    progress?: ProgressSemanticTag[];
+    quality?: QualitySemanticTag[];
+    performance?: PerformanceSemanticTag[];
+}
+
+
+export type EventOriginationType = 'user' | 'computed';
+export type EventQualification = 
+    | 'actual'        // Actually happened and was captured in real-time
+    | 'forecast'      // Predicted future event
+    | 'interpolated'  // Estimated past event (filled a gap)
+    | 'anomaly';      // Unusual/outlier event
 
 
 export type StopwatchAnalyticsTrait = 
@@ -122,10 +144,13 @@ export interface TimeStampRange {
     upperBound: TZDate;
 }
 
-export interface BaseEvent<T extends StopWatchEventType | ComputedEventType> extends UniquelyIdentifiable {
+export interface BaseEvent<T extends StopWatchEventType> extends UniquelyIdentifiable {
     annotation: Annotatable;
     metadata: BaseCreationModificationDates;
     type: T;
+    origin: EventOriginationType;
+    semantics: EventSemantics;
+    qualification: EventQualification;
     unit?: UnitValue;
 }
 
@@ -139,14 +164,6 @@ export interface StopwatchEvent extends BaseEvent<StopWatchEventType> {
 export interface SerializedStopwatchEvent extends Omit<StopwatchEvent, 'timestamp' | 'metadata'> {
     timestamp: TimeZonedDate;
     metadata: SerializedBaseCreationModificationDates;
-}
-
-/**
- * Computed events for representing data derived from
- * concrete/user-submitted events from a stopwatch
- */
-export interface ComputedEvent extends BaseEvent<ComputedEventType> {
-    timestamp: TZDate | TimeStampRange;
 }
 
 export interface StopwatchState {

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { BaseStopwatchDetailViewComponent } from '../../base-stopwatch-detail-view';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { SplitExpansionPanelComponent } from '../../../../split/expansion-panel/expansion-panel.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,7 +18,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'stopwatch-list-detail-view',
-  imports: [MatCardModule, MatButtonToggleModule, MatButtonModule, MatMenuModule, MatIconModule, MatChipsModule, MatExpansionModule, SplitExpansionPanelComponent,
+  imports: [MatCardModule, MatButtonToggleModule, MatButtonModule, MatMenuModule, MatIconModule, MatChipsModule, MatExpansionModule,
     FormsModule, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule,
     MatListModule, MatCheckboxModule, SimpleTimerComponent, RouterModule],
   templateUrl: './stopwatch-detail.component.html',

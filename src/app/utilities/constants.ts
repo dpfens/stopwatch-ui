@@ -1,4 +1,4 @@
-import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, GroupTraits, ObjectiveType, SelectOptGroup, SelectOption, StopWatchEventType } from "../models/sequence/interfaces";
+import { GroupEvaluationBehavior, GroupTimingBehavior, GroupTraitPreset, GroupTraits, ObjectiveType, ProgressSemanticTag, QualitySemanticTag, SelectOptGroup, SelectOption, StopWatchEventType } from "../models/sequence/interfaces";
 
 // ACTIONS
 export enum GLOBAL {
@@ -64,21 +64,11 @@ export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
         display: 'Interval Event',
         value: 'interval'
       },
-      {
-        display: 'Latency Check',
-        value: 'latency'
-      },
-      {
-        display: 'Capacity Limit',
-        value: 'capacity'
-      },
-      {
-        display: 'Threshold Breach',
-        value: 'threshold'
-      }
     ]
-  },
-  {
+  }
+] as const;
+
+export const SelectableSemanticSplitTagTypes: SelectOptGroup<QualitySemanticTag> = {
     display: 'Quality & Stability',
     options: [
       {
@@ -106,8 +96,9 @@ export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
         value: 'stability'
       }
     ]
-  },
-  {
+} as const;
+
+export const SelectableSemanticSplitProgressTypes: SelectOptGroup<ProgressSemanticTag> = {
     display: 'Progress Tracking',
     options: [
       {
@@ -139,8 +130,7 @@ export const SelectableSplitTypes: SelectOptGroup<StopWatchEventType>[] = [
         value: 'deceleration'
       }
     ]
-  }
-] as const;
+  } as const;
 
 
 export const LapUnits: SelectOptGroup<string>[] = [
