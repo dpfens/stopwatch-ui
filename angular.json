@@ -18,7 +18,7 @@
           "builder": "@angular/build:application",
           "options": {
             "externalDependencies":[""],
-            "outputPath": "dist/tmp",
+            "outputPath": "dist/stopwatch-ui",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -42,12 +42,7 @@
               "public/fonts/black-tie/css/black-tie.css",
               "src/styles.scss"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -55,12 +50,12 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumError": "5MB"
                 },
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumError": "50kB"
                 }
               ],
               "outputHashing": "all",

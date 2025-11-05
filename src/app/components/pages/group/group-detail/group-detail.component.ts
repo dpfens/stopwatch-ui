@@ -11,6 +11,7 @@ import { StopwatchSelectionService } from '../../../../services/stopwatch/stopwa
 
 @Component({
   selector: 'group-detail',
+  standalone: true,
   imports: [FullGroupDetailComponent],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss'

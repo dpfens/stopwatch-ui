@@ -1,4 +1,4 @@
-import {ApplicationRef, Component, DOCUMENT, effect, inject, PLATFORM_ID, Renderer2} from '@angular/core';
+import {ApplicationRef, Component, computed, DOCUMENT, effect, inject, PLATFORM_ID, Renderer2} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import { HeaderComponent } from './components/shared/header/header.component';
 import { SettingsService } from './services/settings/settings.service';
@@ -8,6 +8,8 @@ import {concat, interval} from 'rxjs';
 import {first} from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Time } from './utilities/constants';
+import { VERSION } from './version';
+import { TimeService } from './services/time/time.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +19,7 @@ import { Time } from './utilities/constants';
 })
 export class AppComponent {
   title = 'Stopwatch';
+  version = VERSION.version;
   private readonly platformId = inject(PLATFORM_ID)
   private renderer = inject(Renderer2);
   private document = inject(DOCUMENT);
@@ -24,6 +27,9 @@ export class AppComponent {
   private readonly updates = inject(SwUpdate);
   private appRef = inject(ApplicationRef);
   protected readonly snackbar = inject(MatSnackBar);
+  protected readonly time = inject(TimeService);
+  rawBuildDate = VERSION.buildDate;
+  buildDate = this.time.dateTimeFormatter.format(new Date(VERSION.buildDate));
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {

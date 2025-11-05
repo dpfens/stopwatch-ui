@@ -18,7 +18,7 @@ export class TimeService {
     new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', hoursDisplay: 'auto', minutesDisplay: 'auto', fractionalDigits: 3 });
   durationFormatter = () =>
     new Intl.DurationFormat(Intl.DateTimeFormat().resolvedOptions().locale, { style: 'digital', hoursDisplay: 'auto', minutesDisplay: 'auto', fractionalDigits: 0 });
-
+  dateTimeFormatter = new Intl.DateTimeFormat(Intl.DateTimeFormat().resolvedOptions().locale, { dateStyle: 'short', timeStyle: 'short' });
 
   relativeTimeFormatter = computed(() => {
     if ('RelativeTimeFormat' in Intl) {

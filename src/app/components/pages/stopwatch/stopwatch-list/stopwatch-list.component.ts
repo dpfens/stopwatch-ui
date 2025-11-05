@@ -12,6 +12,7 @@ import { ApplicationAnalyticsService } from '../../../../services/analytics/appl
 
 @Component({
   selector: 'stopwatch-list',
+  standalone: true,
   imports: [ StopwatchCollectionViewComponent, MatCardModule, MatProgressBarModule, MatIconModule, MatButtonModule],
   templateUrl: './stopwatch-list.component.html',
   styleUrl: './stopwatch-list.component.scss'

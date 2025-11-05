@@ -12,6 +12,7 @@ import { ApplicationAnalyticsService } from '../../../../services/analytics/appl
 
 @Component({
   selector: 'group-list',
+  standalone: true,
   imports: [MatSidenavModule, GroupListViewComponent, RouterOutlet],
   templateUrl: './group-list.component.html',
   styleUrl: './group-list.component.scss'
