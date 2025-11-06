@@ -9,6 +9,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HeaderActionService } from '../../../services/action/header-action.service';
 import { GLOBAL } from '../../../utilities/constants';
+import { GoogleAnalyticsService } from '../../../services/analytics/google-analytics.service';
 
 @Component({
   selector: 'app-header',
@@ -24,6 +25,7 @@ import { GLOBAL } from '../../../utilities/constants';
 export class HeaderComponent {
   private formBuilder = inject(FormBuilder);
   public readonly headerActionService = inject(HeaderActionService);
+  private readonly analytics = inject(GoogleAnalyticsService);
 
   searchForm = this.formBuilder.group({
     query: '',
@@ -51,10 +53,15 @@ export class HeaderComponent {
 
   executeShare() {
     navigator.share({
-      title: "Multi-Stopwatch",
+      title: "Multi-Stopwatch - Epochron",
       text: "A stopwatch that actually handles multiple timers. Runs in your browser, keeps your data local and works offline.",
       url: location.href
     });
+    this.analytics.trackEvent({
+      category: 'social',
+      action: 'share',
+      label: document.title
+    })
   }
 
   hasSearch(): boolean {
