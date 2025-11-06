@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideAppInitializer(() => {
       const gaService = inject(GoogleAnalyticsService);
-      gaService.initialize('G-XXXXXXXXXX'); // Your GA4 measurement ID
+      gaService.initialize('G-J0ZMYBT112'); // Your GA4 measurement ID
     }), provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
             registrationStrategy: 'registerWhenStable:30000'
