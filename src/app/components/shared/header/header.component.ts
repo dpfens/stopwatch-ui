@@ -46,11 +46,15 @@ export class HeaderComponent {
   }
 
   hasShare(): boolean {
-    return ('share' in navigator) && ('canShare' in navigator);
+    return ('share' in navigator) && ('canShare' in navigator) && (navigator.canShare());
   }
 
   executeShare() {
-    navigator.share();
+    navigator.share({
+      title: "Multi-Stopwatch",
+      text: "A stopwatch that actually handles multiple timers. Runs in your browser, keeps your data local and works offline.",
+      url: location.href
+    });
   }
 
   hasSearch(): boolean {
