@@ -22,7 +22,7 @@ interface FaqItem {
 })
 export class AboutComponent {
   structuredData = inject(StructuredDataService);
-
+  repositoryURL = VERSION.repository;
   faqs: FaqItem[] = [
     {
       category: 'Account',

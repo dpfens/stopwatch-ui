@@ -3,16 +3,18 @@ const path = require('path');
 
 const packageJson = require('../package.json');
 
-const versionInfo = {
+const projectInfo = {
+  name: packageJson.name,
   version: packageJson.version,
   buildDate: new Date().toISOString(),
-  name: packageJson.name,
-  homepage: packageJson.homepage
+  homepage: packageJson.homepage,
+  repository: packageJson.repository.url,
+  issues: packageJson.bugs.url
 };
 
 const versionFilePath = path.join(__dirname, '../src/app/version.ts');
 const fileContent = `// Auto-generated file
-export const VERSION = ${JSON.stringify(versionInfo, null, 2)};
+export const VERSION = ${JSON.stringify(projectInfo, null, 2)};
 `;
 
 fs.writeFileSync(versionFilePath, fileContent);
