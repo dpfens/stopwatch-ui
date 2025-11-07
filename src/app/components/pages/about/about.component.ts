@@ -103,7 +103,7 @@ export class AboutComponent {
   const aboutPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
-    'name': 'About Epochron',
+    'name': `About ${VERSION.displayName}`,
     'description': 'Learn about the origin, technical details, and philosophy behind the Epochron application: a free, offline, multi-stopwatch timing tool.',
     'mainEntity': {
       '@type': 'WebApplication',

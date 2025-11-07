@@ -11,7 +11,11 @@ const projectInfo = {
   repository: packageJson.repository.url,
   issues: packageJson.bugs.url,
   description: packageJson.description,
-  keywords: packageJson.keywords
+  keywords: packageJson.keywords,
+
+  // custom fields
+  displayName: packageJson.displayName || packageJson.name,
+  tagline: packageJson.tagline,
 };
 
 const versionFilePath = path.join(__dirname, '../src/app/version.ts');

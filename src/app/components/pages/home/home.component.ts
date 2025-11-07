@@ -118,9 +118,9 @@ export class HomeComponent {
     this.structuredData.add('webapp', {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Epochron",
+      "name": VERSION.displayName,
       "applicationCategory": "ProductivityApplication",
-      "description": "A comprehensive web application for managing multiple stopwatches simultaneously with group organization, time tracking, and productivity analytics.",
+      "description": VERSION.description,
       "url": VERSION.homepage,
       "browserRequirements": "Requires JavaScript. Works with modern browsers: Chrome 129+, Firefox 136+, Safari 16.4+, Edge 129+",
       "operatingSystem": "All",
@@ -147,9 +147,9 @@ export class HomeComponent {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       '@id': VERSION.homepage,
-      'name': 'Epochron',
+      'name': VERSION.displayName,
       'url': VERSION.homepage,
-      'description': 'Professional timing made simple, reliable, and accessible to everyone. Free web-based stopwatch application for timing multiple events simultaneously.'
+      'description': VERSION.description
     });
     this.structuredData.add('breadcrumb', {
       "@context": "https://schema.org",
