@@ -42,7 +42,8 @@
               "public/fonts/black-tie/css/black-tie.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "prerender": true
           },
           "configurations": {
             "production": {
