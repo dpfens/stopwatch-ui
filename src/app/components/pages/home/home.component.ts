@@ -83,7 +83,7 @@ export class HomeComponent {
     },
     {
       title: 'Privacy by Design',
-      description: 'No accounts required, no personal data collection, no tracking. Everything happens on your device. Your timing data never leaves your browser. I do track feature usage to see what\'s getting used versus what is ignored, but that\'s all anonymous.',
+      description: 'No accounts required and no personal data collection. Everything happens on your device. Your timing data never leaves your browser. Only feature usage is tracked to see what features are used versus what is ignored, but that\'s all anonymous.',
       icon: 'security'
     }
   ];

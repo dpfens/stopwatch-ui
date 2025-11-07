@@ -13,6 +13,7 @@
   "bugs": {
     "url": "https://github.com/dpfens/stopwatch-ui/issues"
   },
+  "description": "A free, offline-capable multi-stopwatch application for timing multiple events simultaneously. Built for track enthusiasts, and anyone else who needs professional-grade timing tools without the professional price tag. Features group management, split tracking, analytics, and works reliably even without internet connection. Privacy-focused with local-first architecture: no accounts, no data collection, everything stays on your device.",
   "keywords": ["stopwatch", "timer", "angular", "pwa"],
   "scripts": {
     "prebuild": "node scripts/generate-version.js",
