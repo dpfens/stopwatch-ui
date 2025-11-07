@@ -179,6 +179,8 @@ export class HomeComponent {
   }
 
   ngOnDestroy(): void {
-    this.structuredData.clear()
+    this.structuredData.clear();
+    this.meta.removeTag('keywords');
+    this.meta.removeTag('description');
   }
 }

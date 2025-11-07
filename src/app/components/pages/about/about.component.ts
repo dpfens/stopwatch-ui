@@ -79,7 +79,7 @@ export class AboutComponent {
   }
 
   ngOnDestroy(): void {
-    this.structuredData.clear()
+    this.structuredData.clear();
   }
 
   private addFaqStructuredData(): void {
@@ -104,7 +104,7 @@ export class AboutComponent {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
     'name': `About ${VERSION.displayName}`,
-    'description': 'Learn about the origin, technical details, and philosophy behind the Epochron application: a free, offline, multi-stopwatch timing tool.',
+    'description': `Learn about the origin, technical details, and philosophy behind the ${VERSION.displayName} application: a free, offline, multi-stopwatch timing tool.`,
     'mainEntity': {
       '@type': 'WebApplication',
       '@id': VERSION.homepage // Reference to the main app
