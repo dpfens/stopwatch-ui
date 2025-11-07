@@ -56,7 +56,7 @@ export class GroupListComponent implements OnDestroy {
           this.headerActionService.delete(GLOBAL.CREATE);
         }
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnInit(): void {

@@ -190,97 +190,29 @@
 
   <!-- FAQ Section - Industrial Grid -->
   <section class="faq-section">
-    <div class="faq-header">
-      <div class="section-number-large">04</div>
-      <h2 class="section-title-stacked">
-        <span class="title-line-1 text-uppercase">Frequently</span>
-        <span class="title-line-2 text-uppercase">Asked</span>
-        <span class="title-line-3 text-uppercase">Questions</span>
-      </h2>
-    </div>
-    
-    <div class="faq-grid">
-      <div class="faq-item">
+  <div class="faq-header">
+    <div class="section-number-large">04</div>
+    <h2 class="section-title-stacked">
+      <span class="title-line-1 text-uppercase">Frequently</span>
+      <span class="title-line-2 text-uppercase">Asked</span>
+      <span class="title-line-3 text-uppercase">Questions</span>
+    </h2>
+  </div>
+  
+  <div class="faq-grid">
+    @for(faq of faqs; track $index) {
+      <div class="faq-item" [ngClass]="faq.cssClass">
         <div class="faq-label-rotated">
-          <span class="text-uppercase">Account</span>
+          <span class="text-uppercase">{{ faq.category }}</span>
         </div>
         <div class="faq-content">
-          <h3>Why do I not need an account?</h3>
-          <p>All your information is tored locally on your device, so there's no need for an account or a server.</p>
+          <h3>{{ faq.question }}</h3>
+          <p>{{ faq.answer }}</p>
         </div>
       </div>
-
-      <div class="faq-item accuracy">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Accuracy</span>
-        </div>
-        <div class="faq-content">
-          <h3>How accurate is the timing?</h3>
-          <p>Uses the same Web API that powers most online stopwatches. Accurate to milliseconds. In practical testing, it seems to match dedicated timing devices within 0.01 seconds.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item compatibility">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Compatibility</span>
-        </div>
-        <div class="faq-content">
-          <h3>Will this work on my device?</h3>
-          <p>Works on any modern browser (Chrome, Safari, Firefox, Edge). Tested on iPhones, Android phones, iPads, and laptops. If your browser was released in the last 3 years, you're good.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item reliability">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Reliability</span>
-        </div>
-        <div class="faq-content">
-          <h3>What happens if I accidentally close the browser?</h3>
-          <p>Your timers keep running. Everything is saved automatically. Open it back up and they'll be there.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item cost">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Cost</span>
-        </div>
-        <div class="faq-content">
-          <h3>Why is this free?</h3>
-          <p>Because I built it for myself and figured other people might find it useful.  And I don't want to turn a side project that costs me nothing into a job.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item use-case">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Use Cases</span>
-        </div>
-        <div class="faq-content">
-          <h3>Can I use this for [specific use case]?</h3>
-          <p>If you need to time multiple things accurately, probably yes.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item features">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Features</span>
-        </div>
-        <div class="faq-content">
-          <h3>What about [some niche feature]?</h3>
-          <p>Maybe! Send me your use case on GitHub. I'm more interested in solving real problems than adding features nobody uses.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item offline">
-        <div class="faq-label-rotated">
-          <span class="text-uppercase">Offline</span>
-        </div>
-        <div class="faq-content">
-          <h3>Does it work offline/with no cell service?</h3>
-          <p>Yes. Everything runs locally. You could time at the bottom of a canyon with zero service and it works perfectly.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    }
+  </div>
+</section>
 
   <!-- Roadmap Section - Diagonal Timeline -->
   <!--section class="roadmap-section">

@@ -5,7 +5,9 @@ const packageJson = require('../package.json');
 
 const versionInfo = {
   version: packageJson.version,
-  buildDate: new Date().toISOString()
+  buildDate: new Date().toISOString(),
+  name: packageJson.name,
+  homepage: packageJson.homepage
 };
 
 const versionFilePath = path.join(__dirname, '../src/app/version.ts');

@@ -1,5 +1,5 @@
 // home.component.ts
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink } from '@angular/router';
+import { StructuredDataService } from '../../../services/utility/browser/schema.service';
+import { VERSION } from '../../../version';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +26,10 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
+  structuredData = inject(StructuredDataService);
+  version = VERSION.version;
+  buildDate = VERSION.buildDate;
+
   
   multipleTimerFeatures = [
     'Run as many stopwatches as you need simultaneously',
@@ -105,13 +111,57 @@ export class HomeComponent {
     }
   ];
 
-  onGetStarted() {
-    // Navigate to the main app or show onboarding
-    console.log('Get Started clicked');
+  ngOnInit(): void {
+    // Add WebApplication schema
+    this.structuredData.add('webapp', {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Epochron",
+      "applicationCategory": "ProductivityApplication",
+      "description": "A comprehensive web application for managing multiple stopwatches simultaneously with group organization, time tracking, and productivity analytics.",
+      "url": VERSION.homepage,
+      "browserRequirements": "Requires JavaScript. Works with modern browsers: Chrome 129+, Firefox 136+, Safari 16.4+, Edge 129+",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        ...this.multipleTimerFeatures,
+        ...this.groupManagementFeatures,
+        ...this.organizationFeatures
+      ],
+      "screenshot": "https://yourapp.example.com/screenshots/homepage.png",
+      "softwareVersion": VERSION.version,
+      "author": {
+        "@type": "Person",
+        "name": "Doug Fenstermacher"
+      },
+      "datePublished": this.buildDate,
+      "inLanguage": "en"
+    });
+    this.structuredData.add('website', {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': VERSION.homepage,
+      'name': 'Epochron',
+      'url': VERSION.homepage,
+      'description': 'Professional timing made simple, reliable, and accessible to everyone. Free web-based stopwatch application for timing multiple events simultaneously.'
+    });
+    this.structuredData.add('breadcrumb', {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": VERSION.homepage
+      }]
+    });
   }
 
-  onAboutPage() {
-    // Navigate to about page
-    console.log('About page clicked');
+  ngOnDestroy(): void {
+    this.structuredData.clear()
   }
 }
