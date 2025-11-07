@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink } from '@angular/router';
 import { StructuredDataService } from '../../../services/utility/browser/schema.service';
 import { VERSION } from '../../../version';
+import { Meta } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +27,7 @@ import { VERSION } from '../../../version';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
+  meta = inject(Meta);
   structuredData = inject(StructuredDataService);
   version = VERSION.version;
   buildDate = VERSION.buildDate;
@@ -159,6 +161,21 @@ export class HomeComponent {
         "item": VERSION.homepage
       }]
     });
+
+    if (VERSION.keywords) {
+      this.meta.updateTag({ 
+        name: 'keywords', 
+        content: Array.isArray(VERSION.keywords) 
+          ? VERSION.keywords.join(', ') 
+          : VERSION.keywords
+      });
+    }
+    if (VERSION.description) {
+      this.meta.updateTag({ 
+        name: 'description', 
+        content: VERSION.description
+      });
+    }
   }
 
   ngOnDestroy(): void {

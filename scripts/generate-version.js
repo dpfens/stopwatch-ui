@@ -9,7 +9,9 @@ const projectInfo = {
   buildDate: new Date().toISOString(),
   homepage: packageJson.homepage,
   repository: packageJson.repository.url,
-  issues: packageJson.bugs.url
+  issues: packageJson.bugs.url,
+  description: packageJson.description,
+  keywords: packageJson.keywords
 };
 
 const versionFilePath = path.join(__dirname, '../src/app/version.ts');
