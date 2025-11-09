@@ -100,17 +100,19 @@ export class AboutComponent {
   }
 
   private addAboutPageStructuredData(): void {
-  const aboutPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'AboutPage',
-    'name': `About ${VERSION.displayName}`,
-    'description': `Learn about the origin, technical details, and philosophy behind the ${VERSION.displayName} application: a free, offline, multi-stopwatch timing tool.`,
-    'mainEntity': {
-      '@type': 'WebApplication',
-      '@id': VERSION.homepage // Reference to the main app
-    }
-  };
-
-  this.structuredData.add('about-page-schema', aboutPageSchema);
-}
+    const aboutPageSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        'name': `About ${VERSION.displayName}`,
+        'description': `Learn about the origin, technical details, and philosophy behind the ${VERSION.displayName} application: a free, offline, multi-stopwatch timing tool.`,
+        'mainEntity': {
+          '@type': 'WebApplication',
+          '@id': VERSION.homepage, // Reference to the main app
+          "name": VERSION.displayName,
+          "applicationCategory": "ProductivityApplication",
+          "operatingSystem": "All"
+        }
+    };
+    this.structuredData.add('about-page-schema', aboutPageSchema); 
+  }
 }

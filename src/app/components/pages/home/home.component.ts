@@ -134,7 +134,6 @@ export class HomeComponent {
         ...this.groupManagementFeatures,
         ...this.organizationFeatures
       ],
-      "screenshot": "https://yourapp.example.com/screenshots/homepage.png",
       "softwareVersion": VERSION.version,
       "author": {
         "@type": "Person",
