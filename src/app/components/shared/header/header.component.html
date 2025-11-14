@@ -60,4 +60,18 @@
       <mat-icon>share</mat-icon>
     </button>
   }
+  <!-- Login -->
+  @if(!authentication.authStatus().authenticated) {
+    <a mat-icon-button routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page" 
+      class="d-sm-none" aria-label="Login">
+      <mat-icon>login</mat-icon>
+    </a>
+    <a mat-button routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page" 
+      class="d-none d-sm-inline-flex">
+      <mat-icon>login</mat-icon>
+      Login
+    </a>
+  } @else {
+    <span>{{ authentication.currentUser()?.name }}</span>
+  }
 </mat-toolbar>

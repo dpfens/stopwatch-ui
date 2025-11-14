@@ -10,6 +10,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HeaderActionService } from '../../../services/action/header-action.service';
 import { GLOBAL } from '../../../utilities/constants';
 import { GoogleAnalyticsService } from '../../../services/analytics/google-analytics.service';
+import { AuthenticationService } from '../../../services/authentication/authentication.service';
 
 @Component({
   selector: 'app-header',
@@ -25,6 +26,7 @@ import { GoogleAnalyticsService } from '../../../services/analytics/google-analy
 export class HeaderComponent {
   private formBuilder = inject(FormBuilder);
   public readonly headerActionService = inject(HeaderActionService);
+  public readonly authentication = inject(AuthenticationService);
   private readonly analytics = inject(GoogleAnalyticsService);
 
   searchForm = this.formBuilder.group({
