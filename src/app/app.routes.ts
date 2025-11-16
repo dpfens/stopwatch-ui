@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthCallbackComponent } from './components/pages/auth/auth-callback.component';
 
 const appName = 'Epochron';
 
@@ -39,6 +40,10 @@ export const routes: Routes = [
     path: 'about', 
     title: `About - ${appName}`,
     loadComponent: () => import('./components/pages/about/about.component').then(m => m.AboutComponent)
+  },
+  {
+    path: 'auth/callback',
+    loadComponent: () => import('./components/pages/auth/auth-callback.component').then(m => m.AuthCallbackComponent)
   },
   {
     path: '**',

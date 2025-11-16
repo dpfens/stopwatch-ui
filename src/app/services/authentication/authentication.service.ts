@@ -35,6 +35,7 @@ export class AuthenticationService {
   constructor() {
     // Check auth status on service initialization
     if (isPlatformBrowser(this.platformId)) {
+      console.log(this.API_URL);
       this.checkAuthStatus();
     }
   }

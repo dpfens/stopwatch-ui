@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../../../services/authentication/authentication.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-auth-callback',
@@ -18,27 +19,29 @@ export class AuthCallbackComponent implements OnInit {
   private authService = inject(AuthenticationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private readonly PLATFORM_ID = inject(PLATFORM_ID);
 
   async ngOnInit() {
-    try {
       // Check authentication status after OAuth redirect
-      const authStatus = await this.authService.checkAuthStatus();
-
-      if (authStatus.authenticated) {
-        // Get return URL from query params or default to dashboard
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-        this.router.navigate([returnUrl]);
-      } else {
-        // Authentication failed, redirect to login
-        this.router.navigate(['/login'], {
-          queryParams: { error: 'Authentication failed' }
-        });
+      if (isPlatformBrowser(this.PLATFORM_ID)) {
+        try {
+          const authStatus = await this.authService.checkAuthStatus();
+          if (authStatus.authenticated) {
+            // Get return URL from query params or default to dashboard
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+            this.router.navigate([returnUrl]);
+          } else {
+            // Authentication failed, redirect to login
+            this.router.navigate(['/'], {
+              queryParams: { error: 'Authentication failed' }
+            });
+          }
+        } catch (error) {
+          console.error('Auth callback error:', error);
+          this.router.navigate(['/'], {
+            queryParams: { error: 'An error occurred during login' }
+          });
+        } 
       }
-    } catch (error) {
-      console.error('Auth callback error:', error);
-      this.router.navigate(['/login'], {
-        queryParams: { error: 'An error occurred during login' }
-      });
-    }
   }
 }
