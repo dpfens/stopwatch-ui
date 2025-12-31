@@ -55,7 +55,7 @@ export class NotFoundComponent implements OnInit, OnDestroy {
       
       if (current <= 0) {
         this.clearCountdown();
-        if (!this.redirectCancelled) {
+        if (!this.redirectCancelled()) {
           this.goBack();
         }
       } else {
